@@ -41,6 +41,9 @@ use App\Http\Controllers\BlogPostsCategoryController;
 use App\Http\Controllers\Auth\ResetPasswordController;
 use App\Http\Controllers\Auth\Foundation;
 
+use App\Http\Controllers\TeamTypeController;
+
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -221,7 +224,10 @@ Route::post('/team/updateorder', [TeamController::class, 'updateOrder'])
 
     // Route::resource('client_messages', ClientMessageController::class);
 
-
+        Route::get('team-types/', [TeamTypeController::class, 'index'])->name('team-types.index');
+        Route::post('team-types/store', [TeamTypeController::class, 'store'])->name('team-types.store');
+        Route::put('team-types/update/{teamType}', [TeamTypeController::class, 'update'])->name('team-types.update');
+        Route::delete('team-types/destroy/{teamType}', [TeamTypeController::class, 'destroy'])->name('team-types.destroy');
 
 });
 
@@ -240,10 +246,3 @@ Route::get('/courses/{slug}', 'FrontViewController@viewCourse');
 Route::post('/contact-submit', [ContactController::class, 'submit'])->name('contact.submit');
 Route::get('/verify-email/{token}', [ContactController::class, 'verifyEmail'])->name('verify.email');
 
-Route::get('/test-email', function () {
-    Mail::raw('This is a test email.', function ($message) {
-        $message->to('info@saarcmusicfoundation.org')   
-                ->subject('Test Email');
-    });
-    return 'Test email sent.';
-});

@@ -21,7 +21,7 @@ return new class extends Migration
             $table->string('email')->nullable();
             $table->string('role')->nullable();
             $table->string('image')->nullable();
-            $table->text('description')->nullable(); // Add image column
+            $table->text('description')->nullable();
             $table->integer('order')->nullable();
             $table->boolean('status')->default('0');
             $table->timestamps();
