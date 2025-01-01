@@ -417,81 +417,53 @@
                 {{-- End of Posts --}}
 
 
-                {{-- Beginning of FAQs --}}
-                {{-- @hasanyrole('superadmin|admin')
-                    <li class="nav-item">
-                        <div class="row navbar-vertical-label-wrapper mt-3 mb-2">
-                            <div class="col-auto navbar-vertical-label">Frequently Asked Questions</div>
-                            <div class="col ps-0">
-                                <hr class="mb-0 navbar-vertical-divider">
-                            </div>
+        
+                @hasanyrole('superadmin')
+                <li class="nav-item">
+                    <!-- Navbar vertical label -->
+                    <div class="row navbar-vertical-label-wrapper mt-3 mb-2">
+                        <div class="col-auto navbar-vertical-label">Teams</div>
+                        <div class="col ps-0">
+                            <hr class="mb-0 navbar-vertical-divider">
                         </div>
-                    <li class="nav-item">
-                        <a class="nav-link dropdown-indicator {{ Request::segment(2) == 'faqs' ? 'active' : '' }}"
-                            href="#faq" role="button" data-bs-toggle="collapse" aria-expanded="true"
-                            aria-controls="faq">
-                            <div class="d-flex align-items-center">
-                                <span class="nav-link-icon"><i class="fas fa-question-circle"></i></span>
-                                <span class="nav-link-text ps-1">FAQs</span>
-                            </div>
-                        </a>
-                        <ul class="nav collapse {{ Request::segment(2) == 'faqs' ? 'show' : '' }}" id="faq">
-                 
-                            <li class="nav-item">
-                                <a class="nav-link {{ Request::segment(2) == 'faqs' ? 'active' : '' }}"
-                                    href="{{ route('admin.faqs.index') }}">
-                                    <div class="d-flex align-items-center">
-                                        <i class="fa fa-list"></i>
-                                        <span class="nav-link-text ps-1">FAQ</span>
-                                    </div>
-                                </a>
-                            </li>
-                        </ul>
-                    </li>
-                    </li>
-                @endhasanyrole --}}
-
-
-
-                
-                {{-- End of FAQs --}}
-
-                {{-- Beginning of DIRECTORMESSAGE --}}
-                {{-- @hasanyrole('superadmin')
-                    <li class="nav-item">
-                        <div class="row navbar-vertical-label-wrapper mt-3 mb-2">
-                            <div class="col-auto navbar-vertical-label">Director Messages</div>
-                            <div class="col ps-0">
-                                <hr class="mb-0 navbar-vertical-divider">
-                            </div>
+                    </div>
+                    <!-- Dropdown item -->
+                <li class="nav-item">
+                    <a class="nav-link dropdown-indicator {{ Request::segment(2) == 'team_types' ? '' : 'collapsed' }}"
+                        href="#dashboard24" role="button" data-bs-toggle="collapse"
+                        aria-expanded="{{ Request::segment(2) == 'team_types' ? 'true' : 'false' }}"
+                        aria-controls="dashboard24">
+                        <div class="d-flex align-items-center">
+                            <span class="nav-link-icon"><i class="fas fa-users"></i></span>
+                            <span class="nav-link-text ps-1">Teams</span>
                         </div>
-                    <li class="nav-item">
-                        <a class="nav-link dropdown-indicator {{ Request::segment(2) == 'director_messages' ? 'active' : '' }}"
-                            href="#d_msg" role="button" data-bs-toggle="collapse" aria-expanded="true"
-                            aria-controls="d_msg">
-                            <div class="d-flex align-items-center">
-                                <span class="nav-link-icon"><i class="fas fa-question-circle"></i></span>
-                                <span class="nav-link-text ps-1">Director Messages</span>
-                            </div>
-                        </a>
-                        <ul class="nav collapse {{ Request::segment(2) == 'director_messages' ? 'show' : '' }}"
-                            id="d_msg" id="dashboard21"> --}}
-                            {{-- Director Messages --}}
-                            {{-- <li class="nav-item">
-                                <a class="nav-link {{ Request::segment(2) == 'director_messages' ? 'active' : '' }}"
-                                    href="{{ route('admin.director_messages.index') }}">
-                                    <div class="d-flex align-items-center">
-                                        <i class="fa fa-list"></i>
-                                        <span class="nav-link-text ps-1">Director Message</span>
-                                    </div>
-                                </a>
-                            </li>
-                        </ul>
-                    </li>
-                    </li> --}}
-                {{-- @endhasanyrole --}}
-                {{-- End of DIRECTORMESSAGE --}}
-
+                    </a>
+                    <!-- Collapse content -->
+                    <ul class="nav collapse {{ Request::segment(2) == 'team_types' ? 'show' : '' }}" id="dashboard24">
+                        {{-- Categories --}}
+                        <li class="nav-item">
+                            <a class="nav-link {{ Request::segment(2) == 'teams' ? 'active' : '' }}"
+                                href="{{ route('admin.team-types.index') }}">
+                                <div class="d-flex align-items-center">
+                                    <i class="fa fa-angle-double-right"></i>
+                                    <span class="nav-link-text ps-1">Team Type</span>
+                                </div>
+                            </a>
+                        </li>
+                        {{-- Post (Add & List) --}}
+                        <li class="nav-item">
+                            <a class="nav-link {{ Request::segment(3) == 'create' || (Request::segment(2) == 'posts' && Request::segment(3) != 'categories') ? 'active' : '' }}"
+                                href="{{ route('admin.posts.index') }}">
+                                <div class="d-flex align-items-center">
+                                    <i class="fa fa-angle-double-right"></i>
+                                    <span class="nav-link-text ps-1">Teams</span>
+                                </div>
+                            </a>
+                        </li>
+                    </ul>
+                </li> <!-- Corrected closing tag -->
+                </li>
+            @endhasanyrole
 
             </ul>
         </div>
