@@ -9,6 +9,7 @@ use App\Providers\RouteServiceProvider;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Foundation\Auth\RegistersUsers;
 use Illuminate\Http\Request;
+use Illuminate\Auth\Events\Registered;
 
 class RegisterController extends Controller
 {
@@ -19,7 +20,7 @@ class RegisterController extends Controller
      *
      * @var string
      */
-    protected $redirectTo = '/login';  
+    protected $redirectTo = '/login';
 
     /**
      * Create a new controller instance.
@@ -62,15 +63,18 @@ class RegisterController extends Controller
     }
 
     /**
-     * Override the registered method to redirect to the login page
+     * Handle a registration request for the application.
      *
-     * @param  Request  $request
-     * @param  User  $user
+     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\RedirectResponse
      */
-    protected function registered(Request $request, $user)
+    public function register(Request $request)
     {
-        // Redirect user to the login page with a success message
-        return redirect()->route('login')->with('success', 'Registration successful! Please login.');
+        $this->validator($request->all())->validate();
+
+        event(new Registered($user = $this->create($request->all())));
+
+        return redirect()->route('login')
+            ->with('success', 'Registration successful! Please login.');
     }
 }
