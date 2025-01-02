@@ -16,8 +16,7 @@
     <div class="row mb-0"> 
         <div class="col-sm-6">
             <h1 class="m-0">{{ $page_title }}</h1>
-            <a href="{{ url('admin') }}"><button class="btn btn-primary btn-sm"><i class="fa fa-arrow-left"></i>
-                    Back</button></a>
+            <a href="{{ url('admin') }}"><button class="btn btn-primary btn-sm"><i class="fa fa-arrow-left"></i> Back</button></a>
         </div>
         <div class="col-sm-6">
             <ol class="breadcrumb float-sm-right">
@@ -27,156 +26,97 @@
         </div>
     </div>
 
-
-    {{-- <section class="content"> --}}
-        <div class="container-fluid">
-            <form id="quickForm" method="POST" action="{{ route('admin.site-settings.update', $sitesetting->id) }}"
-                enctype="multipart/form-data">
-                @csrf
-                @method('PUT')
-                <input type="hidden" name="id" value="{{ $sitesetting->id }}">
-                <div class="card-body">
-                    <div>
-                        <div class="form-group">
-                            <label for="office_name">Office Name</label>
-                            <input type="text" name="office_name" class="form-control" placeholder="Office Name"
-                                id="office_name" value="{{ $sitesetting->office_name }}">
-                        </div>
-
-                        <div class="form-group" id="office_addresses_container">
-                            <label for="office_address">Office Address</label>
-                            @foreach(json_decode($sitesetting->office_address) as $address)
-                                <div class="input-group mb-3">
-                                    <input type="text" name="office_address[]" class="form-control" placeholder="Address" value="{{ $address }}">
-                                    <div class="input-group-append">
-                                        <button class="btn btn-outline-secondary remove-address" type="button">-</button>
-                                        <button class="btn btn-outline-secondary add-address" type="button">+</button>
-                                    </div>
-                                </div>
-                            @endforeach
-                        </div>
-        
-                        <div class="form-group" id="office_contacts_container">
-                            <label for="office_contact">Office Contact</label>
-                            @foreach(json_decode($sitesetting->office_contact) as $contact)
-                                <div class="input-group mb-3">
-                                    <input type="text" name="office_contact[]" class="form-control" placeholder="Office Contact" value="{{ $contact }}">
-                                    <div class="input-group-append">
-                                        <button class="btn btn-outline-secondary remove-contact" type="button">-</button>
-                                        <button class="btn btn-outline-secondary add-contact" type="button">+</button>
-                                    </div>
-                                </div>
-                            @endforeach
-                        </div>
-                        <div class="form-group" id="office_emails_container">
-                            <label for="office_email">Office Emails</label>
-                            @foreach(json_decode($sitesetting->office_email) as $email)
-                                <div class="input-group mb-3">
-                                    <input type="email" name="office_email[]" class="form-control" placeholder="Email" value="{{ $email }}">
-                                    <div class="input-group-append">
-                                        <button class="btn btn-outline-secondary remove-email" type="button">-</button>
-                                        <button class="btn btn-outline-secondary add-email" type="button">+</button>
-                                    </div>
-                                </div>
-                            @endforeach
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="whatsapp_number">Whatsapp Number</label>
-                            <input type="text" name="whatsapp_number" class="form-control" placeholder="Whatsapp Number"
-                                id="whatsapp_number" value="{{ $sitesetting->whatsapp_number }}">
-                        </div>
-
-                        <div class="form-group">
-                            <label for="company_registered_date">Company Registered Date</label>
-                            <input type="date" name="company_registered_date" class="form-control"
-                                placeholder="Enter Registered Date" id="company_registered_date"
-                                value="{{ $sitesetting->company_registered_date }}">
-                        </div>
-                        <div class="form-group">
-                            <label for="main_logo">Main Logo</label>
-                            <input type="file" name="main_logo" class="form-control" placeholder="Main Logo"
-                                id="main_logo" onchange="previewMainImage(event)">
-
-                            <img id="main_preview" src="{{ asset('uploads/sitesetting/' . $sitesetting->main_logo) }}"
-                                style="max-width: 300px; max-height:300px" />
-                        </div>
-
-                        <div class="form-group">
-                            <label for="side_logo">Side Logo</label>
-                            <input type="file" name="side_logo" class="form-control" placeholder="Side Logo"
-                                id="side_logo" onchange="previewSideImage(event)">
-
-                            <img id="side_preview" src="{{ asset('uploads/sitesetting/' . $sitesetting->side_logo) }}"
-                                style="max-width: 300px; max-height:300px" />
-                        </div>
-
-
-                        <div class="form-group">
-                            <label for="slogan">Slogan</label>
-                            <input type="text" name="slogan" class="form-control" placeholder="Slogan" id="slogan"
-                                value="{{ $sitesetting->slogan }}">
-                        </div>
-
-                        <div class="form-group">
-                            <label for="facebook_link">Facebook URL</label>
-                            <input name="facebook_link" class="form-control" placeholder="Facebook URL (https://)"
-                                id="facebook_link" value="{{ $sitesetting->facebook_link }}">
-                        </div>
-                        <div class="form-group">
-                            <label for="instagram_link">Insta URL</label>
-                            <input name="instagram_link" class="form-control" placeholder="Insta URL (https://)"
-                                id="instagram_link" value="{{ $sitesetting->instagram_link }}">
-                        </div>
-
-                        <div class="form-group">
-                            <label for="snapchat_link">Snapchat URL</label>
-                            <input name="snapchat_link" class="form-control" placeholder="Snapchat URL (https://)"
-                                id="snapchat_link" value="{{ $sitesetting->snapchat_link }}">
-                        </div>
-
-                        <div class="form-group">
-                            <label for="linkedin_link">Linkedin URL</label>
-                            <input name="linkedin_link" class="form-control" placeholder="LinkedIn URL (https://)"
-                                id="linkedin_link" value="{{ $sitesetting->linkedin_link }}">
-                        </div>
-
-                        <div class="form-group">
-                            <label for="youtube_link">Youtube URL</label>
-                            <input name="youtube_link" class="form-control" placeholder="Youtube URL (https://)"
-                                id="youtube_link" value="{{ $sitesetting->youtube_link }}">
-                        </div>
-
-                        <div class="form-group">
-                            <label for="twitter_link">Twitter URL</label>
-                            <input name="twitter_link" class="form-control" placeholder="Twitter URL (https://)"
-                                id="twitter_link" value="{{ $sitesetting->twitter_link }}">
-                        </div>
-                        <div class="form-group">
-                            <label for="tiktok_link">Tiktok URL</label>
-                            <input name="tiktok_link" class="form-control" placeholder="Tiktok URL (https://)"
-                                id="tiktok_link" value="{{ $sitesetting->tiktok_link }}">
-                        </div>
-
-                        <div class="form-group">
-                            <label for="google_maps_link">Google Map</label>
-                            <input name="google_maps_link" class="form-control" placeholder="Google Maps URL (https://)"
-                                id="google_maps_link" value="{{ $sitesetting->google_maps_link }}">
-                        </div>
-
-                    </div>
+    <div class="container-fluid">
+        <form id="quickForm" method="POST" action="{{ route('admin.site-settings.update', $sitesetting->id) }}" enctype="multipart/form-data">
+            @csrf
+            @method('PUT')
+            <input type="hidden" name="id" value="{{ $sitesetting->id }}">
+            <div class="card-body">
+                <div class="form-group">
+                    <label for="title_ne">Title (Nepali)</label>
+                    <input type="text" name="title_ne" class="form-control" placeholder="Title in Nepali" id="title_ne" value="{{ $sitesetting->title_ne }}">
                 </div>
-                <div class="card-footer">
-                    <button type="submit" class="btn btn-primary">Update</button>
+
+                <div class="form-group">
+                    <label for="title_en">Title (English)</label>
+                    <input type="text" name="title_en" class="form-control" placeholder="Title in English" id="title_en" value="{{ $sitesetting->title_en }}">
                 </div>
-            </form>
-        </div>
-    {{-- </section> --}}
 
+                <div class="form-group">
+                    <label for="slogan_ne">Slogan (Nepali)</label>
+                    <input type="text" name="slogan_ne" class="form-control" placeholder="Slogan in Nepali" id="slogan_ne" value="{{ $sitesetting->slogan_ne }}">
+                </div>
 
+                <div class="form-group">
+                    <label for="slogan_en">Slogan (English)</label>
+                    <input type="text" name="slogan_en" class="form-control" placeholder="Slogan in English" id="slogan_en" value="{{ $sitesetting->slogan_en }}">
+                </div>
 
+                <div class="form-group">
+                    <label for="main_logo">Main Logo</label>
+                    <input type="file" name="main_logo" class="form-control" placeholder="Main Logo" id="main_logo" onchange="previewMainImage(event)">
+                    <img id="main_preview" src="{{ asset('uploads/sitesetting/' . $sitesetting->main_logo) }}" style="max-width: 300px; max-height:300px" />
+                </div>
 
-    </form>
+                <div class="form-group">
+                    <label for="alt_logo">Alt Logo</label>
+                    <input type="file" name="alt_logo" class="form-control" placeholder="Alt Logo" id="alt_logo" onchange="previewAltImage(event)">
+                    <img id="alt_preview" src="{{ asset('uploads/sitesetting/' . $sitesetting->alt_logo) }}" style="max-width: 300px; max-height:300px" />
+                </div>
+
+                <div class="form-group" id="phone_no_container">
+                    <label for="phone_no">Phone Numbers</label>
+                    @foreach(json_decode($sitesetting->phone_no) as $phone)
+                        <div class="input-group mb-3">
+                            <input type="text" name="phone_no[]" class="form-control" placeholder="Phone Number" value="{{ $phone }}">
+                            <div class="input-group-append">
+                                <button class="btn btn-outline-secondary remove-phone" type="button">-</button>
+                                <button class="btn btn-outline-secondary add-phone" type="button">+</button>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+
+                <div class="form-group" id="email_container">
+                    <label for="email">Emails</label>
+                    @foreach(json_decode($sitesetting->email) as $email)
+                        <div class="input-group mb-3">
+                            <input type="email" name="email[]" class="form-control" placeholder="Email" value="{{ $email }}">
+                            <div class="input-group-append">
+                                <button class="btn btn-outline-secondary remove-email" type="button">-</button>
+                                <button class="btn btn-outline-secondary add-email" type="button">+</button>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+
+                <div class="form-group">
+                    <label for="established_year">Established Year</label>
+                    <input type="text" name="established_year" class="form-control" placeholder="Established Year" id="established_year" value="{{ $sitesetting->established_year }}">
+                </div>
+
+                <div class="form-group">
+                    <label for="description_ne">Description (Nepali)</label>
+                    <textarea name="description_ne" class="form-control" placeholder="Description in Nepali" id="description_ne">{{ $sitesetting->description_ne }}</textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="description_en">Description (English)</label>
+                    <textarea name="description_en" class="form-control" placeholder="Description in English" id="description_en">{{ $sitesetting->description_en }}</textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="google_map">Google Maps Link</label>
+                    <input name="google_map" class="form-control" placeholder="Google Maps Link (https://)" id="google_map" value="{{ $sitesetting->google_map }}">
+                </div>
+            </div>
+
+            <div class="card-footer">
+                <button type="submit" class="btn btn-primary">Update</button>
+            </div>
+        </form>
+    </div>
+
     <script>
         const previewMainImage = e => {
             const reader = new FileReader();
@@ -187,66 +127,43 @@
             };
         };
 
-        const previewSideImage = e => {
+        const previewAltImage = e => {
             const reader = new FileReader();
             reader.readAsDataURL(e.target.files[0]);
             reader.onload = () => {
-                const preview = document.getElementById('side_preview');
+                const preview = document.getElementById('alt_preview');
                 preview.src = reader.result;
             };
         };
-        
+
         $(document).ready(function() {
-            // Add new address input field
-            $(".add-address").click(function() {
-                $("#office_addresses_container").append('<div class="input-group mb-3">' +
-                    '<input type="text" name="office_address[]" class="form-control" placeholder="Address">' +
+            // Add/remove phone number input fields dynamically
+            $(".add-phone").click(function() {
+                $("#phone_no_container").append('<div class="input-group mb-3">' +
+                    '<input type="text" name="phone_no[]" class="form-control" placeholder="Phone Number">' +
                     '<div class="input-group-append">' +
-                    '<button class="btn btn-outline-secondary remove-address" type="button">-</button>' +
-                    '<button class="btn btn-outline-secondary add-address" type="button">+</button>' +
+                    '<button class="btn btn-outline-secondary remove-phone" type="button">-</button>' +
                     '</div>' +
                     '</div>');
             });
 
-            // Remove address input field
-            $(document).on("click", ".remove-address", function() {
+            $(document).on("click", ".remove-phone", function() {
                 $(this).parents(".input-group").remove();
             });
 
-            // Add new contact input field
-            $(".add-contact").click(function() {
-                $("#office_contacts_container").append('<div class="input-group mb-3">' +
-                    '<input type="text" name="office_contact[]" class="form-control" placeholder="Office Contact">' +
-                    '<div class="input-group-append">' +
-                    '<button class="btn btn-outline-secondary remove-contact" type="button">-</button>' +
-                    '<button class="btn btn-outline-secondary add-contact" type="button">+</button>' +
-                    '</div>' +
-                    '</div>');
-            });
-
-            // Remove contact input field
-            $(document).on("click", ".remove-contact", function() {
-                $(this).parents(".input-group").remove();
-            });
-
-            // Add new email input field
+            // Add/remove email input fields dynamically
             $(".add-email").click(function() {
-                $("#office_emails_container").append('<div class="input-group mb-3">' +
-                    '<input type="text" name="office_email[]" class="form-control" placeholder="Office Email">' +
+                $("#email_container").append('<div class="input-group mb-3">' +
+                    '<input type="email" name="email[]" class="form-control" placeholder="Email">' +
                     '<div class="input-group-append">' +
                     '<button class="btn btn-outline-secondary remove-email" type="button">-</button>' +
-                    '<button class="btn btn-outline-secondary add-email" type="button">+</button>' +
                     '</div>' +
                     '</div>');
             });
 
-            // Remove email input field
             $(document).on("click", ".remove-email", function() {
                 $(this).parents(".input-group").remove();
             });
         });
-
-        
-
     </script>
-    @endsection
+@endsection

@@ -9,6 +9,17 @@ class SiteSetting extends Model
 {
     use HasFactory;
     
-    protected $fillable = ['office_name', 'office_address', 'office_contact', 'office_email', 'whatsapp_number', 'main_logo', 'side_logo', 'company_registered_date', 'facebook_link', 'instagram_link', 'snapchat_link','linkedin_link', 'tiktok_link', 'google_maps_link', 'slogan'];
+    
+    protected $fillable = [
+        'title_ne', 'title_en', 'slogan_ne', 'slogan_en', 'main_logo', 
+        'alt_logo', 'phone_no', 'email', 'established_year', 'description_ne', 
+        'description_en', 'socialmedia', 'google_map', 'is_active'
+    ];
+
+  
+    public function socialMedia()
+    {
+        return $this->belongsTo(SocialMedia::class, 'socialmedia');
+    }
 }
 

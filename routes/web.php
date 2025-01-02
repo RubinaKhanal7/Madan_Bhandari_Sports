@@ -20,6 +20,7 @@ use App\Http\Controllers\PhotoGalleryController;
 use App\Http\Controllers\VideoGalleryController;
 use App\Http\Controllers\Auth\ResetPasswordController;
 use App\Http\Controllers\TeamTypeController;
+use App\Http\Controllers\SocialMediaController;
 
 
 /*
@@ -113,13 +114,15 @@ Route::post('/change-password', [ResetPasswordController::class, 'updatePassword
 Route::prefix('/admin')->name('admin.')->middleware(['web', 'auth'])->group(function () {
     Route::get('/', [AdminController::class, 'index'])->name('index');
 
-    // Site settings
-    Route::resource('site-settings', SiteSettingController::class);
-
-    // Cover images
-    // Route::resource('cover-images', CoverImageController::class);
-
-    // Route::get('cover-images', [CoverImageController::class,'create'])->name('cover-images');
+    
+    Route::get('site-settings', [SiteSettingController::class, 'index'])->name('site-settings.index');
+    Route::get('site-settings/edit/{id}', [SiteSettingController::class, 'edit'])->name('site-settings.edit');
+    Route::put('site-settings/update/{id}', [SiteSettingController::class, 'update'])->name('site-settings.update');
+    
+    Route::get('socialmedia', [SocialMediaController::class, 'index'])->name('socialmedia.index');
+    Route::get('socialmedia/edit/{id}', [SocialMediaController::class, 'edit'])->name('socialmedia.edit');
+    Route::put('socialmedia/update/{id}', [SocialMediaController::class, 'update'])->name('socialmedia.update');
+    
     Route::resource('cover-images', CoverImageController::class);
 
     // About us
