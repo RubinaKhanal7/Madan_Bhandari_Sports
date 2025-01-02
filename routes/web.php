@@ -1,46 +1,24 @@
 <?php
 
 use Illuminate\Http\Request;
-use App\Models\ClientMessage;
-use App\Models\DirectorMessage;
-use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\FaqController;
-use Illuminate\Support\Facades\Session;
-use App\Http\Controllers\NewsController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\TeamController;
 use App\Http\Controllers\AboutController;
 use App\Http\Controllers\AdminController;
-use App\Http\Controllers\ClientController;
-use App\Http\Controllers\DemandController;
 use App\Http\Controllers\SearchController;
 use App\Http\Controllers\SingleController;
-use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\ContactController;
-use App\Http\Controllers\CountryController;
 use App\Http\Controllers\FaviconController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\FrontViewController;
-use App\Http\Controllers\CeoMessageController;
 use App\Http\Controllers\CoverImageController;
-use App\Http\Controllers\ApplicationController;
 use App\Http\Controllers\SiteSettingController;
-use App\Http\Controllers\TestimonialController;
-use App\Http\Controllers\VisitorBookController;
 use App\Http\Controllers\PhotoGalleryController;
 use App\Http\Controllers\VideoGalleryController;
-use App\Http\Controllers\WorkCategoryController;
-use App\Http\Controllers\ClientMessageController;
-use App\Http\Controllers\NewsAndEventsController;
-use App\Http\Controllers\StudentDetailController;
-use App\Http\Controllers\UserManagementController;
-use App\Http\Controllers\BlogPostsCategoryController;
 use App\Http\Controllers\Auth\ResetPasswordController;
-use App\Http\Controllers\Auth\Foundation;
-
 use App\Http\Controllers\TeamTypeController;
 
 
@@ -168,31 +146,6 @@ Route::prefix('/admin')->name('admin.')->middleware(['web', 'auth'])->group(func
 
     // Video galleries
     Route::resource('video-galleries', VideoGalleryController::class);
-
-    // Testimonials
-    Route::resource('testimonials', TestimonialController::class);
-
-
-
-    // Blog posts categories
-    Route::resource('blog-posts-categories', BlogPostsCategoryController::class);
-
-
-
-
-    Route::resource('news', NewsController::class);
-    // News and Events
-    // Route::resource('news-and-events', NewsAndEventsController::class);
-    Route::post('news-and-events/upload-image', [NewsAndEventsController::class, 'uploadImage'])->name('news-and-events.uploadImage');
-
-    // Courses
-    Route::resource('work_categories', WorkCategoryController::class);
-
-    // Teams
-    // Route::resource('teams', TeamController::class);
-
-
-
         
     Route::get('/teams', [TeamController::class, 'index'])->middleware('auth');
     Route::get('/teams/index', [TeamController::class, 'index'])->middleware('auth')->name('teams.index');
@@ -209,9 +162,6 @@ Route::prefix('/admin')->name('admin.')->middleware(['web', 'auth'])->group(func
 
 Route::post('/team/updateorder', [TeamController::class, 'updateOrder'])
     ->name('team.updateorder');
-
-    // FAQs
-    Route::resource('faqs', FaqController::class);
 
 
     // Contact
