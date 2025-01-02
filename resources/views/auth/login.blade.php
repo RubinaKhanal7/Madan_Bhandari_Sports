@@ -131,6 +131,10 @@
                                                     <div class="mb-3">
                                                         <button class="btn btn-primary d-block w-100 mt-3" type="submit" name="submit">{{ __('Login') }}</button>
                                                     </div>
+                                                    <div class="d-flex">
+                                                        <a href="/register" class="d">Don't have account? </a>     
+                                                    </div>
+    
                                                 </form>
                                             </div>
                                         </div>
