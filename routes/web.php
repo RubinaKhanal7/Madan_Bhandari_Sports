@@ -20,6 +20,7 @@ use App\Http\Controllers\PhotoGalleryController;
 use App\Http\Controllers\VideoGalleryController;
 use App\Http\Controllers\Auth\ResetPasswordController;
 use App\Http\Controllers\TeamTypeController;
+use App\Http\Controllers\MemberTypeController;
 
 
 /*
@@ -125,11 +126,6 @@ Route::prefix('/admin')->name('admin.')->middleware(['web', 'auth'])->group(func
     // About us
     Route::resource('about-us', AboutController::class);
 
-    // // CEO Message
-    // Route::resource('ceomessage', CeoMessageController::class);
-
-    // // Client
-    // Route::resource('client', ClientController::class);
 
 
     // Services
@@ -147,29 +143,38 @@ Route::prefix('/admin')->name('admin.')->middleware(['web', 'auth'])->group(func
     // Video galleries
     Route::resource('video-galleries', VideoGalleryController::class);
         
+    // Teams
+
     Route::get('/teams', [TeamController::class, 'index'])->middleware('auth');
     Route::get('/teams/index', [TeamController::class, 'index'])->middleware('auth')->name('teams.index');
-
     Route::get('/teams/create', [TeamController::class, 'create'])->middleware('auth')->name('teams.create');
     Route::post('/teams/store', [TeamController::class, 'store'])->name('teams.store');
     Route::get('/teams/edit/{id}', [TeamController::class, 'edit'])->middleware('auth')->name('teams.edit');
     Route::put('/teams/update/{id}', [TeamController::class, 'update'])->name('teams.update');
     Route::delete('/teams/delete/{id}', [TeamController::class, 'destroy'])->middleware('auth')->name('teams.destroy');
-    
+
+    //member types
+    Route::get('/member_types', [MemberTypeController::class, 'index'])->name('member_types.index');
+    Route::post('/member_types', [MemberTypeController::class, 'store'])->name('member_types.store');
+    Route::put('/member_types/{id}', [MemberTypeController::class, 'update'])->name('member_types.update');
+    Route::delete('/member_types/{id}', [MemberTypeController::class, 'destroy'])->name('member_types.destroy');
+
+
     // Contact
     Route::resource('contacts', ContactController::class);
 
     // Favicon controller
     Route::resource('favicons', FaviconController::class);
 
-    //DirectorMessage Controller
 
-    // Route::resource('client_messages', ClientMessageController::class);
+    // Teams types
 
         Route::get('team-types/', [TeamTypeController::class, 'index'])->name('team-types.index');
         Route::post('team-types/store', [TeamTypeController::class, 'store'])->name('team-types.store');
         Route::put('team-types/update/{teamType}', [TeamTypeController::class, 'update'])->name('team-types.update');
         Route::delete('team-types/destroy/{teamType}', [TeamTypeController::class, 'destroy'])->name('team-types.destroy');
+
+
 
 });
 
