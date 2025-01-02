@@ -15,15 +15,13 @@ return new class extends Migration
     {
         Schema::create('teams', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('team_type_id')->constrained('team_types')->onDelete('cascade'); // Reference TeamTypes
             $table->string('name');
             $table->string('position');
-            $table->string('phone_no');
             $table->string('email')->nullable();
-            $table->string('role')->nullable();
-            $table->string('image')->nullable();
-            $table->text('description')->nullable();
-            $table->integer('order')->nullable();
-            $table->boolean('status')->default('0');
+            $table->string('phone')->nullable();
+            $table->boolean('is_featured')->default(false);
+            $table->boolean('is_active')->default(true);
             $table->timestamps();
         });
     }

@@ -9,7 +9,7 @@ class TeamTypeController extends Controller
 {
     public function index()
     {
-        $teamTypes = TeamType::latest()->get();
+        $teamTypes = TeamType::latest()->paginate(10);
         return view('backend.team_types.index', compact('teamTypes'));
     }
 

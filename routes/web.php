@@ -152,18 +152,10 @@ Route::prefix('/admin')->name('admin.')->middleware(['web', 'auth'])->group(func
 
     Route::get('/teams/create', [TeamController::class, 'create'])->middleware('auth')->name('teams.create');
     Route::post('/teams/store', [TeamController::class, 'store'])->name('teams.store');
-
     Route::get('/teams/edit/{id}', [TeamController::class, 'edit'])->middleware('auth')->name('teams.edit');
     Route::put('/teams/update/{id}', [TeamController::class, 'update'])->name('teams.update');
     Route::delete('/teams/delete/{id}', [TeamController::class, 'destroy'])->middleware('auth')->name('teams.destroy');
-
-
-    Route::get('/team/reorder/index', [TeamController::class, 'orderIndex'])->name('team.orderindex');
-
-Route::post('/team/updateorder', [TeamController::class, 'updateOrder'])
-    ->name('team.updateorder');
-
-
+    
     // Contact
     Route::resource('contacts', ContactController::class);
 

@@ -69,6 +69,30 @@
                 </tbody>
                 
             </table>
+            <!-- Pagination -->
+<nav aria-label="Page navigation">
+    <ul class="pagination justify-content-center">
+        @if ($teamTypes->onFirstPage())
+            <li class="page-item disabled"><span class="page-link">&laquo;</span></li>
+        @else
+            <li class="page-item"><a class="page-link" href="{{ $teamTypes->previousPageUrl() }}" rel="prev">&laquo;</a></li>
+        @endif
+
+        @foreach ($teamTypes->getUrlRange(1, $teamTypes->lastPage()) as $page => $url)
+            @if ($page == $teamTypes->currentPage())
+                <li class="page-item active"><span class="page-link">{{ $page }}</span></li>
+            @else
+                <li class="page-item"><a class="page-link" href="{{ $url }}">{{ $page }}</a></li>
+            @endif
+        @endforeach
+
+        @if ($teamTypes->hasMorePages())
+            <li class="page-item"><a class="page-link" href="{{ $teamTypes->nextPageUrl() }}" rel="next">&raquo;</a></li>
+        @else
+            <li class="page-item disabled"><span class="page-link">&raquo;</span></li>
+        @endif
+    </ul>
+</nav>
         </div>
     </div>
 </div>

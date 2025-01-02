@@ -16,11 +16,9 @@ class AdminController extends Controller
 
     public function index()
     {
-        // return view('backend.index');
-        $studentCount = Team::where('status', 1)->count();
         $contactRequestCount = Contact::count();
 
         // Pass counts to the view
-        return view('backend.index', compact('studentCount', 'contactRequestCount'));
+        return view('backend.index', compact('contactRequestCount'));
     }
 }

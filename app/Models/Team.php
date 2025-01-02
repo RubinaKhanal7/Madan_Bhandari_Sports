@@ -11,11 +11,23 @@ class Team extends Model
 {
     use HasFactory;
 
-    public function setOrder($order)
-    {
-        $this->order = $order;
-        $this->save();
-    }
+    protected $casts = [
+        'is_featured' => 'boolean',
+        'is_active' => 'boolean'
+    ];
     
-    protected $fillable = ['name', 'position', 'phone_no', 'email', 'role', 'image', 'description', 'order','status'];
+    protected $fillable = [
+        'team_type_id',
+        'name',
+        'position',
+        'email',
+        'phone',
+        'is_featured',
+        'is_active',
+    ];
+
+    public function teamType()
+    {
+        return $this->belongsTo(TeamType::class);
+    }
 }

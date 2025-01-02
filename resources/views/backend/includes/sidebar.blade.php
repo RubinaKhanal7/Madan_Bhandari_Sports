@@ -414,7 +414,7 @@
                         {{-- Post (Add & List) --}}
                         <li class="nav-item">
                             <a class="nav-link {{ Request::segment(3) == 'create' || (Request::segment(2) == 'posts' && Request::segment(3) != 'categories') ? 'active' : '' }}"
-                                href="{{ route('admin.posts.index') }}">
+                                href="{{ route('admin.teams.index') }}">
                                 <div class="d-flex align-items-center">
                                     <i class="fa fa-angle-double-right"></i>
                                     <span class="nav-link-text ps-1">Teams</span>
