@@ -14,11 +14,12 @@ return new class extends Migration {
     {
         Schema::create('cover_images', function (Blueprint $table) {
             $table->id();
-            $table->string('title');
-            // $table->string('slug');
-
+            $table->longText('title_en');
+            $table->longText('title_ne');
             $table->string('image');
-            $table->boolean('status')->default('0');
+            $table->longText('description_en')->nullable();
+            $table->longText('description_ne')->nullable();
+            $table->boolean('is_active')->default(true);
             $table->timestamps();
         });
     }

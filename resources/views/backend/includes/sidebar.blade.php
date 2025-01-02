@@ -328,7 +328,6 @@
                     </a>
                     <!-- Collapse content -->
                     <ul class="nav collapse {{ Request::segment(2) == 'team_types' ? 'show' : '' }}" id="dashboard24">
-                        {{-- Categories --}}
                         <li class="nav-item">
                             <a class="nav-link {{ Request::segment(2) == 'teams' ? 'active' : '' }}"
                                 href="{{ route('admin.team-types.index') }}">
@@ -338,10 +337,9 @@
                                 </div>
                             </a>
                         </li>
-                        {{-- Post (Add & List) --}}
                         <li class="nav-item">
                             <a class="nav-link {{ Request::segment(3) == 'create' || (Request::segment(2) == 'posts' && Request::segment(3) != 'categories') ? 'active' : '' }}"
-                                href="{{ route('admin.posts.index') }}">
+                                href="{{ route('admin.teams.index') }}">
                                 <div class="d-flex align-items-center">
                                     <i class="fa fa-angle-double-right"></i>
                                     <span class="nav-link-text ps-1">Teams</span>
@@ -352,6 +350,42 @@
                 </li> <!-- Corrected closing tag -->
                 </li>
             @endhasanyrole
+
+            @hasanyrole('superadmin')
+            <li class="nav-item">
+                <!-- Navbar vertical label -->
+                <div class="row navbar-vertical-label-wrapper mt-3 mb-2">
+                    <div class="col-auto navbar-vertical-label">Role and Permission</div>
+                    <div class="col ps-0">
+                        <hr class="mb-0 navbar-vertical-divider">
+                    </div>
+                </div>
+                <!-- Dropdown item -->
+            <li class="nav-item">
+                <a class="nav-link dropdown-indicator {{ Request::segment(2) == 'roleandpermission' ? '' : 'collapsed' }}"
+                    href="#dashboard25" role="button" data-bs-toggle="collapse"
+                    aria-expanded="{{ Request::segment(2) == 'roleandpermission' ? 'true' : 'false' }}"
+                    aria-controls="dashboard24">
+                    <div class="d-flex align-items-center">
+                        <span class="nav-link-icon"><i class="fas fa-users"></i></span>
+                        <span class="nav-link-text ps-1">Role and Permission</span>
+                    </div>
+                </a>
+                <!-- Collapse content -->
+                <ul class="nav collapse {{ Request::segment(2) == 'roleandpermission' ? 'show' : '' }}" id="dashboard25">
+                    <li class="nav-item">
+                        <a class="nav-link {{ Request::segment(2) == 'roleandpermission' ? 'active' : '' }}"
+                            href="{{ route('admin.roles.index') }}">
+                            <div class="d-flex align-items-center">
+                                <i class="fa fa-angle-double-right"></i>
+                                <span class="nav-link-text ps-1">Role and Permission</span>
+                            </div>
+                        </a>
+                    </li>
+                </ul>
+            </li> <!-- Corrected closing tag -->
+            </li>
+        @endhasanyrole
 
             </ul>
         </div>

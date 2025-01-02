@@ -1,173 +1,223 @@
 @extends('backend.layouts.master')
 
 @section('content')
-<!-- Content Wrapper. Contains page content -->
-<div class="container">
-    @if (Session::has('success'))
-        <div class="alert alert-success">
-            {{ Session::get('success') }}
-        </div>
-    @endif
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h3 class="card-title">Team Members</h3>
+                    <button type="button" class="btn btn-primary float-right" data-toggle="modal" data-target="#createTeamModal">
+                        Add New Team Member
+                    </button>
+                </div>
+                <div class="card-body">
+                    @if(session('success'))
+                        <div class="alert alert-success">{{ session('success') }}</div>
+                    @endif
+                    @if(session('error'))
+                        <div class="alert alert-danger">{{ session('error') }}</div>
+                    @endif
 
-    @if (Session::has('error'))
-        <div class="alert alert-danger">
-            {{ Session::get('error') }}
-        </div>
-    @endif
-
-    <div class="row mb-2">
-        <div class="col-sm-6">
-            <h1 class="m-0">Team Members</h1>
-            <a href="{{ url('admin') }}" class="btn btn-primary btn-sm"><i class="fa fa-arrow-left"></i> Back</a>
-
-            <a href="{{ route('admin.teams.create') }}" class="btn btn-primary btn-sm"><i class="fa fa-plus"></i> Add
-            </a>
-            <a href="{{ route('admin.team.orderindex') }}" class="btn btn-primary btn-sm"><i class="fa fa-minus"></i>
-                Reorder
-            </a>
-        </div>
-        <div class="col-sm-6">
-            <ol class="breadcrumb float-sm-right">
-                <li class="breadcrumb-item"><a href="{{ url('admin') }}">Home</a></li>
-                <li class="breadcrumb-item active">Dashboard v1</li>
-            </ol>
-        </div>
-    </div>
-
-    <table class="table table-bordered table-hover">
-        <thead>
-            <tr>
-                <th>S.N.</th>
-                <th>Name</th>
-                <th>Position</th>
-                <th>Phone Number</th>
-                <th>Role</th>
-                <th>Email</th>
-                <th>Description</th>
-                <th>Image</th>
-                <th>Status</th>
-                <th>Action</th>
-            </tr>
-        </thead>
-        <tbody>@php
-            $serialNumber = ($teamMembers->currentPage() - 1) * $teamMembers->perPage() + 1;
-        @endphp
-
-            @foreach ($teamMembers as $member)
-                        <tr data-widget="expandable-table" aria-expanded="false">
-                            <td width="5%">{{ $serialNumber }}</td>
-                            <td>{{ $member->name }}</td>
-                            <td>{{ $member->position }}</td>
-                            <td>{{ $member->phone_no }}</td>
-                            <td>{{ $member->role }}</td>
-                            <td>{{ $member->email }}</td>
-                            
-                            <td>{{ Str::limit(strip_tags($member->description), 200) }}</td>
-                            <td><img id="preview{{ $loop->iteration }}"
-                                    src="{{ $member->image ? asset('uploads/team/' . $member->image) : '' }}"
-                                    style="width: 150px; height:150px" /></td>
-
-                            <td> @if ($member->status == 1)
-                                <span class="badge badge-success text-black">Active</span>
-                            @else
-                                <span class="badge badge-danger text-danger">Inactive</span>
-                            @endif
-                            </td>
-                            <td>
-                                <div style="display: flex; flex-direction:row;">
-                                    <button class="btn btn-warning btn-sm" data-toggle="modal"
-                                        data-target="#editModal{{ $member->id }}" style="margin-right: 5px;"><i
-                                            class="fas fa-edit"></i> Edit</button>
-                                    <button class="btn btn-danger btn-sm" data-toggle="modal"
-                                        data-target="#deleteModal{{ $member->id }}"><i class="fas fa-trash"></i>
-                                        Delete</button>
-                                </div>
-                            </td>
-                        </tr>
-                        @php
-                            $serialNumber++;
-                        @endphp
-
-                        <!-- Edit Modal -->
-                        <div class="modal fade" id="editModal{{ $member->id }}" tabindex="-1" role="dialog"
-                            aria-labelledby="editModalLabel{{ $member->id }}" aria-hidden="true">
-                            <div class="modal-dialog" role="document">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <h5 class="modal-title" id="editModalLabel{{ $member->id }}">Edit Team Member</h5>
-                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                            <span aria-hidden="true">&times;</span>
+                    <table class="table table-bordered table-striped">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Position</th>
+                                <th>Team Type</th>
+                                <th>Email</th>
+                                <th>Phone</th>
+                                <th>Featured</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($teams as $team)
+                            <tr>
+                                <td>{{ $team->name }}</td>
+                                <td>{{ $team->position }}</td>
+                                <td>{{ $team->teamType->title_en }}</td>
+                                <td>{{ $team->email }}</td>
+                                <td>{{ $team->phone }}</td>
+                                <td>
+                                    <span class="badge {{ $team->is_featured ? 'bg-success' : 'bg-secondary' }}">
+                                        {{ $team->is_featured ? 'Yes' : 'No' }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="badge {{ $team->is_active ? 'bg-success' : 'bg-danger' }}">
+                                        {{ $team->is_active ? 'Active' : 'Inactive' }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <button type="button" class="btn btn-sm btn-info" 
+                                            data-toggle="modal" data-target="#editTeamModal{{ $team->id }}">
+                                        Edit
+                                    </button>
+                                    <form action="{{ route('admin.teams.destroy', $team->id) }}" method="POST" class="d-inline">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-sm btn-danger" 
+                                                onclick="return confirm('Are you sure you want to delete this team member?')">
+                                            Delete
                                         </button>
-                                    </div>
-                                    <div class="modal-body">
-                                        <!-- Your edit form content here -->
-                                        <p>Edit form content goes here</p>
-                                    </div>
-                                    <div class="modal-footer">
-                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                                        <a href="{{ route('admin.teams.edit', $member->id) }}" class="btn btn-primary">Edit</a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                                    </form>
+                                </td>
+                            </tr>
 
-                        <!-- Delete Modal -->
-                        <div class="modal fade" id="deleteModal{{ $member->id }}" tabindex="-1" role="dialog"
-                            aria-labelledby="deleteModalLabel{{ $member->id }}" aria-hidden="true">
-                            <div class="modal-dialog" role="document">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <h5 class="modal-title" id="deleteModalLabel{{ $member->id }}">Delete Team Member
-                                        </h5>
-                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                            <span aria-hidden="true">&times;</span>
-                                        </button>
-                                    </div>
-                                    <div class="modal-body">
-                                        Are you sure you want to delete this team member?
-                                    </div>
-                                    <div class="modal-footer">
-                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                                        <form id="deleteForm{{ $member->id }}"
-                                            action="{{ route('admin.teams.destroy', $member->id) }}" method="POST">
+                            <!-- Edit Modal for each team member -->
+                            <div class="modal fade" id="editTeamModal{{ $team->id }}" tabindex="-1" role="dialog" aria-hidden="true">
+                                <div class="modal-dialog" role="document">
+                                    <div class="modal-content">
+                                        <form action="{{ route('admin.teams.update', $team->id) }}" method="POST">
                                             @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="btn btn-danger">Delete</button>
+                                            @method('PUT')
+                                            <div class="modal-header">
+                                                <h5 class="modal-title">Edit Team Member</h5>
+                                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                    <span aria-hidden="true">&times;</span>
+                                                </button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <div class="form-group">
+                                                    <label>Team Type</label>
+                                                    <select name="team_type_id" class="form-control" required>
+                                                        @foreach($teamTypes as $type)
+                                                            <option value="{{ $type->id }}" {{ $team->team_type_id == $type->id ? 'selected' : '' }}>
+                                                                {{ $type->title_en }}
+                                                            </option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label>Name</label>
+                                                    <input type="text" name="name" class="form-control" value="{{ $team->name }}" required>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label>Position</label>
+                                                    <input type="text" name="position" class="form-control" value="{{ $team->position }}" required>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label>Email</label>
+                                                    <input type="email" name="email" class="form-control" value="{{ $team->email }}">
+                                                </div>
+                                                <div class="form-group">
+                                                    <label>Phone</label>
+                                                    <input type="text" name="phone" class="form-control" value="{{ $team->phone }}">
+                                                </div>
+                                                <div class="form-group">
+                                                    <div class="custom-control custom-checkbox">
+                                                        <input type="checkbox" name="is_featured" class="custom-control-input" 
+                                                               id="editIsFeatured{{ $team->id }}" {{ $team->is_featured ? 'checked' : '' }}>
+                                                        <label class="custom-control-label" for="editIsFeatured{{ $team->id }}">Featured</label>
+                                                    </div>
+                                                </div>
+                                                <div class="form-group">
+                                                    <div class="custom-control custom-checkbox">
+                                                        <input type="checkbox" name="is_active" class="custom-control-input" 
+                                                               id="editIsActive{{ $team->id }}" {{ $team->is_active ? 'checked' : '' }}>
+                                                        <label class="custom-control-label" for="editIsActive{{ $team->id }}">Active</label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                                <button type="submit" class="btn btn-primary">Update</button>
+                                            </div>
                                         </form>
                                     </div>
-
                                 </div>
                             </div>
+                            @endforeach
+                        </tbody>
+                    </table>
+<!-- Pagination -->
+<nav aria-label="Page navigation">
+    <ul class="pagination justify-content-center">
+        @if ($teams->onFirstPage())
+            <li class="page-item disabled"><span class="page-link">&laquo;</span></li>
+        @else
+            <li class="page-item"><a class="page-link" href="{{ $teams->previousPageUrl() }}" rel="prev">&laquo;</a></li>
+        @endif
+
+        @foreach ($teams->getUrlRange(1, $teams->lastPage()) as $page => $url)
+            @if ($page == $teams->currentPage())
+                <li class="page-item active"><span class="page-link">{{ $page }}</span></li>
+            @else
+                <li class="page-item"><a class="page-link" href="{{ $url }}">{{ $page }}</a></li>
+            @endif
+        @endforeach
+
+        @if ($teams->hasMorePages())
+            <li class="page-item"><a class="page-link" href="{{ $teams->nextPageUrl() }}" rel="next">&raquo;</a></li>
+        @else
+            <li class="page-item disabled"><span class="page-link">&raquo;</span></li>
+        @endif
+    </ul>
+</nav>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Create Team Modal -->
+<div class="modal fade" id="createTeamModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <form action="{{ route('admin.teams.store') }}" method="POST">
+                @csrf
+                <div class="modal-header">
+                    <h5 class="modal-title">Add New Team Member</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label>Team Type</label>
+                        <select name="team_type_id" class="form-control" required>
+                            @foreach($teamTypes as $type)
+                                <option value="{{ $type->id }}">{{ $type->title_en }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Name</label>
+                        <input type="text" name="name" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Position</label>
+                        <input type="text" name="position" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" name="email" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label>Phone</label>
+                        <input type="text" name="phone" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <div class="custom-control custom-checkbox">
+                            <input type="checkbox" name="is_featured" class="custom-control-input" id="createIsFeatured">
+                            <label class="custom-control-label" for="createIsFeatured">Featured</label>
                         </div>
-            @endforeach
-        </tbody>
-
-    </table>
-    <!-- Pagination -->
-    <nav aria-label="Page navigation">
-        <ul class="pagination justify-content-center">
-            @if ($teamMembers->onFirstPage())
-                <li class="page-item disabled"><span class="page-link">&laquo;</span></li>
-            @else
-                <li class="page-item"><a class="page-link" href="{{ $teamMembers->previousPageUrl() }}"
-                        rel="prev">&laquo;</a></li>
-            @endif
-
-            @foreach ($teamMembers->getUrlRange(1, $teamMembers->lastPage()) as $page => $url)
-                @if ($page == $teamMembers->currentPage())
-                    <li class="page-item active"><span class="page-link">{{ $page }}</span></li>
-                @else
-                    <li class="page-item"><a class="page-link" href="{{ $url }}">{{ $page }}</a></li>
-                @endif
-            @endforeach
-
-            @if ($teamMembers->hasMorePages())
-                <li class="page-item"><a class="page-link" href="{{ $teamMembers->nextPageUrl() }}" rel="next">&raquo;</a>
-                </li>
-            @else
-                <li class="page-item disabled"><span class="page-link">&raquo;</span></li>
-            @endif
-        </ul>
-    </nav>
+                    </div>
+                    <div class="form-group">
+                        <div class="custom-control custom-checkbox">
+                            <input type="checkbox" name="is_active" class="custom-control-input" id="createIsActive" checked>
+                            <label class="custom-control-label" for="createIsActive">Active</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>
 @endsection

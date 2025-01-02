@@ -8,5 +8,14 @@ use Illuminate\Database\Eloquent\Model;
 class TeamType extends Model
 {
     use HasFactory;
-    protected $fillable = ['title_ne', 'title_en', 'is_active'];
+    protected $fillable = [
+        'title_ne',
+        'title_en',
+        'is_active'
+    ];
+
+    public function teams()
+    {
+        return $this->hasMany(Team::class, 'team_type');
+    }
 }

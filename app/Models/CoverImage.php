@@ -9,9 +9,12 @@ class CoverImage extends Model
 {
     use HasFactory;
     protected $fillable = [
-        'title',
+        'title_en',
+        'title_ne',
         'image',
-        'status',
+        'description_en',
+        'description_ne',
+        'is_active',
     ];
 }
 
