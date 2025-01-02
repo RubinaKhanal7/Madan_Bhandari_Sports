@@ -21,6 +21,9 @@ use App\Http\Controllers\VideoGalleryController;
 use App\Http\Controllers\Auth\ResetPasswordController;
 use App\Http\Controllers\TeamTypeController;
 use App\Http\Controllers\SocialMediaController;
+use App\Http\Controllers\RoleController;
+use App\Http\Controllers\PermissionController;
+use App\Http\Controllers\MemberTypeController;
 
 
 /*

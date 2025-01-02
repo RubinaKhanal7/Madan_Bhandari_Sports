@@ -88,6 +88,8 @@
                 @endhasanyrole
                 {{-- End of Site Settings --}}
 
+
+
    {{-- Beginning of Introduction --}}
                 @hasanyrole('superadmin')
                     <li class="nav-item">
@@ -142,16 +144,6 @@
                                     </div>
                                 </a>
                             </li>
-                            {{-- Teams --}}
-                            {{-- <li class="nav-item">
-                                <a class="nav-link {{ Request::segment(2) == 'team' ? 'active' : '' }}"
-                                    href="{{ route('admin.teams.index') }}">
-                                    <div class="d-flex align-items-center">
-                                        <i class="fa fa-angle-double-right"></i>
-                                        <span class="nav-link-text ps-1">Teams</span>
-                                    </div>
-                                </a>
-                            </li> --}}
                         </ul>
                     </li> <!-- Corrected closing tag -->
                     </li>
@@ -243,47 +235,6 @@
                     </li>
                 @endhasanyrole
 
-
-
-
-
-
-                {{-- Beginning of Student Reviews --}}
-                {{-- @hasanyrole('superadmin|admin')
-                    <li class="nav-item">
-                        <div class="row navbar-vertical-label-wrapper mt-3 mb-2">
-                            <div class="col-auto navbar-vertical-label">Ratings and Reviews</div>
-                            <div class="col ps-0">
-                                <hr class="mb-0 navbar-vertical-divider">
-                            </div>
-                        </div>
-                    <li class="nav-item">
-                        <a class="nav-link dropdown-indicator" href="#dashboard16" role="button"
-                            data-bs-toggle="collapse" aria-expanded="true" aria-controls="dashboard16">
-                            <div class="d-flex align-items-center"><span class="nav-link-icon"><i
-                                        class="fas fa-users"></i></span><span class="nav-link-text ps-1">Testimonials
-                                </span></div>
-                        </a>
-                        <ul class="nav collapse  {{ Request::segment(2) == 'testimonials' ? 'show' : '' }}"
-                            id="dashboard16">
-                            @can('list_testimonials')
-                                <li class="nav-item"><a
-                                        class="nav-link {{ Request::segment(2) == 'testimonials' ? 'active' : '' }}"
-                                        href="{{ route('admin.testimonials.index') }}">
-                                        <div class="d-flex align-items-center"><i class="fa fa-angle-double-right"></i>
-                                            Testimonial
-
-                                        </div>
-                                    </a>
-                                </li>
-                            @endcan
-
-                        </ul>
-                    </li>
-                    </li>
-                @endhasanyrole --}}
-                {{-- End of Student Reviews --}}
-
                 {{-- Beginning of Contact Details --}}
                 @hasanyrole('superadmin|admin')
                     <li class="nav-item">
@@ -321,12 +272,6 @@
                     </li>
                 @endhasanyrole
                 {{-- End of Contact Details --}}
-
-
-                
-
-             
-
 
                 {{-- Beginning of Posts --}}
                 @hasanyrole('superadmin')
@@ -451,11 +396,22 @@
                             href="{{ route('admin.roles.index') }}">
                             <div class="d-flex align-items-center">
                                 <i class="fa fa-angle-double-right"></i>
-                                <span class="nav-link-text ps-1">Role and Permission</span>
+                                <span class="nav-link-text ps-1">Role</span>
+                            </div>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ Request::segment(2) == 'roleandpermission' ? 'active' : '' }}"
+                            href="{{ route('admin.permissions.index') }}">
+                            <div class="d-flex align-items-center">
+                                <i class="fa fa-angle-double-right"></i>
+                                <span class="nav-link-text ps-1">Permissions</span>
                             </div>
                         </a>
                     </li>
                 </ul>
+
+                
             </li> <!-- Corrected closing tag -->
             </li>
         @endhasanyrole
