@@ -41,6 +41,7 @@
                     </a>
                 </li>
 
+
                 {{-- Beginning of Site Settings --}}
                 @hasanyrole('superadmin')
                     <li class="nav-item">
@@ -87,6 +88,11 @@
                     </li>
                 @endhasanyrole
                 {{-- End of Site Settings --}}
+
+
+
+
+
 
    {{-- Beginning of Introduction --}}
                 @hasanyrole('superadmin')
@@ -142,16 +148,6 @@
                                     </div>
                                 </a>
                             </li>
-                            {{-- Teams --}}
-                            {{-- <li class="nav-item">
-                                <a class="nav-link {{ Request::segment(2) == 'team' ? 'active' : '' }}"
-                                    href="{{ route('admin.teams.index') }}">
-                                    <div class="d-flex align-items-center">
-                                        <i class="fa fa-angle-double-right"></i>
-                                        <span class="nav-link-text ps-1">Teams</span>
-                                    </div>
-                                </a>
-                            </li> --}}
                         </ul>
                     </li> <!-- Corrected closing tag -->
                     </li>
@@ -162,7 +158,13 @@
 
 
 
+
+
+
+
+
                 {{-- Beginning of Gallery --}}
+
 
                 @hasanyrole('superadmin|admin')
                     <li class="nav-item">
@@ -188,10 +190,12 @@
                                         <div class="d-flex align-items-center"><i class="fa fa-angle-double-right"></i>
                                             Photo Gallery
 
+
                                         </div>
                                     </a>
                                 </li>
                             @endcan
+
 
                             @can('list_video_galleries')
                                 <li class="nav-item">
@@ -204,12 +208,48 @@
                                 </li>
                             @endcan
 
+
                         </ul>
                     </li>
                     </li>
                 @endhasanyrole
 
+
                 {{-- End of Gallery --}}
+
+
+  {{-- Beginning of Menbers --}}
+                @hasanyrole('superadmin|admin')
+                    <li class="nav-item">
+                        <div class="row navbar-vertical-label-wrapper mt-3 mb-2">
+                            <div class="col-auto navbar-vertical-label">Members</div>
+                            <div class="col ps-0">
+                                <hr class="mb-0 navbar-vertical-divider">
+                            </div>
+                        </div>
+                    <li class="nav-item">
+                        <a class="nav-link dropdown-indicator" href="#dashboard20" role="button"
+                            data-bs-toggle="collapse" aria-expanded="true" aria-controls="dashboard20">
+                            <div class="d-flex align-items-center">
+                                <span class="nav-link-icon"><i class="fas fa-users"></i></span>
+                                <span class="nav-link-text ps-1">Members</span>
+                            </div>
+                        </a>
+                        <ul class="nav collapse {{ Request::segment(2) == 'faqs' ? 'show' : '' }}" id="dashboard20">
+                            <li class="nav-item">
+                                <a class="nav-link {{ Request::segment(2) == 'faqs' && Request::segment(3) == 'create' ? 'active' : '' }}"
+                                    href="{{ route('admin.member_types.index') }}">
+                                    <div class="d-flex align-items-center">
+                                        <i class="fa fa-angle-double-right"></i>
+                                        <span class="nav-link-text ps-1">Member Types</span>
+                                    </div>
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                    </li>
+                @endhasanyrole
+
 
                 {{-- Beginning of Contact Details --}}
                 @hasanyrole('superadmin|admin')
@@ -248,11 +288,6 @@
                     </li>
                 @endhasanyrole
                 {{-- End of Contact Details --}}
-
-
-                
-
-             
 
 
                 {{-- Beginning of Posts --}}
@@ -305,7 +340,9 @@
                 {{-- End of Posts --}}
 
 
-        
+
+
+       
                 @hasanyrole('superadmin')
                 <li class="nav-item">
                     <!-- Navbar vertical label -->
@@ -351,6 +388,7 @@
                 </li>
             @endhasanyrole
 
+
             @hasanyrole('superadmin')
             <li class="nav-item">
                 <!-- Navbar vertical label -->
@@ -387,9 +425,15 @@
             </li>
         @endhasanyrole
 
+
             </ul>
         </div>
     </div>
 
 
+
+
 </nav>
+
+
+
