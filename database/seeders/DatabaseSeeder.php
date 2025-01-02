@@ -9,6 +9,7 @@ use Database\Seeders\AboutSeeder;
 use Database\Seeders\CountrySeeder;
 use Database\Seeders\FavIconSeeder;
 use Database\Seeders\CategorySeeder;
+use Database\Seeders\SocialmediaSeeder;
 use Database\Seeders\SitesettingSeeder;
 use Database\Seeders\RolePermissionSeeder;
 use Database\Seeders\BlogPostsCategorySeeder;
@@ -20,6 +21,7 @@ class DatabaseSeeder extends Seeder
         $this->call([
             RolePermissionSeeder::class,
             UserSeeder::class,
+            SocialmediaSeeder::class,
             SitesettingSeeder::class,
             FavIconSeeder::class,
             CategorySeeder::class,

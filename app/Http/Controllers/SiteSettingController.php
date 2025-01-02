@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
 use App\Models\SiteSetting;
+use App\Models\SocialMedia;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
@@ -18,160 +18,118 @@ class SiteSettingController extends Controller
 
     public function create()
     {
-        return view('backend.sitesetting.create', ['page_title' => 'Create SiteSetting']);
+        $socialmedias = SocialMedia::all(); // Get social media options
+        return view('backend.sitesetting.create', ['socialmedias' => $socialmedias, 'page_title' => 'Create Site Setting']);
     }
 
     public function store(Request $request)
     {
         $this->validate($request, [
-            'office_name' => 'required|string',
-            'office_address.*' => 'required|string',
-            'office_contact.*' => 'required|string',
-            'office_email.*' => 'required|string',
-            'whatsapp_number' => 'required|string',
-            'main_logo' => 'required|image|mimes:jpg,png,jpeg,gif,svg|max:1536',
-            'side_logo' => 'nullable|image|mimes:jpg,png,jpeg,gif,svg|max:1536',
-            'company_registered_date' => 'required|date_format:Y-m-d',
-            'facebook_link' => 'nullable|url',
-            'instagram_link' => 'nullable|url',
-            'snapchat_link' => 'nullable|url',
-            'linkedin_link' => 'nullable|url',
-            'google_maps_link' => 'nullable|url',
-            'youtube_link' => 'nullable|url', // Added validation for YouTube link
-            'twitter_link' => 'nullable|url', // Added validation for Twitter link
-            'tiktok_link' => 'nullable|url', // Added validation for Twitter link
-            'slogan' => 'nullable|string',
+            'title_ne' => 'required|string|max:255',
+            'title_en' => 'required|string|max:255',
+            'main_logo' => 'nullable|image|mimes:jpg,jpeg,png',
+            'alt_logo' => 'nullable|image|mimes:jpg,jpeg,png',
+            'google_map' => 'nullable|url',
         ]);
 
-        try {
-            if ($request->hasFile('main_logo')) {
-                $newMainLogo = time() . '.' . $request->main_logo->getClientOriginalName();
-                $request->main_logo->move('uploads/sitesetting/', $newMainLogo);
-            } else {
-                $newMainLogo = "NoImage";
-            }
+        $sitesetting = new SiteSetting();
+        $sitesetting->title_ne = $request->title_ne;
+        $sitesetting->title_en = $request->title_en;
+        $sitesetting->slogan_ne = $request->slogan_ne;
+        $sitesetting->slogan_en = $request->slogan_en;
 
-            if ($request->hasFile('side_logo')) {
-                $newSideLogo = time() . '.' . $request->side_logo->getClientOriginalName();
-                $request->side_logo->move('uploads/sitesetting/', $newSideLogo);
-            } else {
-                $newSideLogo = "NoImage";
-            }
-
-            $sitesetting = new SiteSetting;
-            $sitesetting->office_name = $request->office_name;
-            $sitesetting->whatsapp_number = $request->whatsapp_number;
-            $sitesetting->main_logo = $newMainLogo;
-            $sitesetting->side_logo = $newSideLogo ?? '';
-            $sitesetting->company_registered_date = $request->company_registered_date;
-            $sitesetting->facebook_link = $request->facebook_link ?? '';
-            $sitesetting->instagram_link = $request->instagram_link ?? '';
-            $sitesetting->snapchat_link = $request->snapchat_link ?? '';
-            $sitesetting->linkedin_link = $request->linkedin_link ?? '';
-            $sitesetting->google_maps_link = $request->google_maps_link ?? '';
-            $sitesetting->youtube_link = $request->youtube_link ?? ''; // Save YouTube link
-            $sitesetting->twitter_link = $request->twitter_link ?? ''; // Save Twitter link
-            $sitesetting->tiktok_link = $request->tiktok_link ?? ''; // Save Twitter link
-            $sitesetting->slogan = $request->slogan ?? '';
-
-            $sitesetting->office_address = json_encode($request->office_address);
-            $sitesetting->office_contact = json_encode($request->office_contact);
-            $sitesetting->office_email = json_encode($request->office_email);
-
-            if ($sitesetting->save()) {
-                return redirect()->route('admin.site-settings.index')->with('success', 'Success !! SiteSetting Created');
-            } else {
-                return redirect()->back()->with('error', 'Error !! SiteSetting not created');
-            }
-        } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Error !! Something went wrong');
+        // Handle file uploads
+        if ($request->hasFile('main_logo')) {
+            $main_logo = $request->file('main_logo');
+            $main_logo_name = time() . '-' . $main_logo->getClientOriginalName();
+            $main_logo->move(public_path('uploads/sitesetting'), $main_logo_name);
+            $sitesetting->main_logo = $main_logo_name;
         }
+
+        if ($request->hasFile('alt_logo')) {
+            $alt_logo = $request->file('alt_logo');
+            $alt_logo_name = time() . '-' . $alt_logo->getClientOriginalName();
+            $alt_logo->move(public_path('uploads/sitesetting'), $alt_logo_name);
+            $sitesetting->alt_logo = $alt_logo_name;
+        }
+
+        $sitesetting->phone_no = json_encode($request->phone_no);
+        $sitesetting->email = json_encode($request->email);
+        $sitesetting->established_year = $request->established_year;
+        $sitesetting->description_ne = $request->description_ne;
+        $sitesetting->description_en = $request->description_en;
+        $sitesetting->socialmedia = $request->socialmedia;
+        $sitesetting->google_map = $request->google_map;
+        $sitesetting->save();
+
+        return redirect()->route('admin.site-settings.index')->with('success', 'Site settings created successfully!');
     }
 
     public function edit($id)
     {
-        $sitesetting = SiteSetting::find($id);
-        return view('backend.sitesetting.update', ['sitesetting' => $sitesetting, 'page_title' => 'Update SiteSettings']);
+        $sitesetting = SiteSetting::findOrFail($id);
+        $socialmedias = SocialMedia::all(); // Get social media options
+        return view('backend.sitesetting.update', ['sitesetting' => $sitesetting, 'socialmedias' => $socialmedias, 'page_title' => 'Edit Site Setting']);
     }
 
     public function update(Request $request, $id)
-    {
-        $request->validate([
-            'office_name' => 'required|string',
-            'office_address.*' => 'required|string',
-            'office_contact.*' => 'required|string',
-            'office_email.*' => 'required|string',
-            'whatsapp_number' => 'required|string',
-            'main_logo' => 'nullable|image|mimes:jpg,png,jpeg,gif,svg|max:1536',
-            'side_logo' => 'nullable|image|mimes:jpg,png,jpeg,gif,svg|max:1536',
-            'company_registered_date' => 'required|date_format:Y-m-d',
-            'facebook_link' => 'nullable|url',
-            'instagram_link' => 'nullable|url',
-            'snapchat_link' => 'nullable|url',
-            'linkedin_link' => 'nullable|url',
-            'google_maps_link' => 'nullable|url',
-            'youtube_link' => 'nullable|url', // Added validation for YouTube link
-            'twitter_link' => 'nullable|url', // Added validation for Twitter link
-            'tiktok_link' => 'nullable|url', // Added validation for Twitter link
-            'slogan' => 'nullable|string',
-        ]);
+{
+    $this->validate($request, [
+        'title_ne' => 'required|string|max:255',
+        'title_en' => 'required|string|max:255',
+        'main_logo' => 'nullable|image|mimes:jpg,jpeg,png',
+        'alt_logo' => 'nullable|image|mimes:jpg,jpeg,png',
+        'google_map' => 'nullable|url',
+    ]);
 
-        try {
-            $sitesetting = SiteSetting::findOrFail($id);
+    $sitesetting = SiteSetting::findOrFail($id);
+    $sitesetting->title_ne = $request->title_ne;
+    $sitesetting->title_en = $request->title_en;
+    $sitesetting->slogan_ne = $request->slogan_ne;
+    $sitesetting->slogan_en = $request->slogan_en;
 
-            if ($request->hasFile('main_logo')) {
-                $newMainName = time() . '-' . $request->main_logo->getClientOriginalName();
-                $request->main_logo->move(public_path('uploads/sitesetting'), $newMainName);
-                if ($sitesetting->main_logo && file_exists(public_path('uploads/sitesetting/' . $sitesetting->main_logo))) {
-                    unlink(public_path('uploads/sitesetting/' . $sitesetting->main_logo));
-                }
-                $sitesetting->main_logo = $newMainName;
-            }
-
-            if ($request->hasFile('side_logo')) {
-                $newSideName = time() . '-' . $request->side_logo->getClientOriginalName();
-                $request->side_logo->move(public_path('uploads/sitesetting'), $newSideName);
-                if ($sitesetting->side_logo && file_exists(public_path('uploads/sitesetting/' . $sitesetting->side_logo))) {
-                    unlink(public_path('uploads/sitesetting/' . $sitesetting->side_logo));
-                }
-                $sitesetting->side_logo = $newSideName;
-            }
-
-            $sitesetting->office_name = $request->office_name;
-            $sitesetting->whatsapp_number = $request->whatsapp_number;
-            $sitesetting->company_registered_date = $request->company_registered_date;
-            $sitesetting->facebook_link = $request->facebook_link ?? '';
-            $sitesetting->instagram_link = $request->instagram_link ?? '';
-            $sitesetting->snapchat_link = $request->snapchat_link ?? '';
-            $sitesetting->linkedin_link = $request->linkedin_link ?? '';
-            $sitesetting->google_maps_link = $request->google_maps_link ?? '';
-            $sitesetting->youtube_link = $request->youtube_link ?? ''; // Save YouTube link
-            $sitesetting->twitter_link = $request->twitter_link ?? ''; // Save Twitter link
-            $sitesetting->tiktok_link = $request->tiktok_link ?? ''; // Save Twitter link
-            $sitesetting->slogan = $request->slogan ?? '';
-
-            $sitesetting->office_address = json_encode($request->office_address);
-            $sitesetting->office_contact = json_encode($request->office_contact);
-            $sitesetting->office_email = json_encode($request->office_email);
-
-            if ($sitesetting->save()) {
-                return redirect()->route('admin.site-settings.index')->with('success', 'SiteSetting Updated Successfully');
-            } else {
-                return redirect()->back()->with('error', 'Failed to update SiteSetting');
-            }
-        } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Error: ' . $e->getMessage());
-        }
+    // Handle file uploads
+    if ($request->hasFile('main_logo')) {
+        $main_logo = $request->file('main_logo');
+        $main_logo_name = time() . '_main.' . $main_logo->getClientOriginalExtension();
+        $main_logo->move(public_path('uploads/sitesetting'), $main_logo_name);
+        $sitesetting->main_logo = $main_logo_name;
     }
+
+    if ($request->hasFile('alt_logo')) {
+        $alt_logo = $request->file('alt_logo');
+        $alt_logo_name = time() . '_alt.' . $alt_logo->getClientOriginalExtension();
+        $alt_logo->move(public_path('uploads/sitesetting'), $alt_logo_name);
+        $sitesetting->alt_logo = $alt_logo_name;
+    }
+
+    $sitesetting->phone_no = json_encode($request->phone_no);
+    $sitesetting->email = json_encode($request->email);
+    $sitesetting->established_year = $request->established_year;
+    $sitesetting->description_ne = $request->description_ne;
+    $sitesetting->description_en = $request->description_en;
+    $sitesetting->google_map = $request->google_map;
+
+    $sitesetting->save();
+
+    return redirect()->route('admin.site-settings.index')
+                     ->with('success', 'Site settings updated successfully');
+}
 
     public function destroy($id)
     {
-        $sitesetting = SiteSetting::find($id);
-        if ($sitesetting) {
-            $sitesetting->delete();
-            return redirect()->route('admin.site-settings.index')->with('success', 'Success !! Site Settings Deleted');
-        } else {
-            return redirect()->route('admin.site-settings.index')->with('error', 'Site Settings not found.');
+        $sitesetting = SiteSetting::findOrFail($id);
+
+        // Delete files if exists
+        if (File::exists(public_path('uploads/sitesetting/' . $sitesetting->main_logo))) {
+            File::delete(public_path('uploads/sitesetting/' . $sitesetting->main_logo));
         }
+
+        if (File::exists(public_path('uploads/sitesetting/' . $sitesetting->alt_logo))) {
+            File::delete(public_path('uploads/sitesetting/' . $sitesetting->alt_logo));
+        }
+
+        $sitesetting->delete();
+        return redirect()->route('admin.site-settings.index')->with('success', 'Site settings deleted successfully!');
     }
 }
