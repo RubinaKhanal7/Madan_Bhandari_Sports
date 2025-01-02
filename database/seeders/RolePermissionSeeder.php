@@ -131,6 +131,11 @@ class RolePermissionSeeder extends Seeder
             'edit_cover_images',
             'delete_cover_images',
 
+            'create_contacts',
+            'list_contacts',
+            'edit_contacts',
+            'delete_contacts',
+
             'create_about_us',
             'list_about_us',
             'edit_about_us',
@@ -165,16 +170,6 @@ class RolePermissionSeeder extends Seeder
             'list_posts',
             'edit_posts',
             'delete_posts',
-
-            'create_permissions',
-            'list_permissions',
-            'edit_permissions',
-            'delete_permissions',
-
-            'create_roles',
-            'list_roles',
-            'edit_roles',
-            'delete_roles',
 
             'create_teams',
             'list_teams',
