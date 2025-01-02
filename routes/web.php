@@ -134,6 +134,8 @@ Route::prefix('/admin')->name('admin.')->middleware(['web', 'auth'])->group(func
     //Role and permission
         Route::resource('roles', RoleController::class);
         Route::resource('permissions', PermissionController::class);
+        
+        
     
 
     // Services
