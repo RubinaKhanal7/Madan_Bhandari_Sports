@@ -385,10 +385,8 @@
 
     @include('frontend.body_includes.herosection')
     @include('frontend.body_includes.introduction')
-    @include('frontend.body_includes.awards')
     @include('frontend.body_includes.gallery')
     @include('frontend.body_includes.videogallery')
-    @include('frontend.body_includes.events')
 
     {{-- @include('frontend.body_includes.blogs') --}}
     @include('frontend.body_includes.contact')

@@ -5,22 +5,13 @@ namespace App\Http\Controllers;
 use App\Models\Post;
 use App\Models\Team;
 use App\Models\About;
-use App\Models\WorkCategory;
-use App\Models\Country;
 use App\Models\Service;
 use App\Models\Category;
-use App\Models\CoverImage;
-use App\Models\Company;
 use App\Models\SiteSetting;
-use App\Models\Testimonial;
 use App\Models\PhotoGallery;
 use App\Models\VideoGallery;
 use Illuminate\Http\Request;
-use App\Models\DirectorMessage;
-use App\Models\BlogPostsCategory;
-use App\Models\Demand;
-use App\Models\NewandEvent;
-use App\Models\News;
+
 
 use Illuminate\Support\Str;
 
@@ -40,7 +31,7 @@ class SingleController extends Controller
         $posts = Post::with('category')->latest()->get()->take(3);
      
         $listservices = Service::latest()->get()->take(5);
-        $message = DirectorMessage::first();
+      
   
         
 
@@ -112,30 +103,6 @@ class SingleController extends Controller
         return view('frontend.services', compact('images', 'services', 'categories', 'sitesetting', 'about', 'serviceHead'));
     }
 
-    public function render_testimonial()
-    {
-        $testimonials = Testimonial::where('status',1)->latest()->take(12)->get();
-
-        return view('frontend.testimonials', compact('testimonials'));
-    }
-
-
-
-    public function render_blogpostcategory()
-    {
-        $blogpostcategories = BlogPostsCategory::where('status',1)->latest()->get()->take(18);
-
-        return view('frontend.blogpostcategories', compact('blogpostcategories'));
-    }
-
-    public function render_singleBlogpostcategory($slug)
-    {
-        
-        $blogpostcategory = BlogPostsCategory::where('slug', $slug)->firstOrFail();
-        $listblogs = BlogPostsCategory::where('slug', '!=', $slug)->latest()->get()->take(5);
-
-        return view('frontend.blogpostcategory', compact('blogpostcategory', 'listblogs'));
-    }
 
     public function render_singleService($slug)
     {
@@ -149,15 +116,6 @@ class SingleController extends Controller
 
         return view('frontend.service', compact('service', 'images', 'services', 'categories', 'sitesetting', 'about', 'listservices'));
     }
-
-   
-    public function render_singleworkCategory($slug)
-    {
-        $work_category = WorkCategory::where('slug', $slug)->firstOrFail();
-        $listwork_category = WorkCategory::latest()->get()->take(4);
-        return view('frontend.work_category', compact('work_category', 'listwork_category'));
-    }
-
 
 
     public function render_singleCategory($slug)
@@ -233,43 +191,5 @@ class SingleController extends Controller
         return view('frontend.contactpage', compact('page_title', 'googleMapsLink'));
     }
 
-    public function render_demand($id)
-    {
-        $demand = Demand::where('id', $id)->firstOrFail();
-        $listdemands = Demand::where('id', '!=', $id)->get();
-        return view('frontend.demand', compact('demand','listdemands'));
-    }
-
-    public function render_demands()
-    {
-        $demands = Demand::all();
-        return view('frontend.demands', compact('demands'));
-    }
-
-    public function render_newsandevents()
-    {
-        // Fetch all news and events
-        $newsEvents = News::where('status', 1)->latest()->get();
-
-        return view('frontend.newsandevents', compact('newsEvents'));
-    }
-
-    public function render_singlenewsandevents($slug)
-    {
-        // Fetch the single news or event by slug
-        $newsEvent = News::where('slug', $slug)->firstOrFail();
-
-           // Use this to dynamically add data for sharing
-    $shareData = [
-        'title' => $newsEvent->title,
-        'url' => route('SingleNewsandEvents', ['slug' => $newsEvent->slug]),
-        'image' => asset('uploads/newsandevents/' . $newsEvent->image),
-        'description' => Str::limit(strip_tags($newsEvent->content), 150)
-    ];
-        // Fetch related news/events
-        $relatedNewsEvents = News::where('slug', '!=', $slug)->latest()->take(5)->get();
-
-        return view('frontend.newsandevent', compact('newsEvent', 'relatedNewsEvents', 'shareData'));
-    }
     
 }

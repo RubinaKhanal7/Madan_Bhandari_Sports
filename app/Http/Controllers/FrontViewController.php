@@ -11,9 +11,7 @@ use App\Models\CoverImage;
 use App\Models\PhotoGallery;
 use App\Models\VideoGallery;
 use App\Models\SiteSetting;
-use App\Models\BlogPostsCategory;
 use App\Models\Category;
-use App\Models\News;
 use App\Models\NewandEvent;
 use Illuminate\Http\Request;
 
@@ -25,21 +23,14 @@ class FrontViewController extends Controller
         $about = About::first();
         $services = Service::where('status', 1)->latest()->take(5)->get();
         $contacts = Contact::latest()->get();
-        $blogs = BlogPostsCategory::where('status', 1)->latest()->take(6)->get();
+      
         $coverImages = CoverImage::where('status', 1)->latest()->take(5)->get();
      
         $images = PhotoGallery::where('status', 1)->latest()->take(6)->get(); // Fetch the photos
         $videos = VideoGallery::where('status', 1)->latest()->take(6)->get(); // Fetch the videos
-        $newsEvents = News::where('status', 1)->latest()->take(6)->get();
+       
             // Fetch all news
         $types = [ 'Honour', 'Award', 'Judge', 'Album Launch', 'Social Work & Activities', 'Other Events', 'Research & Articles'];
-        $allNews = News::where('status', 1)->get();
-
-        // Fetch news by type
-        $awardShows = News::where('type', 'Award Shows')->where('status', 1)->get();
-        $competitions = News::where('type', 'Competitions')->where('status', 1)->get();
-        $events = News::where('type', 'Events')->where('status', 1)->get();
-        $videoLaunches = News::where('type', 'Video Launch')->where('status', 1)->get();
 
             
         // Update the roles to match the values in the database
@@ -53,10 +44,8 @@ class FrontViewController extends Controller
         return view('frontend.index', compact(
             'services', 
             'contacts', 
-            'blogs', 
             'sitesetting', 
             'coverImages', 
-           
             'about', 
             'posts', 
             'firstCategory', 
@@ -65,13 +54,7 @@ class FrontViewController extends Controller
             'executiveTeam',
             'advisoryTeam',
             'otherTeam',
-            'newsEvents',
             'types', 
-            'allNews',
-            'awardShows',
-            'competitions',
-            'events',
-            'videoLaunches'
         ));
     }
     

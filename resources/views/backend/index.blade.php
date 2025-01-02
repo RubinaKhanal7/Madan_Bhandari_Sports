@@ -189,49 +189,9 @@
                 </div>
             </div> --}}
 
-            <div class="col-lg-3">
-                <div class="ag-courses_item">
+           
 
-                    <a href="#" class="ag-courses-item_link">
-                        <div class="ag-courses-item_bg"></div>
-
-                        <div class="ag-courses-item_title">
-                            News & Events
-                        </div>
-
-                        <div class="ag-courses-item_date-box">
-
-                            <span class="ag-courses-item_date">
-                                {{ $visitorCount }}
-                            </span>
-                        </div>
-
-                    </a>
-
-                </div>
-            </div>
-
-            <div class="col-lg-3">
-                <div class="ag-courses_item">
-
-                    <a href="#" class="ag-courses-item_link">
-                        <div class="ag-courses-item_bg"></div>
-
-                        <div class="ag-courses-item_title">
-                            Blogs
-                        </div>
-
-                        <div class="ag-courses-item_date-box">
-
-                            <span class="ag-courses-item_date">
-                                {{ $blogPostCount }}
-                            </span>
-                        </div>
-
-                    </a>
-
-                </div>
-            </div>
+           
 
             <div class="col-lg-3">
                 <div class="ag-courses_item">
