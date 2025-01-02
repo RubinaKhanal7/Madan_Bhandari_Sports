@@ -41,6 +41,7 @@
                     </a>
                 </li>
 
+
                 {{-- Beginning of Site Settings --}}
                 @hasanyrole('superadmin')
                     <li class="nav-item">
@@ -154,7 +155,13 @@
 
 
 
+
+
+
+
+
                 {{-- Beginning of Gallery --}}
+
 
                 @hasanyrole('superadmin|admin')
                     <li class="nav-item">
@@ -180,10 +187,12 @@
                                         <div class="d-flex align-items-center"><i class="fa fa-angle-double-right"></i>
                                             Photo Gallery
 
+
                                         </div>
                                     </a>
                                 </li>
                             @endcan
+
 
                             @can('list_video_galleries')
                                 <li class="nav-item">
@@ -196,10 +205,12 @@
                                 </li>
                             @endcan
 
+
                         </ul>
                     </li>
                     </li>
                 @endhasanyrole
+
 
                 {{-- End of Gallery --}}
 
@@ -323,7 +334,9 @@
                 {{-- End of Posts --}}
 
 
-        
+
+
+       
                 @hasanyrole('superadmin')
                 <li class="nav-item">
                     <!-- Navbar vertical label -->
@@ -368,6 +381,7 @@
                 </li> <!-- Corrected closing tag -->
                 </li>
             @endhasanyrole
+
 
             @hasanyrole('superadmin')
             <li class="nav-item">
@@ -416,9 +430,15 @@
             </li>
         @endhasanyrole
 
+
             </ul>
         </div>
     </div>
 
 
+
+
 </nav>
+
+
+
