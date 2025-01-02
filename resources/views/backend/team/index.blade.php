@@ -50,20 +50,27 @@
                                         {{ $team->is_active ? 'Active' : 'Inactive' }}
                                     </span>
                                 </td>
-                                <td>
-                                    <button type="button" class="btn btn-sm btn-info" 
-                                            data-toggle="modal" data-target="#editTeamModal{{ $team->id }}">
-                                        Edit
+                                <td style="white-space: nowrap;">
+                                    <!-- Edit Button -->
+                                    <button type="button" class="btn btn-outline-info btn-sm" 
+                                            data-bs-toggle="modal" 
+                                            data-bs-target="#editTeamModal{{ $team->id }}" 
+                                            style="width: 32px;">
+                                        <i class="fas fa-edit"></i>
                                     </button>
+                                
+                                    <!-- Delete Button -->
                                     <form action="{{ route('admin.teams.destroy', $team->id) }}" method="POST" class="d-inline">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" class="btn btn-sm btn-danger" 
+                                        <button type="submit" class="btn btn-outline-danger btn-sm" 
+                                                style="width: 32px;" 
                                                 onclick="return confirm('Are you sure you want to delete this team member?')">
-                                            Delete
+                                            <i class="fas fa-trash"></i>
                                         </button>
                                     </form>
                                 </td>
+                                
                             </tr>
 
                             <!-- Edit Modal for each team member -->

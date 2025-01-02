@@ -25,7 +25,7 @@ class CoverImageController extends Controller
         $request->validate([
             'title_en' => 'required',
             'title_ne' => 'required',
-            'image' => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:1',
+            'image' => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
             'crop_width' => 'nullable|numeric',
             'crop_height' => 'nullable|numeric',
             'crop_x' => 'nullable|numeric',

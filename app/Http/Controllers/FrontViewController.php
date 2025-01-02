@@ -24,19 +24,13 @@ class FrontViewController extends Controller
         $services = Service::where('status', 1)->latest()->take(5)->get();
         $contacts = Contact::latest()->get();
       
-        $coverImages = CoverImage::where('status', 1)->latest()->take(5)->get();
+        $coverImages = CoverImage::latest()->get();
      
         $images = PhotoGallery::where('status', 1)->latest()->take(6)->get(); // Fetch the photos
         $videos = VideoGallery::where('status', 1)->latest()->take(6)->get(); // Fetch the videos
        
             // Fetch all news
         $types = [ 'Honour', 'Award', 'Judge', 'Album Launch', 'Social Work & Activities', 'Other Events', 'Research & Articles'];
-
-            
-        // Update the roles to match the values in the database
-        $executiveTeam = Team::where('role', 'Executive Team')->where('status', 1)->orderBy('order')->get();
-        $advisoryTeam = Team::where('role', 'Advisory Team')->where('status', 1)->orderBy('order')->get();
-        $otherTeam = Team::where('role', 'Others')->where('status', 1)->orderBy('order')->get();
     
         $firstCategory = Category::first();
         $posts = $firstCategory ? $firstCategory->posts()->latest()->take(6)->get() : collect();
@@ -51,9 +45,6 @@ class FrontViewController extends Controller
             'firstCategory', 
             'images', 
             'videos',  
-            'executiveTeam',
-            'advisoryTeam',
-            'otherTeam',
             'types', 
         ));
     }
@@ -70,7 +61,7 @@ class FrontViewController extends Controller
     public function showTeam()
     {
         // Fetch all teams grouped by their roles
-    $teams = Team::orderBy('order')->where('status', 1)->get()->groupBy('role');
+    $teams = Team::orderBy('order')->where('is_active', 1)->get()->groupBy('role');
    // Define the desired order of roles
    $roleOrder = [
     'Executive Team',

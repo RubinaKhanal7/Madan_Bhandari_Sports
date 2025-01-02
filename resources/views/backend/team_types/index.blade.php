@@ -47,23 +47,25 @@
                                 {{ $teamType->is_active ? 'Active' : 'Inactive' }}
                             </span>
                         </td>
-                        <td>
-                            <button type="button" class="btn btn-sm btn-primary" 
-                                data-bs-toggle="modal" 
-                                data-bs-target="#editModal{{ $teamType->id }}">
-                                Edit
+                        <td style="white-space: nowrap;">
+                            <!-- Edit Button -->
+                            <button type="button" class="btn btn-outline-info btn-sm" 
+                                    data-bs-toggle="modal" 
+                                    data-bs-target="#editModal{{ $teamType->id }}" 
+                                    style="width: 32px;">
+                                <i class="fas fa-edit"></i>
                             </button>
-                            <form action="{{ route('admin.team-types.destroy', $teamType) }}" 
-                                method="POST" 
-                                class="d-inline">
+                        
+                            <!-- Delete Button -->
+                            <form action="{{ route('admin.team-types.destroy', $teamType) }}" method="POST" class="d-inline">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" class="btn btn-sm btn-danger" 
-                                    onclick="return confirm('Are you sure?')">
-                                    Delete
+                                <button type="submit" class="btn btn-outline-danger btn-sm" style="width: 32px;" onclick="return confirm('Are you sure?')">
+                                    <i class="fas fa-trash"></i>
                                 </button>
                             </form>
                         </td>
+                        
                     </tr>
                     @endforeach
                 </tbody>

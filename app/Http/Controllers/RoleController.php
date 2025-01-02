@@ -11,22 +11,33 @@ class RoleController extends Controller
     public function index()
     {
         $roles = Role::with('permissions')->get();
-        return view('backend.roles.index', compact('roles'));
+        $permissions = Permission::all();
+    
+        return view('backend.roles.index', compact('roles', 'permissions'));
     }
+    
 
     public function store(Request $request)
     {
-        $request->validate(['name' => 'required|unique:roles']);
-        Role::create(['name' => $request->name]);
-        return redirect()->back()->with('success', 'Role created successfully.');
+        $role = Role::create(['name' => $request->name]);
+        $permissions = Permission::whereIn('id', $request->permissions)->pluck('name');
+    
+        $role->syncPermissions($permissions);
+    
+        return redirect()->back()->with('success', 'Role created successfully!');
     }
-
+    
     public function update(Request $request, $id)
-    {
-        $role = Role::findOrFail($id);
-        $role->update(['name' => $request->name]);
-        return redirect()->back()->with('success', 'Role updated successfully.');
-    }
+{
+    $role = Role::findById($id);
+    $permissions = Permission::whereIn('id', $request->permissions)->pluck('name');
+
+    $role->syncPermissions($permissions);
+
+    return redirect()->back()->with('success', 'Role updated successfully!');
+}
+
+
 
     public function destroy($id)
     {

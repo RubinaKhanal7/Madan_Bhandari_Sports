@@ -1,5 +1,6 @@
 @extends('backend.layouts.master')
 
+
 @section('content')
     @if (Session::has('success'))
         <div class="alert alert-success">
@@ -7,11 +8,13 @@
         </div>
     @endif
 
+
     @if (Session::has('error'))
         <div class="alert alert-danger">
             {{ Session::get('error') }}
         </div>
     @endif
+
 
     <div class="row mb-2">
         <div class="col-sm-6">
@@ -26,6 +29,7 @@
             </ol>
         </div>
     </div>
+
 
     <table class="table table-bordered table-hover">
         <thead>
@@ -58,7 +62,7 @@
                         @endif
                     </td>
                     <td>{{ $sitesetting->established_year }}</td>
-                    
+                   
                     <td>
                         @if($sitesetting->is_active)
                             <span class="badge bg-success">Active</span>
@@ -67,13 +71,13 @@
                         @endif
                     </td>
                     <td style="white-space: nowrap;">
-                        <a href="{{ route('admin.site-settings.edit', $sitesetting->id) }}" 
+                        <a href="{{ route('admin.site-settings.edit', $sitesetting->id) }}"
                            class="btn btn-outline-primary btn-sm" style="width: 32px;">
                             <i class="fas fa-edit"></i>
                         </a>
-                        
-                        <button type="button" class="btn btn-outline-info btn-sm" 
-                                data-bs-toggle="modal" 
+                       
+                        <button type="button" class="btn btn-outline-info btn-sm"
+                                data-bs-toggle="modal"
                                 data-bs-target="#socialMediaModal{{ $sitesetting->id }}"
                                 style="width: 32px;">
                             S
@@ -81,8 +85,9 @@
                     </td>
                 </tr>
 
+
                 <!-- Social Media Modal -->
-                <div class="modal fade" id="socialMediaModal{{ $sitesetting->id }}" tabindex="-1" 
+                <div class="modal fade" id="socialMediaModal{{ $sitesetting->id }}" tabindex="-1"
                     aria-labelledby="socialMediaModalLabel{{ $sitesetting->id }}" aria-hidden="true">
                    <div class="modal-dialog modal-lg">
                        <div class="modal-content">
@@ -98,12 +103,12 @@
                                    <div class="row mb-3">
                                        <div class="col-md-6">
                                            <label for="facebook_link">Facebook Link</label>
-                                           <input type="url" name="facebook_link" id="facebook_link" class="form-control" 
+                                           <input type="url" name="facebook_link" id="facebook_link" class="form-control"
                                                   value="{{ old('facebook_link', $sitesetting->socialMedia->facebook_link ?? '') }}">
                                        </div>
                                        <div class="col-md-6">
                                            <label for="instagram_link">Instagram Link</label>
-                                           <input type="url" name="instagram_link" id="instagram_link" class="form-control" 
+                                           <input type="url" name="instagram_link" id="instagram_link" class="form-control"
                                                   value="{{ old('instagram_link', $sitesetting->socialMedia->instagram_link ?? '') }}">
                                        </div>
                                    </div>
@@ -111,12 +116,12 @@
                                    <div class="row mb-3">
                                        <div class="col-md-6">
                                            <label for="snapchat_link">Snapchat Link</label>
-                                           <input type="url" name="snapchat_link" id="snapchat_link" class="form-control" 
+                                           <input type="url" name="snapchat_link" id="snapchat_link" class="form-control"
                                                   value="{{ old('snapchat_link', $sitesetting->socialMedia->snapchat_link ?? '') }}">
                                        </div>
                                        <div class="col-md-6">
                                            <label for="linkedin_link">LinkedIn Link</label>
-                                           <input type="url" name="linkedin_link" id="linkedin_link" class="form-control" 
+                                           <input type="url" name="linkedin_link" id="linkedin_link" class="form-control"
                                                   value="{{ old('linkedin_link', $sitesetting->socialMedia->linkedin_link ?? '') }}">
                                        </div>
                                    </div>
@@ -124,12 +129,12 @@
                                    <div class="row mb-3">
                                        <div class="col-md-6">
                                            <label for="tiktok_link">TikTok Link</label>
-                                           <input type="url" name="tiktok_link" id="tiktok_link" class="form-control" 
+                                           <input type="url" name="tiktok_link" id="tiktok_link" class="form-control"
                                                   value="{{ old('tiktok_link', $sitesetting->socialMedia->tiktok_link ?? '') }}">
                                        </div>
                                        <div class="col-md-6">
                                            <label for="youtube_link">YouTube Link</label>
-                                           <input type="url" name="youtube_link" id="youtube_link" class="form-control" 
+                                           <input type="url" name="youtube_link" id="youtube_link" class="form-control"
                                                   value="{{ old('youtube_link', $sitesetting->socialMedia->youtube_link ?? '') }}">
                                        </div>
                                    </div>
@@ -137,7 +142,7 @@
                                    <div class="row mb-3">
                                        <div class="col-md-6">
                                            <label for="twitter_link">Twitter Link</label>
-                                           <input type="url" name="twitter_link" id="twitter_link" class="form-control" 
+                                           <input type="url" name="twitter_link" id="twitter_link" class="form-control"
                                                   value="{{ old('twitter_link', $sitesetting->socialMedia->twitter_link ?? '') }}">
                                        </div>
                                        <div class="col-md-6">
@@ -164,3 +169,4 @@
         </tbody>
     </table>
 @endsection
+

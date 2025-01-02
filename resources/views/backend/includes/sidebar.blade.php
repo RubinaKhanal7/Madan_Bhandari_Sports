@@ -91,9 +91,6 @@
 
 
 
-
-
-
    {{-- Beginning of Introduction --}}
                 @hasanyrole('superadmin')
                     <li class="nav-item">
@@ -217,7 +214,6 @@
 
                 {{-- End of Gallery --}}
 
-
   {{-- Beginning of Menbers --}}
                 @hasanyrole('superadmin|admin')
                     <li class="nav-item">
@@ -249,7 +245,6 @@
                     </li>
                     </li>
                 @endhasanyrole
-
 
                 {{-- Beginning of Contact Details --}}
                 @hasanyrole('superadmin|admin')
@@ -288,7 +283,6 @@
                     </li>
                 @endhasanyrole
                 {{-- End of Contact Details --}}
-
 
                 {{-- Beginning of Posts --}}
                 @hasanyrole('superadmin')
@@ -416,11 +410,22 @@
                             href="{{ route('admin.roles.index') }}">
                             <div class="d-flex align-items-center">
                                 <i class="fa fa-angle-double-right"></i>
-                                <span class="nav-link-text ps-1">Role and Permission</span>
+                                <span class="nav-link-text ps-1">Role</span>
+                            </div>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ Request::segment(2) == 'roleandpermission' ? 'active' : '' }}"
+                            href="{{ route('admin.permissions.index') }}">
+                            <div class="d-flex align-items-center">
+                                <i class="fa fa-angle-double-right"></i>
+                                <span class="nav-link-text ps-1">Permissions</span>
                             </div>
                         </a>
                     </li>
                 </ul>
+
+                
             </li> <!-- Corrected closing tag -->
             </li>
         @endhasanyrole

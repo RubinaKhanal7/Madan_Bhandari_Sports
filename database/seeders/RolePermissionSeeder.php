@@ -16,89 +16,101 @@ class RolePermissionSeeder extends Seeder
 
         // Define the list of permissions
         $arrayOfPermissionNames = [
-            'create_site_settings',
-            'list_site_settings',
-            'edit_site_settings',
-            'delete_site_settings',
-            'create_cover_images',
-            'list_cover_images',
-            'edit_cover_images',
-            'delete_cover_images',
+            // About Us Permissions
             'create_about_us',
             'list_about_us',
             'edit_about_us',
             'delete_about_us',
-            'create_services',
-            'list_services',
-            'edit_services',
-            'delete_services',
-            'create_favicons',
-            'list_favicons',
-            'edit_favicons',
-            'delete_favicons',
-            'create_photo_galleries',
-            'list_photo_galleries',
-            'edit_photo_galleries',
-            'delete_photo_galleries',
-            'create_video_galleries',
-            'list_video_galleries',
-            'edit_video_galleries',
-            'delete_video_galleries',
-            'create_countries',
-            'list_countries',
-            'edit_countries',
-            'delete_countries',
 
-           
-            'create_work_categories',
-            'list_work_categories',
-            'edit_work_categories',
-            'delete_work_categories',
-
-            'create_companies',
-            'list_companies',
-            'edit_companies',
-            'delete_companies',
-          
-
-            'create_testimonials',
-            'list_testimonials',
-            'edit_testimonials',
-            'delete_testimonials',
-            'create_visitors_book',
-            'list_visitors_book',
-            'edit_visitors_book',
-            'delete_visitors_book',
-            'create_student_details',
-            'list_student_details',
-            'edit_student_details',
-            'delete_student_details',
-            'create_contacts',
-            'list_contacts',
-            'edit_contacts',
-            'delete_contacts',
+            // Category Permissions
             'create_categories',
             'list_categories',
             'edit_categories',
             'delete_categories',
+
+            // Contact Permissions
+            'create_contacts',
+            'list_contacts',
+            'edit_contacts',
+            'delete_contacts',
+
+            // Cover Image Permissions
+            'create_cover_images',
+            'list_cover_images',
+            'edit_cover_images',
+            'delete_cover_images',
+
+            // Favicon Permissions
+            'create_favicons',
+            'list_favicons',
+            'edit_favicons',
+            'delete_favicons',
+
+            // Member Types Permissions
+            'create_member_types',
+            'list_member_types',
+            'edit_member_types',
+            'delete_member_types',
+
+            // Photo Gallery Permissions
+            'create_photo_galleries',
+            'list_photo_galleries',
+            'edit_photo_galleries',
+            'delete_photo_galleries',
+
+            // Post Permissions
             'create_posts',
             'list_posts',
             'edit_posts',
             'delete_posts',
-            'create_director_messages',
-            'list_director_messages',
-            'edit_director_messages',
-            'delete_director_messages',
-            'create_demands',
-            'list_demands',
-            'edit_demands',
-            'delete_demands'
 
+            // Permission Permissions
+            'create_permissions',
+            'list_permissions',
+            'edit_permissions',
+            'delete_permissions',
 
-            // 'create_users',
-            // 'list_users',
-            // 'edit_users',
-            // 'delete_users',
+            // Role Permissions
+            'create_roles',
+            'list_roles',
+            'edit_roles',
+            'delete_roles',
+
+            // Service Permissions
+            'create_services',
+            'list_services',
+            'edit_services',
+            'delete_services',
+
+            // Site Settings Permissions
+            'create_site_settings',
+            'list_site_settings',
+            'edit_site_settings',
+            'delete_site_settings',
+
+            // Team Permissions
+            'create_teams',
+            'list_teams',
+            'edit_teams',
+            'delete_teams',
+
+            // Team Types Permissions
+            'create_team_types',
+            'list_team_types',
+            'edit_team_types',
+            'delete_team_types',
+
+            // Video Gallery Permissions
+            'create_video_galleries',
+            'list_video_galleries',
+            'edit_video_galleries',
+            'delete_video_galleries',
+
+            // Social Media Permissions
+            'create_social_media',
+            'list_social_media',
+            'edit_social_media',
+            'delete_social_media',
         ];
 
         // Create the permissions
@@ -113,22 +125,32 @@ class RolePermissionSeeder extends Seeder
             'list_site_settings',
             'edit_site_settings',
             'delete_site_settings',
+
             'create_cover_images',
             'list_cover_images',
             'edit_cover_images',
             'delete_cover_images',
+
+            'create_contacts',
+            'list_contacts',
+            'edit_contacts',
+            'delete_contacts',
+
             'create_about_us',
             'list_about_us',
             'edit_about_us',
             'delete_about_us',
+
             'create_services',
             'list_services',
             'edit_services',
             'delete_services',
+
             'create_favicons',
             'list_favicons',
             'edit_favicons',
             'delete_favicons',
+
             'create_photo_galleries',
             'list_photo_galleries',
             'edit_photo_galleries',
@@ -138,49 +160,38 @@ class RolePermissionSeeder extends Seeder
             'list_video_galleries',
             'edit_video_galleries',
             'delete_video_galleries',
-            'create_countries',
-            'list_countries',
-            'edit_countries',
-            'delete_countries',  
-            'create_companies',
-            'list_companies',
-            'edit_companies',
-            'delete_companies',
-            'create_work_categories',
-            'list_work_categories',
-            'edit_work_categories',
-            'delete_work_categories',
-            'create_testimonials',
-            'list_testimonials',
-            'edit_testimonials',
-            'delete_testimonials',
-            'create_visitors_book',
-            'list_visitors_book',
-            'edit_visitors_book',
-            'delete_visitors_book',
-            'create_student_details',
-            'list_student_details',
-            'edit_student_details',
-            'delete_student_details',
-            'create_contacts',
-            'list_contacts',
-            'edit_contacts',
-            'delete_contacts',
+
             'create_categories',
             'list_categories',
             'edit_categories',
             'delete_categories',
+
             'create_posts',
             'list_posts',
             'edit_posts',
             'delete_posts',
-            'create_director_messages',
-            'list_director_messages',
-            'edit_director_messages',
-            'delete_director_messages'
 
+            'create_teams',
+            'list_teams',
+            'edit_teams',
+            'delete_teams',
+
+            'create_team_types',
+            'list_team_types',
+            'edit_team_types',
+            'delete_team_types',
+
+            'create_social_media',
+            'list_social_media',
+            'edit_social_media',
+            'delete_social_media',
+
+            'create_member_types',
+            'list_member_types',
+            'edit_member_types',
+            'delete_member_types',
         ];
-        $guardName = 'web';
+
         // Create roles and assign permissions to each role
         foreach ($listOfRoles as $roleName) {
             $role = Role::create(['name' => $roleName]);

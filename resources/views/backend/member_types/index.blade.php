@@ -28,17 +28,25 @@
                     @foreach($memberTypes as $memberType)
                         <tr>
                             <td>{{ $memberType->title }}</td>
-                            <td>
+                            <td style="white-space: nowrap;">
                                 <!-- Edit Button -->
-                                <button class="btn btn-sm btn-info" data-bs-toggle="modal" data-bs-target="#editMemberTypeModal{{ $memberType->id }}">Edit</button>
-
+                                <button class="btn btn-outline-info btn-sm" 
+                                        data-bs-toggle="modal" 
+                                        data-bs-target="#editMemberTypeModal{{ $memberType->id }}" 
+                                        style="width: 32px;">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                            
                                 <!-- Delete Button -->
-                                <form action="{{ route('admin.member_types.destroy', $memberType->id) }}" method="POST" class="d-inline">
+                                <form action="{{ route('admin.member_types.destroy', $memberType->id) }}" method="POST" style="display:inline;">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure?')">Delete</button>
+                                    <button type="submit" class="btn btn-outline-danger btn-sm" style="width: 32px;" onclick="return confirm('Are you sure?')">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
                                 </form>
                             </td>
+                            
                         </tr>
 
                         <!-- Edit Modal for each member type -->
