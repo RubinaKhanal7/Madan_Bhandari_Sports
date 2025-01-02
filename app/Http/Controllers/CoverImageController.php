@@ -5,108 +5,154 @@ namespace App\Http\Controllers;
 use App\Models\CoverImage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
+use Intervention\Image\Facades\Image;
+use Illuminate\Support\Str;
 
 class CoverImageController extends Controller
 {
+
     public function index()
     {
-        $coverimages = CoverImage::latest()->paginate(5);
-        return view('backend.coverimage.index', ['coverimages' => $coverimages, 'page_title' => 'Cover Image']);
-    }
-
-    public function create()
-    {
-        return view('backend.coverimage.create', ['page_title' => 'Add Cover Image']);
+        $coverImages = CoverImage::latest()->paginate(5);
+        return view('backend.coverimage.index', [
+            'coverImages' => $coverImages,
+            'page_title' => 'Cover Image'
+        ]);
     }
 
     public function store(Request $request)
     {
-        $this->validate($request, [
-            'title' => 'required|string',
-            'image' => 'required|image|mimes:jpg,png,jpeg,gif,svg|max:1536',
-            'status' => 'required|boolean', // Ensuring status is boolean and required
+        $request->validate([
+            'title_en' => 'required',
+            'title_ne' => 'required',
+            'image' => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:1',
+            'crop_width' => 'nullable|numeric',
+            'crop_height' => 'nullable|numeric',
+            'crop_x' => 'nullable|numeric',
+            'crop_y' => 'nullable|numeric',
         ]);
 
-        try {
-            $newImageName = time() . '-' . $request->image->getClientOriginalName();
-            $request->image->move(public_path('uploads/coverimage'), $newImageName);
+        $imagePath = $this->handleImageUpload($request->file('image'), [
+            'width' => $request->crop_width,
+            'height' => $request->crop_height,
+            'x' => $request->crop_x,
+            'y' => $request->crop_y,
+        ]);
 
-            $coverimage = new CoverImage;
-            $coverimage->title = $request->title;
-            $coverimage->image = $newImageName;
-            $coverimage->status = $request->status; // Set status here
+        CoverImage::create([
+            'title_en' => $request->title_en,
+            'title_ne' => $request->title_ne,
+            'image' => $imagePath,
+            'description_en' => $request->description_en,
+            'description_ne' => $request->description_ne,
+            'is_active' => $request->is_active ? true : false,
+        ]);
 
-            if ($coverimage->save()) {
-                return redirect()->route('admin.cover-images.index')->with('success', 'Success! Cover image created.');
-            } else {
-                return redirect()->back()->with('error', 'Error! Cover image not created.');
-            }
-        } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Error! The size of the image must be less than 2MB');
-        }
-    }
-
-    public function edit($id)
-    {
-        $coverimage = CoverImage::find($id);
-        if (!$coverimage) {
-            return redirect()->route('admin.cover-images.index')->with('error', 'Cover Image not found.');
-        }
-
-        return view('backend.coverimage.update', ['coverimage' => $coverimage, 'page_title' => 'Update Cover Image']);
+        return redirect()->route('admin.cover-images.index')
+            ->with('success', 'Cover image created successfully.');
     }
 
     public function update(Request $request, $id)
     {
-        $this->validate($request, [
-            'title' => 'nullable|string',
-            'image' => 'nullable|image|mimes:jpg,png,jpeg,gif,svg|max:2048',
-            'status' => 'required|boolean', // Ensure status is boolean and required
+        $request->validate([
+            'title_en' => 'required',
+            'title_ne' => 'required',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+            'cropped_data' => 'nullable|string',
         ]);
-
+    
         $coverImage = CoverImage::findOrFail($id);
-        if (!$coverImage) {
-            return redirect()->route('admin.cover-images.index')->with('error', 'Cover Image not found.');
+        $imagePath = $coverImage->image;
+    
+        // Handle image upload
+        if ($request->has('cropped_data')) {
+            // Delete old image
+            $this->deleteOldImage($coverImage->image);
+            
+            // Process and save the cropped image
+            $imagePath = $this->handleCroppedImage($request->cropped_data);
         }
-
-        if ($request->hasFile('image')) {
-            if ($request->file('image')->getSize() > 2097152) { // 2MB in bytes
-                return redirect()->back()->with('error', 'Error! Make sure the size of the image is less than 2MB');
-            }
-
-            $newImageName = time() . '-' . $request->image->getClientOriginalName();
-            $request->image->move(public_path('uploads/coverimage'), $newImageName);
-
-            if ($coverImage->image) {
-                $oldImagePath = public_path('uploads/coverimage/' . $coverImage->image);
-                File::exists($oldImagePath) && File::delete($oldImagePath);
-            }
-
-            $coverImage->image = $newImageName;
+    
+        $coverImage->update([
+            'title_en' => $request->title_en,
+            'title_ne' => $request->title_ne,
+            'image' => $imagePath,
+            'is_active' => $request->is_active ? true : false,
+        ]);
+    
+        return redirect()->route('admin.cover-images.index')
+            ->with('success', 'Cover image updated successfully.');
+    }
+    
+    private function handleCroppedImage($base64Image)
+    {
+        // Remove data URI scheme prefix
+        $image_parts = explode(";base64,", $base64Image);
+        $image_base64 = base64_decode($image_parts[1]);
+    
+        // Create path
+        $path = 'uploads/cover-images/';
+        if (!File::exists(public_path($path))) {
+            File::makeDirectory(public_path($path), 0777, true);
         }
-
-        $coverImage->title = $request->title ?? $coverImage->title;
-        $coverImage->status = $request->status; // Update status here
-
-        if ($coverImage->save()) {
-            return redirect()->route('admin.cover-images.index')->with('success', 'Success! Cover image updated.');
-        }
-
-        return redirect()->back()->with('error', 'Error! Something went wrong.');
+    
+        // Generate filename
+        $filename = $path . time() . '_' . Str::random(10) . '.jpg';
+        
+        // Save image
+        File::put(public_path($filename), $image_base64);
+        
+        return $filename;
     }
 
     public function destroy($id)
     {
-        $coverimage = CoverImage::find($id);
-        if ($coverimage) {
-            if ($coverimage->image) {
-                $oldImagePath = public_path('uploads/coverimage/' . $coverimage->image);
-                File::exists($oldImagePath) && File::delete($oldImagePath);
-            }
-            $coverimage->delete();
-            return redirect()->route('admin.cover-images.index')->with('success', 'Success! Cover Image Deleted');
-        } else {
-            return redirect()->route('admin.cover-images.index')->with('error', 'Cover Image not found.');
-        }
+        $coverImage = CoverImage::findOrFail($id);
+        $this->deleteOldImage($coverImage->image);
+        $coverImage->delete();
+
+        return redirect()->route('admin.cover-images.index')
+            ->with('success', 'Cover image deleted successfully.');
     }
+
+    private function handleImageUpload($image, $cropData)
+{
+    $path = 'uploads/cover-images/';
+    if (!File::exists(public_path($path))) {
+        File::makeDirectory(public_path($path), 0777, true);
+    }
+
+    $filename = time() . '_' . Str::random(10) . '.' . $image->getClientOriginalExtension();
+    
+    // Create image instance
+    $img = Image::make($image->getRealPath());
+    
+    // Crop image if crop data is provided
+    if ($cropData['width'] && $cropData['height']) {
+        $img->crop(
+            (int)$cropData['width'],
+            (int)$cropData['height'],
+            (int)$cropData['x'],
+            (int)$cropData['y']
+        );
+    }
+    
+    // Resize and compress image
+    $img->resize(1200, null, function ($constraint) {
+        $constraint->aspectRatio();
+        $constraint->upsize();
+    });
+    
+    // Save compressed image
+    $img->save(public_path($path . $filename), 80); // 80 is the quality (0-100)
+    
+    return $path . $filename;
+}
+
+private function deleteOldImage($path)
+{
+    if ($path && File::exists(public_path($path))) {
+        File::delete(public_path($path));
+    }
+}
 }

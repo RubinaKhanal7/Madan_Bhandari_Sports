@@ -21,6 +21,8 @@ use App\Http\Controllers\VideoGalleryController;
 use App\Http\Controllers\Auth\ResetPasswordController;
 use App\Http\Controllers\TeamTypeController;
 use App\Http\Controllers\MemberTypeController;
+use App\Http\Controllers\RoleController;
+use App\Http\Controllers\PermissionController;
 
 
 /*
@@ -118,15 +120,15 @@ Route::prefix('/admin')->name('admin.')->middleware(['web', 'auth'])->group(func
     Route::resource('site-settings', SiteSettingController::class);
 
     // Cover images
-    // Route::resource('cover-images', CoverImageController::class);
-
-    // Route::get('cover-images', [CoverImageController::class,'create'])->name('cover-images');
     Route::resource('cover-images', CoverImageController::class);
 
     // About us
     Route::resource('about-us', AboutController::class);
 
-
+    //Role and permission
+        Route::resource('roles', RoleController::class);
+        Route::resource('permissions', PermissionController::class);
+    
 
     // Services
     Route::resource('services', ServiceController::class);
