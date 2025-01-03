@@ -14,13 +14,14 @@ return new class extends Migration {
     {
         Schema::create('favicons', function (Blueprint $table) {
             $table->id();
-            $table->string('android_chrome_oneninetwo');
-            $table->string('android_chrome_fiveonetwo');
-            $table->string('apple_touch_icon');
-            $table->string('favicon_ico');
-            $table->string('favicon_sixteen');
-            $table->string('favicon_thirtyTwo');
-            $table->string('site_webmanifest');
+            $table->string('fav_16')->nullable();
+            $table->string('fav_32')->nullable();
+            $table->string('fav_ico')->nullable();
+            $table->string('fav_apple')->nullable();
+            $table->string('fav_192')->nullable();
+            $table->string('fav_512')->nullable();
+            $table->string('site_manifest')->nullable();
+            $table->boolean('is_active')->default(false);
             $table->timestamps();
         });
     }

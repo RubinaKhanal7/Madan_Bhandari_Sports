@@ -2,28 +2,22 @@
 
 namespace Database\Seeders;
 
-use App\Models\Favicon;
 use Illuminate\Database\Seeder;
+use App\Models\Favicon;
 
-class FavIconSeeder extends Seeder
+class FaviconSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     *
-     * @return void
-     */
     public function run()
     {
-        //
         Favicon::create([
-            'android_chrome_oneninetwo' => 'android-chrome-192x192.png',
-            'android_chrome_fiveonetwo' => 'android-chrome-512x512.png',
-            'favicon_thirtyTwo' => 'favicon-32x32.png',
-            'favicon_sixteen' => 'favicon-16x16.png',
-            'favicon_ico' => 'favicon.ico',
-            'apple_touch_icon' => 'apple-touch-icon.png',
-            'site_webmanifest' => 'site.webmanifest',
-
+            'fav_16' => 'favicon_16x16.png',
+            'fav_32' => 'favicon_32x32.png',
+            'fav_ico' => 'favicon.ico',
+            'fav_apple' => 'favicon_apple.png',
+            'fav_192' => 'favicon_192x192.png',
+            'fav_512' => 'favicon_512x512.png',
+            'site_manifest' => 'https://example.com/manifest.json',
+            'is_active' => true,
         ]);
     }
 }
