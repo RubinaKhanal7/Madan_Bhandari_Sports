@@ -2,35 +2,60 @@
 
 namespace App\Http\Controllers\Auth;
 
-use App\Models\User;
 use App\Http\Controllers\Controller;
+use App\Models\User;
 use Illuminate\Support\Facades\Hash;
-use App\Providers\RouteServiceProvider;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Foundation\Auth\RegistersUsers;
 use Illuminate\Http\Request;
+use App\Providers\RouteServiceProvider;
 use Illuminate\Auth\Events\Registered;
+use Illuminate\Support\Facades\Auth;
 
 class RegisterController extends Controller
 {
-    use RegistersUsers;
-
     /**
      * Where to redirect users after registration.
      *
      * @var string
      */
-    protected $redirectTo = '/login';
+    protected $redirectTo = RouteServiceProvider::HOME;
 
     /**
-     * Create a new controller instance.
+     * Show the registration form.
      *
-     * @return void
+     * @return \Illuminate\View\View
      */
-    public function __construct()
+    public function showRegistrationForm()
     {
-        $this->middleware('guest');
+        return view('auth.register');
     }
+
+    /**
+     * Handle a registration request for the application.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function register(Request $request)
+    {
+        $this->validator($request->all())->validate();
+        
+        // Create the user
+        $user = $this->create($request->all());
+        event(new Registered($user));
+        
+        // Log in the user immediately after registration
+        Auth::login($user);
+        
+        // Send email verification notification
+        $user->sendEmailVerificationNotification();
+    
+        // Redirect to verification notice
+        return redirect()->route('verification.notice')
+                         ->with('message', 'A verification link has been sent to your email.');
+    }
+    
+
 
     /**
      * Get a validator for an incoming registration request.
@@ -42,7 +67,7 @@ class RegisterController extends Controller
     {
         return Validator::make($data, [
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email'], 
             'password' => ['required', 'string', 'min:8', 'confirmed'],
         ]);
     }
@@ -63,18 +88,12 @@ class RegisterController extends Controller
     }
 
     /**
-     * Handle a registration request for the application.
+     * Determine the post-registration redirect path.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\RedirectResponse
+     * @return string
      */
-    public function register(Request $request)
+    public function redirectPath()
     {
-        $this->validator($request->all())->validate();
-
-        event(new Registered($user = $this->create($request->all())));
-
-        return redirect()->route('login')
-            ->with('success', 'Registration successful! Please login.');
+        return $this->redirectTo;
     }
 }

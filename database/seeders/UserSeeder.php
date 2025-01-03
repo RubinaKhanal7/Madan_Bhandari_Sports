@@ -20,7 +20,10 @@ class UserSeeder extends Seeder
         $superAdminUser = User::create([
             'name' => "superadmin",
             'email' => 'superadmin@superadmin.com',
+            'email_verified_at' =>  now(),
             'password' => Hash::make('password'),
+            'is_active' => 1,
+            'role' => 1,
         ]);
 
         $superAdminRole = Role::where('name', 'superadmin')->first();
@@ -31,7 +34,18 @@ class UserSeeder extends Seeder
         $adminUser = User::create([
             'name' => "admin",
             'email' => 'admin@admin.com',
+            'email_verified_at' =>  now(),
             'password' => Hash::make('password'),
+            'is_active' => 1,
+            'role' => 2,
+        ]);
+
+        User::create([
+            'name' => 'user',
+            'email' => 'user@user.com',
+            'password' => Hash::make('password'),
+            'is_active' => 1,
+            'role' => 3
         ]);
 
         // Assign the admin role to the admin user
