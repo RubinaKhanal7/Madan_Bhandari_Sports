@@ -178,7 +178,7 @@
                             <input type="text" name="title_ne" class="form-control" required>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">Image</label>
+                            <label class="form-label">Image (Optional)</label>
                             <div id="imagePreviewContainer">
                                 <img id="imagePreview" src="#" alt="Selected Image" 
                                      style="max-width: 200px; display: none;">
