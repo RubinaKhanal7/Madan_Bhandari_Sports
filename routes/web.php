@@ -212,4 +212,3 @@ Route::get('/courses/{slug}', 'FrontViewController@viewCourse');
 
 Route::post('/contact-submit', [ContactController::class, 'submit'])->name('contact.submit');
 Route::get('/verify-email/{token}', [ContactController::class, 'verifyEmail'])->name('verify.email');
-
