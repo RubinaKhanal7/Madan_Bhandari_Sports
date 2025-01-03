@@ -54,18 +54,12 @@
                                     <i class="fas fa-edit"></i>
                                 </button>
                                  
-                                <form action="{{ route('admin.cover-images.destroy', $coverImage->id) }}" 
-                                      method="POST" 
-                                      style="display:inline;">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" 
-                                            class="btn btn-outline-danger btn-sm" 
-                                            style="width: 32px;" 
-                                            onclick="return confirm('Are you sure?')">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                </form>
+                                <button class="btn btn-outline-danger btn-sm" 
+                                        data-bs-toggle="modal" 
+                                        data-bs-target="#deleteCoverImageModal{{ $coverImage->id }}" 
+                                        style="width: 32px;">
+                                    <i class="fas fa-trash"></i>
+                                </button>
                             </td>
                         </tr>
 
@@ -141,7 +135,29 @@
                                 </form>
                             </div>
                         </div>
-                    </div>                       
+                    </div>   
+                      <!-- Delete Confirmation Modal -->
+                      <div class="modal fade" id="deleteCoverImageModal{{ $coverImage->id }}" tabindex="-1" aria-labelledby="deleteCoverImageModalLabel{{ $coverImage->id }}" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="deleteCoverImageModalLabel{{ $coverImage->id }}">Delete Cover Image</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    Are you sure you want to delete this cover image?
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                    <form action="{{ route('admin.cover-images.destroy', $coverImage->id) }}" method="POST">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-danger">Yes, Delete</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>                    
                     @endforeach
                 </tbody>
             </table>

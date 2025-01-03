@@ -60,15 +60,15 @@
                                     </button>
                                 
                                     <!-- Delete Button -->
-                                    <form action="{{ route('admin.teams.destroy', $team->id) }}" method="POST" class="d-inline">
+                                    <form action="{{ route('admin.teams.destroy', $team->id) }}" method="POST" class="d-inline" data-toggle="modal" data-target="#deleteConfirmationModal">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" class="btn btn-outline-danger btn-sm" 
-                                                style="width: 32px;" 
-                                                onclick="return confirm('Are you sure you want to delete this team member?')">
+                                        <button type="button" class="btn btn-outline-danger btn-sm" data-toggle="modal" data-target="#deleteConfirmationModal" 
+                                                onclick="event.preventDefault(); document.getElementById('deleteTeamForm').action='{{ route('admin.teams.destroy', $team->id) }}';">
                                             <i class="fas fa-trash"></i>
                                         </button>
                                     </form>
+
                                 </td>
                                 
                             </tr>
@@ -136,6 +136,31 @@
                                     </div>
                                 </div>
                             </div>
+                            <!-- Delete Confirmation Modal -->
+                            <div class="modal fade" id="deleteConfirmationModal" tabindex="-1" role="dialog" aria-labelledby="deleteConfirmationModalLabel" aria-hidden="true">
+                                <div class="modal-dialog" role="document">
+                                    <div class="modal-content">
+                                        <form id="deleteTeamForm" action="" method="POST">
+                                            @csrf
+                                            @method('DELETE')
+                                            <div class="modal-header">
+                                                <h5 class="modal-title" id="deleteConfirmationModalLabel">Confirm Deletion</h5>
+                                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                    <span aria-hidden="true">&times;</span>
+                                                </button>
+                                            </div>
+                                            <div class="modal-body">
+                                                Are you sure you want to delete this team member? This action cannot be undone.
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                                                <button type="submit" class="btn btn-danger">Delete</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+
                             @endforeach
                         </tbody>
                     </table>

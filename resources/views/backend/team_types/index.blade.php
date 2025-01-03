@@ -57,15 +57,13 @@
                             </button>
                         
                             <!-- Delete Button -->
-                            <form action="{{ route('admin.team-types.destroy', $teamType) }}" method="POST" class="d-inline">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="btn btn-outline-danger btn-sm" style="width: 32px;" onclick="return confirm('Are you sure?')">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </form>
+                            <button type="button" class="btn btn-outline-danger btn-sm" 
+                                    data-bs-toggle="modal" 
+                                    data-bs-target="#deleteModal{{ $teamType->id }}" 
+                                    style="width: 32px;">
+                                <i class="fas fa-trash"></i>
+                            </button>
                         </td>
-                        
                     </tr>
                     @endforeach
                 </tbody>
@@ -164,6 +162,29 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                     <button type="submit" class="btn btn-primary">Update</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Modal -->
+<div class="modal fade" id="deleteModal{{ $teamType->id }}" tabindex="-1" aria-labelledby="deleteModalLabel{{ $teamType->id }}" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form action="{{ route('admin.team-types.destroy', $teamType) }}" method="POST">
+                @csrf
+                @method('DELETE')
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteModalLabel{{ $teamType->id }}">Confirm Delete</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to delete this team type?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-danger">Delete</button>
                 </div>
             </form>
         </div>
