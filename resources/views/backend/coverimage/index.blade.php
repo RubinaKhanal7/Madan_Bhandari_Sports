@@ -195,15 +195,6 @@
     </div>
 </div>
 
-
-
-<!-- Include Cropper.js CSS -->
-<link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css" rel="stylesheet">
-
-<!-- Include Cropper.js JS -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
-
-
 <script>
  function previewImage(event, coverImageId = null) {
     var reader = new FileReader();

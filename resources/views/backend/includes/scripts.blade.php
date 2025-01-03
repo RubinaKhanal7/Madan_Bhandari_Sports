@@ -26,8 +26,11 @@
 <script src="{{ asset('adminassets/scripts/language.js') }}"></script>
 <script src="{{ asset('adminassets/scripts/common.js') }}"></script>
 <script src="{{ asset('adminassets/assets/js/flatpickr.js') }}"></script>
+<!-- Include Cropper.js CSS -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css" rel="stylesheet">
+
+<!-- Include Cropper.js JS -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css">
 
 <script type="text/javascript">
     InitializeUnicodeNepali();

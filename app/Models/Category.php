@@ -10,7 +10,14 @@ class Category extends Model
 {
     use HasFactory, Sluggable;
 
-    protected $fillable = ['title', 'slug'];
+    protected $fillable = [ 
+        'title_ne',
+        'title_en',
+        'description_ne',
+        'description_en',
+        'image',
+        'is_active'
+    ];
 
     public function sluggable(): array
     {
