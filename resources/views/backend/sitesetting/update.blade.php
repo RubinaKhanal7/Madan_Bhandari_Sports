@@ -54,14 +54,18 @@
 
                 <div class="form-group">
                     <label for="main_logo">Main Logo</label>
-                    <input type="file" name="main_logo" class="form-control" placeholder="Main Logo" id="main_logo" onchange="previewMainImage(event)">
-                    <img id="main_preview" src="{{ asset('uploads/sitesetting/' . $sitesetting->main_logo) }}" style="max-width: 300px; max-height:300px" />
+                    <input type="file" name="main_logo" class="form-control" placeholder="Main Logo" id="main_logo" accept="image/*">
+                    <div class="mt-2" id="main-logo-preview-container">
+                        <img id="main_preview" src="{{ asset('uploads/sitesetting/' . $sitesetting->main_logo) }}" style="max-width: 300px; max-height:300px" />
+                    </div>
                 </div>
-
+    
                 <div class="form-group">
                     <label for="alt_logo">Alt Logo</label>
-                    <input type="file" name="alt_logo" class="form-control" placeholder="Alt Logo" id="alt_logo" onchange="previewAltImage(event)">
-                    <img id="alt_preview" src="{{ asset('uploads/sitesetting/' . $sitesetting->alt_logo) }}" style="max-width: 300px; max-height:300px" />
+                    <input type="file" name="alt_logo" class="form-control" placeholder="Alt Logo" id="alt_logo" accept="image/*">
+                    <div class="mt-2" id="alt-logo-preview-container">
+                        <img id="alt_preview" src="{{ asset('uploads/sitesetting/' . $sitesetting->alt_logo) }}" style="max-width: 300px; max-height:300px" />
+                    </div>
                 </div>
 
                 <div class="form-group" id="phone_no_container">
@@ -117,53 +121,85 @@
         </form>
     </div>
 
+    <!-- Modal for Image Cropping -->
+    <div class="modal fade" id="cropModal" tabindex="-1" aria-labelledby="cropModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="cropModalLabel">Crop Image</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <img id="image-preview" style="max-width: 100%; max-height: 400px; display: block;">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" id="saveCrop" class="btn btn-primary">Save Crop</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
-        const previewMainImage = e => {
-            const reader = new FileReader();
-            reader.readAsDataURL(e.target.files[0]);
-            reader.onload = () => {
-                const preview = document.getElementById('main_preview');
-                preview.src = reader.result;
-            };
-        };
+        let cropper;
+        let currentFile;
+        let currentImageType;
 
-        const previewAltImage = e => {
-            const reader = new FileReader();
-            reader.readAsDataURL(e.target.files[0]);
-            reader.onload = () => {
-                const preview = document.getElementById('alt_preview');
-                preview.src = reader.result;
-            };
-        };
+        // Image file input change event for both logos
+        document.getElementById('main_logo').addEventListener('change', function(e) {
+            handleImageUpload(e, 'main_logo');
+        });
 
-        $(document).ready(function() {
-            // Add/remove phone number input fields dynamically
-            $(".add-phone").click(function() {
-                $("#phone_no_container").append('<div class="input-group mb-3">' +
-                    '<input type="text" name="phone_no[]" class="form-control" placeholder="Phone Number">' +
-                    '<div class="input-group-append">' +
-                    '<button class="btn btn-outline-secondary remove-phone" type="button">-</button>' +
-                    '</div>' +
-                    '</div>');
+        document.getElementById('alt_logo').addEventListener('change', function(e) {
+            handleImageUpload(e, 'alt_logo');
+        });
+
+        function handleImageUpload(e, imageType) {
+            const files = e.target.files;
+            if (files && files.length > 0) {
+                currentFile = files[0];
+                currentImageType = imageType;
+                const url = URL.createObjectURL(currentFile);
+                const imagePreview = document.getElementById('image-preview');
+                imagePreview.src = url;
+
+                // Show the crop modal
+                $('#cropModal').modal('show');
+
+                if (cropper) {
+                    cropper.destroy();
+                }
+                cropper = new Cropper(imagePreview, {
+                    aspectRatio: 16 / 9,
+                    viewMode: 1,
+                });
+            }
+        }
+
+        // Save cropped image data and update hidden input fields
+        document.getElementById('saveCrop').addEventListener('click', function () {
+            const cropData = cropper.getData();
+            const cropDataString = JSON.stringify({
+                width: Math.round(cropData.width),
+                height: Math.round(cropData.height),
+                x: Math.round(cropData.x),
+                y: Math.round(cropData.y)
             });
 
-            $(document).on("click", ".remove-phone", function() {
-                $(this).parents(".input-group").remove();
-            });
+            const base64Image = cropper.getCroppedCanvas().toDataURL('image/png');
 
-            // Add/remove email input fields dynamically
-            $(".add-email").click(function() {
-                $("#email_container").append('<div class="input-group mb-3">' +
-                    '<input type="email" name="email[]" class="form-control" placeholder="Email">' +
-                    '<div class="input-group-append">' +
-                    '<button class="btn btn-outline-secondary remove-email" type="button">-</button>' +
-                    '</div>' +
-                    '</div>');
-            });
+            if (currentImageType === 'main_logo') {
+                document.getElementById('main_logo_cropped').value = base64Image;
+                document.getElementById('main_logo_crop_data').value = cropDataString;
+                document.getElementById('main_preview').src = base64Image;
+            } else if (currentImageType === 'alt_logo') {
+                document.getElementById('alt_logo_cropped').value = base64Image;
+                document.getElementById('alt_logo_crop_data').value = cropDataString;
+                document.getElementById('alt_preview').src = base64Image;
+            }
 
-            $(document).on("click", ".remove-email", function() {
-                $(this).parents(".input-group").remove();
-            });
+            // Close modal after saving crop
+            $('#cropModal').modal('hide');
         });
     </script>
 @endsection

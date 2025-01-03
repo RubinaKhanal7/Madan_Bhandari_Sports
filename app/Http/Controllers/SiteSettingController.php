@@ -74,46 +74,44 @@ class SiteSettingController extends Controller
 
     public function update(Request $request, $id)
 {
-    $this->validate($request, [
-        'title_ne' => 'required|string|max:255',
-        'title_en' => 'required|string|max:255',
-        'main_logo' => 'nullable|image|mimes:jpg,jpeg,png',
-        'alt_logo' => 'nullable|image|mimes:jpg,jpeg,png',
-        'google_map' => 'nullable|url',
-    ]);
-
     $sitesetting = SiteSetting::findOrFail($id);
-    $sitesetting->title_ne = $request->title_ne;
-    $sitesetting->title_en = $request->title_en;
-    $sitesetting->slogan_ne = $request->slogan_ne;
-    $sitesetting->slogan_en = $request->slogan_en;
 
-    // Handle file uploads
-    if ($request->hasFile('main_logo')) {
-        $main_logo = $request->file('main_logo');
-        $main_logo_name = time() . '_main.' . $main_logo->getClientOriginalExtension();
-        $main_logo->move(public_path('uploads/sitesetting'), $main_logo_name);
-        $sitesetting->main_logo = $main_logo_name;
+    // Process main logo
+    if ($request->has('main_logo_cropped') && $request->main_logo_cropped != '') {
+        // Remove header from base64 string
+        $image_parts = explode(";base64,", $request->main_logo_cropped);
+        $image_base64 = base64_decode($image_parts[1]);
+        
+        // Generate unique filename
+        $filename = 'main_logo_' . time() . '.png';
+        
+        // Save file
+        Storage::disk('public')->put('uploads/sitesetting/' . $filename, $image_base64);
+        
+        // Update database
+        $sitesetting->main_logo = $filename;
     }
 
-    if ($request->hasFile('alt_logo')) {
-        $alt_logo = $request->file('alt_logo');
-        $alt_logo_name = time() . '_alt.' . $alt_logo->getClientOriginalExtension();
-        $alt_logo->move(public_path('uploads/sitesetting'), $alt_logo_name);
-        $sitesetting->alt_logo = $alt_logo_name;
+    // Process alt logo
+    if ($request->has('alt_logo_cropped') && $request->alt_logo_cropped != '') {
+        // Remove header from base64 string
+        $image_parts = explode(";base64,", $request->alt_logo_cropped);
+        $image_base64 = base64_decode($image_parts[1]);
+        
+        // Generate unique filename
+        $filename = 'alt_logo_' . time() . '.png';
+        
+        // Save file
+        Storage::disk('public')->put('uploads/sitesetting/' . $filename, $image_base64);
+        
+        // Update database
+        $sitesetting->alt_logo = $filename;
     }
 
-    $sitesetting->phone_no = json_encode($request->phone_no);
-    $sitesetting->email = json_encode($request->email);
-    $sitesetting->established_year = $request->established_year;
-    $sitesetting->description_ne = $request->description_ne;
-    $sitesetting->description_en = $request->description_en;
-    $sitesetting->google_map = $request->google_map;
+    // Update other fields
+    $sitesetting->update($request->except(['main_logo', 'alt_logo', 'main_logo_cropped', 'alt_logo_cropped', 'main_logo_crop_data', 'alt_logo_crop_data']));
 
-    $sitesetting->save();
-
-    return redirect()->route('admin.site-settings.index')
-                     ->with('success', 'Site settings updated successfully');
+    return redirect()->back()->with('success', 'Site settings updated successfully');
 }
 
     public function destroy($id)

@@ -63,11 +63,6 @@ Route::get('/lang/{lang}', function ($lang) {
     return redirect()->route('fronted.index');
 });
 
-
-
-
-
-
 // Frontend routes
 
 Route::get('/', [FrontViewController::class, 'index'])->name('index');
@@ -134,10 +129,7 @@ Route::prefix('/admin')->name('admin.')->middleware(['web', 'auth'])->group(func
     //Role and permission
         Route::resource('roles', RoleController::class);
         Route::resource('permissions', PermissionController::class);
-        
-        
     
-
     // Services
     Route::resource('services', ServiceController::class);
 
@@ -154,7 +146,6 @@ Route::prefix('/admin')->name('admin.')->middleware(['web', 'auth'])->group(func
     Route::resource('video-galleries', VideoGalleryController::class);
         
     // Teams
-
     Route::get('/teams', [TeamController::class, 'index'])->middleware('auth');
     Route::get('/teams/index', [TeamController::class, 'index'])->middleware('auth')->name('teams.index');
     Route::get('/teams/create', [TeamController::class, 'create'])->middleware('auth')->name('teams.create');
@@ -168,7 +159,6 @@ Route::prefix('/admin')->name('admin.')->middleware(['web', 'auth'])->group(func
     Route::post('/member_types', [MemberTypeController::class, 'store'])->name('member_types.store');
     Route::put('/member_types/{id}', [MemberTypeController::class, 'update'])->name('member_types.update');
     Route::delete('/member_types/{id}', [MemberTypeController::class, 'destroy'])->name('member_types.destroy');
-
 
     // Contact
     Route::resource('contacts', ContactController::class);
@@ -184,8 +174,6 @@ Route::prefix('/admin')->name('admin.')->middleware(['web', 'auth'])->group(func
         Route::put('team-types/update/{teamType}', [TeamTypeController::class, 'update'])->name('team-types.update');
         Route::delete('team-types/destroy/{teamType}', [TeamTypeController::class, 'destroy'])->name('team-types.destroy');
 
-
-
 });
 
 Route::get('/blogs', [FrontViewController::class, 'blogs'])->name('blogs.index');
@@ -198,7 +186,6 @@ Route::get('/courses/{slug}', 'FrontViewController@viewCourse');
 // Route::get('/admin/applications', [ApplicationController::class, 'adminIndex'])->name('admin.applications.index');
 // Route::post('/applications/{id}/accept', [ApplicationController::class, 'accept'])->name('applications.accept');
 // Route::post('/applications/{id}/reject', [ApplicationController::class, 'reject'])->name('applications.reject');
-
 
 Route::post('/contact-submit', [ContactController::class, 'submit'])->name('contact.submit');
 Route::get('/verify-email/{token}', [ContactController::class, 'verifyEmail'])->name('verify.email');
