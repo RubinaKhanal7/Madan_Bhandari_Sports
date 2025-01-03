@@ -20,11 +20,11 @@ use App\Http\Controllers\PhotoGalleryController;
 use App\Http\Controllers\VideoGalleryController;
 use App\Http\Controllers\Auth\ResetPasswordController;
 use App\Http\Controllers\TeamTypeController;
-use App\Http\Controllers\MemberTypeController;
+use App\Http\Controllers\SocialMediaController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\PermissionController;
-use App\Http\Controllers\SocialMediaController;
-
+use App\Http\Controllers\MemberTypeController;
+use App\Http\Controllers\Auth\VerificationController;
 
 /*
 |--------------------------------------------------------------------------
@@ -43,7 +43,17 @@ use App\Http\Controllers\SocialMediaController;
 //     session()->put('locale',$lang);
 //     return redirect()->route('fronted.index');
 // });
+Auth::routes(['verify' => true]);
 
+// Route to handle the verification when the user clicks the link in the email
+Route::get('/email/verify/{id}/{hash}', [VerificationController::class, 'verify'])
+    ->middleware(['auth', 'signed'])
+    ->name('verification.verify');
+
+// Route to resend the verification email
+Route::post('/email/resend', [VerificationController::class, 'resend'])
+    ->middleware(['auth', 'throttle:6,1'])
+    ->name('verification.send');
 
 Route::get('/lang/{lang}', function ($lang) {
     // Validate the provided locale
@@ -189,4 +199,3 @@ Route::get('/courses/{slug}', 'FrontViewController@viewCourse');
 
 Route::post('/contact-submit', [ContactController::class, 'submit'])->name('contact.submit');
 Route::get('/verify-email/{token}', [ContactController::class, 'verifyEmail'])->name('verify.email');
-

@@ -12,7 +12,7 @@ class RolePermissionSeeder extends Seeder
     public function run(): void
     {
         // Define the list of roles
-        $listOfRoles = ['superadmin', 'admin'];
+        $listOfRoles = ['superadmin', 'admin','user'];
 
         // Define the list of permissions
         $arrayOfPermissionNames = [
@@ -192,17 +192,19 @@ class RolePermissionSeeder extends Seeder
             'delete_member_types',
         ];
 
-        // Create roles and assign permissions to each role
         foreach ($listOfRoles as $roleName) {
             $role = Role::create(['name' => $roleName]);
 
-            // Assign specific permissions based on role
             switch ($roleName) {
                 case 'superadmin':
                     $role->syncPermissions($permissionsForSuperAdminRole);
                     break;
                 case 'admin':
-                    $role->givePermissionTo($permissionsForAdminRole);
+                    $adminPermissions = array_diff($permissionsForAdminRole, [
+                        'create_permissions', 'list_permissions', 'edit_permissions', 'delete_permissions',
+                        'create_roles', 'list_roles', 'edit_roles', 'delete_roles'
+                    ]);
+                    $role->givePermissionTo($adminPermissions);
                     break;
             }
         }

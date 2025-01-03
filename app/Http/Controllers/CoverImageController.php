@@ -1,15 +1,20 @@
 <?php
-
 namespace App\Http\Controllers;
 
 use App\Models\CoverImage;
+use App\Services\ImageCompressionService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
-use Intervention\Image\Facades\Image;
-use Illuminate\Support\Str;
 
 class CoverImageController extends Controller
 {
+    protected $imageService;
+    protected $maxFileSize = 3; 
+
+    public function __construct(ImageCompressionService $imageService)
+    {
+        $this->imageService = $imageService;
+    }
 
     public function index()
     {
@@ -20,139 +25,119 @@ class CoverImageController extends Controller
         ]);
     }
 
+    protected function checkImageSize($image)
+    {
+        $sizeInMB = $image->getSize() / 1024 / 1024;
+        if ($sizeInMB > $this->maxFileSize) {
+            return false;
+        }
+        return true;
+    }
+
     public function store(Request $request)
     {
         $request->validate([
             'title_en' => 'required',
             'title_ne' => 'required',
-            'image' => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
-            'crop_width' => 'nullable|numeric',
-            'crop_height' => 'nullable|numeric',
-            'crop_x' => 'nullable|numeric',
-            'crop_y' => 'nullable|numeric',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp',
+            'cropped_image' => 'nullable|string',
         ]);
 
-        $imagePath = $this->handleImageUpload($request->file('image'), [
-            'width' => $request->crop_width,
-            'height' => $request->crop_height,
-            'x' => $request->crop_x,
-            'y' => $request->crop_y,
-        ]);
+        $imagePath = null;
+        $directory = public_path('uploads/cover-images');
+        if (!file_exists($directory)) {
+            mkdir($directory, 0755, true);
+        }
 
-        CoverImage::create([
-            'title_en' => $request->title_en,
-            'title_ne' => $request->title_ne,
-            'image' => $imagePath,
-            'description_en' => $request->description_en,
-            'description_ne' => $request->description_ne,
-            'is_active' => $request->is_active ? true : false,
-        ]);
+        if ($request->has('cropped_image') && $request->cropped_image) {
+            $croppedImageData = $request->cropped_image;
+            $imageData = str_replace('data:image/jpeg;base64,', '', $croppedImageData);
+            $imageData = base64_decode($imageData);
+            $imagePath = 'uploads/cover-images/' . uniqid() . '.jpg';
+            file_put_contents(public_path($imagePath), $imageData);
 
-        return redirect()->route('admin.cover-images.index')
-            ->with('success', 'Cover image created successfully.');
+            session()->flash('success', 'Cropped image has been saved. Now you can submit the form.');
+        }
+        if (!$imagePath && $request->hasFile('image')) {
+            $imagePath = $this->imageService->compressAndStore(
+                $request->file('image'),
+                'cover-images',
+                60,
+                1024
+            );
+        }
+
+        if ($imagePath) {
+            CoverImage::create([
+                'title_en' => $request->title_en,
+                'title_ne' => $request->title_ne,
+                'image' => $imagePath,
+                'is_active' => $request->is_active ? true : false,
+            ]);
+    
+            return redirect()->route('admin.cover-images.index')->with('success', 'Cover image created successfully.');
+        }
+    
+        return redirect()->back()->withErrors('Please upload a cropped image or a regular image.');
     }
-
+    
+    
     public function update(Request $request, $id)
-    {
-        $request->validate([
-            'title_en' => 'required',
-            'title_ne' => 'required',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
-            'cropped_data' => 'nullable|string',
-        ]);
-    
-        $coverImage = CoverImage::findOrFail($id);
-        $imagePath = $coverImage->image;
-    
-        // Handle image upload
-        if ($request->has('cropped_data')) {
-            // Delete old image
-            $this->deleteOldImage($coverImage->image);
-            
-            // Process and save the cropped image
-            $imagePath = $this->handleCroppedImage($request->cropped_data);
-        }
-    
-        $coverImage->update([
-            'title_en' => $request->title_en,
-            'title_ne' => $request->title_ne,
-            'image' => $imagePath,
-            'is_active' => $request->is_active ? true : false,
-        ]);
-    
-        return redirect()->route('admin.cover-images.index')
-            ->with('success', 'Cover image updated successfully.');
-    }
-    
-    private function handleCroppedImage($base64Image)
-    {
-        // Remove data URI scheme prefix
-        $image_parts = explode(";base64,", $base64Image);
-        $image_base64 = base64_decode($image_parts[1]);
-    
-        // Create path
-        $path = 'uploads/cover-images/';
-        if (!File::exists(public_path($path))) {
-            File::makeDirectory(public_path($path), 0777, true);
-        }
-    
-        // Generate filename
-        $filename = $path . time() . '_' . Str::random(10) . '.jpg';
+{
+    $request->validate([
+        'title_en' => 'required',
+        'title_ne' => 'required',
+        'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp',
+    ]);
+
+    $coverImage = CoverImage::findOrFail($id);
+    $imagePath = $coverImage->image; 
+
+    if ($request->has('cropped_image')) {
+        $croppedImageData = $request->cropped_image;
+        $imageData = str_replace('data:image/jpeg;base64,', '', $croppedImageData);
+        $imageData = base64_decode($imageData);
         
-        // Save image
-        File::put(public_path($filename), $image_base64);
-        
-        return $filename;
+        $imagePath = 'cover-images/' . uniqid() . '.jpg';
+        file_put_contents(public_path($imagePath), $imageData);
     }
 
+    if ($request->hasFile('image') && !$request->has('cropped_image')) {
+        if (!$this->checkImageSize($request->file('image'))) {
+            return redirect()->back()
+                ->withInput()
+                ->withErrors(['image' => "Image size must be less than {$this->maxFileSize}MB. Please compress the image before uploading."]);
+        }
+
+        $this->imageService->deleteImage($coverImage->image);
+
+        $imagePath = $this->imageService->compressAndStore(
+            $request->file('image'),
+            'cover-images',
+            60,
+            1024
+        );
+    }
+
+    $coverImage->update([
+        'title_en' => $request->title_en,
+        'title_ne' => $request->title_ne,
+        'image' => $imagePath,
+        'is_active' => $request->is_active ? true : false,
+    ]);
+
+    return redirect()->route('admin.cover-images.index')->with('success', 'Cover image updated successfully.');
+}
+
+    
+    
     public function destroy($id)
     {
         $coverImage = CoverImage::findOrFail($id);
-        $this->deleteOldImage($coverImage->image);
+        $this->imageService->deleteImage($coverImage->image);
         $coverImage->delete();
 
         return redirect()->route('admin.cover-images.index')
             ->with('success', 'Cover image deleted successfully.');
     }
-
-    private function handleImageUpload($image, $cropData)
-{
-    $path = 'uploads/cover-images/';
-    if (!File::exists(public_path($path))) {
-        File::makeDirectory(public_path($path), 0777, true);
-    }
-
-    $filename = time() . '_' . Str::random(10) . '.' . $image->getClientOriginalExtension();
-    
-    // Create image instance
-    $img = Image::make($image->getRealPath());
-    
-    // Crop image if crop data is provided
-    if ($cropData['width'] && $cropData['height']) {
-        $img->crop(
-            (int)$cropData['width'],
-            (int)$cropData['height'],
-            (int)$cropData['x'],
-            (int)$cropData['y']
-        );
-    }
-    
-    // Resize and compress image
-    $img->resize(1200, null, function ($constraint) {
-        $constraint->aspectRatio();
-        $constraint->upsize();
-    });
-    
-    // Save compressed image
-    $img->save(public_path($path . $filename), 80); // 80 is the quality (0-100)
-    
-    return $path . $filename;
-}
-
-private function deleteOldImage($path)
-{
-    if ($path && File::exists(public_path($path))) {
-        File::delete(public_path($path));
-    }
-}
 }
