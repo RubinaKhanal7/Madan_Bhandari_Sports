@@ -1,118 +1,128 @@
 @extends('backend.layouts.master')
 
-
 @section('content')
-    @if (Session::has('success'))
-        <div class="alert alert-success">
-            {{ Session::get('success') }}
-        </div>
-    @endif
-
-    @if (Session::has('error'))
-        <div class="alert alert-danger">
-            {{ Session::get('error') }}
-        </div>
-    @endif
-
-
-
-
-    <div class="row mb-2">
-        <div class="col-sm-6">
-            <h1 class="m-0">{{ $page_title }}</h1>
-
-            <a href="{{ url('admin') }}"><button class="btn btn-primary btn-sm"><i class="fa fa-arrow-left"></i>
-                    Back</button></a>
-        </div>
-        <div class="col-sm-6">
-            <ol class="breadcrumb float-sm-right">
-                <li class="breadcrumb-item"><a href="{{ url('admin') }}">Home</a></li>
-                <li class="breadcrumb-item active">Dashboard v1</li>
-            </ol>
-        </div>
-    </div>
-
-
-
-
-    <table class="table table-bordered table-hover">
-        <thead>
-            <tr>
-                <th>Android Chrome 192x192</th>
-                <th>Android Chrome 512x512</th>
-                <th>Apple Touch Icon</th>
-                <th>Favicon ICO</th>
-                <th>Favicon 16x16</th>
-                <th>Favicon 32x32</th>
-                <th>Site Webmanifest</th>
-                <th>Action</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach ($icons as $icon)
-                <tr data-widget="expandable-table" aria-expanded="false">
-                <tr>
-                    <td><img src="{{ asset('uploads/favicon/' . $icon->android_chrome_oneninetwo) }}"
-                            style="width: 150px; height:150px"></td>
-                    <td><img src="{{ asset('uploads/favicon/' . $icon->android_chrome_fiveonetwo) }}"
-                            style="width: 150px; height:150px"></td>
-                    <td><img src="{{ asset('uploads/favicon/' . $icon->apple_touch_icon) }}"
-                            style="width: 150px; height:150px"></td>
-                    <td><img src="{{ asset('uploads/favicon/' . $icon->favicon_ico) }}" style="width: 150px; height:150px">
-                    </td>
-                    <td><img src="{{ asset('uploads/favicon/' . $icon->favicon_sixteen) }}"
-                            style="width: 150px; height:150px"></td>
-                    <td><img src="{{ asset('uploads/favicon/' . $icon->favicon_thirtyTwo) }}"
-                            style="width: 150px; height:150px"></td>
-                    <td>
-                        <iframe src="{{ asset('uploads/favicon/file/' . $icon->site_webmanifest) }}" title=""
-                            style="width: 100px; height:100px;"></iframe>
-                    </td>
-                    {{-- <td>
-                        <button type="button" class="btn-warning button-size" data-bs-toggle="modal"
-                            data-bs-target="#edit{{ $icon->id }}">Update</button>
-                    </td> --}}
-                    <td>
-                        <div style="display: flex; flex-direction:row;">
-                            <a href="{{ route('admin.favicons.edit', $icon->id) }}" class="btn btn-warning btn-sm"
-                                style="margin-right: 5px;"><i class="fas fa-edit"></i>
-                                Edit</a>
-
-                        </div>
-                    </td>
-                </tr>
-                </tr>
-            @endforeach
-        </tbody>
-    </table>
-
-    {{-- update --}}
-    {{-- @foreach ($icons as $icon)
-        <div class="modal fade" id="edit{{ $icon->id }}" tabindex="-1" aria-labelledby="exampleModalLabel"
-            aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="exampleModalLabel">This can't be undone. Are you sure?</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    <div class="container mt-5">
+        <div class="card">
+            <div class="card-header">
+                <h1>Favicons</h1>
+            </div>
+            <div class="card-body">
+                @if(session('success'))
+                    <div class="alert alert-success">
+                        {{ session('success') }}
                     </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No</button>
-                        <a href="{{ url('admin/favicon/edit/' . $icon->id) }}" class="btn btn-primary">Yes</a>
-                    </div>
-                </div>
+                @endif
+
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Fav 16x16</th>
+                            <th>Fav 32x32</th>
+                            <th>Fav ICO</th>
+                            <th>Fav Apple</th>
+                            <th>Fav 192x192</th>
+                            <th>Fav 512x512</th>
+                            <th>Site Manifest</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($favicons as $favicon)
+                            <tr>
+                                <td><img src="{{ asset('uploads/favicons/'.$favicon->fav_16) }}" alt="Fav 16" width="32"></td>
+                                <td><img src="{{ asset('uploads/favicons/'.$favicon->fav_32) }}" alt="Fav 32" width="32"></td>
+                                <td><img src="{{ asset('uploads/favicons/'.$favicon->fav_ico) }}" alt="Fav ICO" width="32"></td>
+                                <td><img src="{{ asset('uploads/favicons/'.$favicon->fav_apple) }}" alt="Fav Apple" width="32"></td>
+                                <td><img src="{{ asset('uploads/favicons/'.$favicon->fav_192) }}" alt="Fav 192" width="32"></td>
+                                <td><img src="{{ asset('uploads/favicons/'.$favicon->fav_512) }}" alt="Fav 512" width="32"></td>
+                                <td><a href="{{ $favicon->site_manifest }}" target="_blank">{{ $favicon->site_manifest }}</a></td>
+                                <td>
+                                    <span class="badge {{ $favicon->is_active ? 'bg-success' : 'bg-danger' }}">
+                                        {{ $favicon->is_active ? 'Active' : 'Inactive' }}
+                                    </span>
+                                </td>
+                                
+                                <td>
+                                    <button class="btn btn-outline-info btn-sm" 
+                                            data-bs-toggle="modal" 
+                                            data-bs-target="#editFaviconModal{{ $favicon->id }}" 
+                                            style="width: 32px;">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                </td>
+                                
+                            </tr>
+
+                          <!-- Edit Favicon Modal -->
+                            <div class="modal fade" id="editFaviconModal{{ $favicon->id }}" tabindex="-1">
+                                <div class="modal-dialog modal-lg">
+                                    <div class="modal-content">
+                                        <form action="{{ route('admin.favicons.update', $favicon->id) }}" method="POST" enctype="multipart/form-data">
+                                            @csrf
+                                            @method('PUT')
+                                            <div class="modal-header">
+                                                <h5 class="modal-title">Edit Favicon</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <div class="row">
+                                                    <!-- Left Column -->
+                                                    <div class="col-md-6">
+                                                        @foreach (['fav_16', 'fav_32', 'fav_ico'] as $field)
+                                                            <div class="mb-3">
+                                                                <label>{{ ucfirst(str_replace('_', ' ', $field)) }}</label>
+                                                                <input type="file" name="{{ $field }}" class="form-control">
+                                                                @error($field)
+                                                                    <small class="text-danger">{{ $message }}</small>
+                                                                @enderror
+                                                                @if($favicon->{$field})
+                                                                    <img src="{{ asset('uploads/favicons/'.$favicon->{$field}) }}" alt="{{ $field }}" width="50">
+                                                                @endif
+                                                            </div>
+                                                        @endforeach
+                                                    </div>
+                                                    <!-- Right Column -->
+                                                    <div class="col-md-6">
+                                                        @foreach (['fav_apple', 'fav_192', 'fav_512'] as $field)
+                                                            <div class="mb-3">
+                                                                <label>{{ ucfirst(str_replace('_', ' ', $field)) }}</label>
+                                                                <input type="file" name="{{ $field }}" class="form-control">
+                                                                @error($field)
+                                                                    <small class="text-danger">{{ $message }}</small>
+                                                                @enderror
+                                                                @if($favicon->{$field})
+                                                                    <img src="{{ asset('uploads/favicons/'.$favicon->{$field}) }}" alt="{{ $field }}" width="50">
+                                                                @endif
+                                                            </div>
+                                                        @endforeach
+                                                    </div>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label>Site Manifest URL</label>
+                                                    <input type="url" name="site_manifest" class="form-control" value="{{ $favicon->site_manifest }}">
+                                                    @error('site_manifest')
+                                                        <small class="text-danger">{{ $message }}</small>
+                                                    @enderror
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label>Is Active?</label>
+                                                    <input type="checkbox" name="is_active" value="1" {{ $favicon->is_active ? 'checked' : '' }}>
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                                <button type="submit" class="btn btn-primary">Update</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+
+                        @endforeach
+                    </tbody>
+                </table>
             </div>
         </div>
-    @endforeach --}}
-
-    <script>
-        var myModal = document.getElementById('myModal');
-        var myInput = document.getElementById('myInput');
-
-        if (myModal) {
-            myModal.addEventListener('shown.bs.modal', function() {
-                myInput.focus();
-            });
-        }
-    </script>
+    </div>
 @endsection

@@ -9,12 +9,13 @@ class Favicon extends Model
 {
     use HasFactory;
     protected $fillable = [
-        'android_chrome_oneninetwo',
-        'android_chrome_fiveonetwo',
-        'apple_touch_icon',
-        'favicon_ico',
-        'favicon_sixteen',
-        'favicon_thirtyTwo',
-        'site_webmanifest'
+        'fav_16',
+        'fav_32',
+        'fav_ico',
+        'fav_apple',
+        'fav_192', 
+        'fav_512', 
+        'site_manifest', 
+        'is_active'
     ];
 }

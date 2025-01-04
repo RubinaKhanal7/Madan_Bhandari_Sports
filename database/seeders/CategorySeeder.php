@@ -4,21 +4,17 @@ namespace Database\Seeders;
 
 use App\Models\Category;
 use Illuminate\Database\Seeder;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 
 class CategorySeeder extends Seeder
 {
     public function run()
     {
-        $categories = [
-            ['title' => 'Guiding Principles'],
-            ['title' => 'Living Abroad'],
-            // ['title' => 'Counselling'],
-            // ['title' => 'News'],
-            // ['title' => 'Country University']
-        ];
-        foreach ($categories as $category) {
-            Category::create($category);
-        }
+        Category::create([
+            'title_ne' => 'श्रेणी १',
+            'title_en' => 'Category 1',
+            'description_ne' => 'नेपाली विवरण',
+            'description_en' => 'English description',
+            'is_active' => true,
+        ]);
     }
 }

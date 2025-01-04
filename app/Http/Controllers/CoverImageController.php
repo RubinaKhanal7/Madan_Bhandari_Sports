@@ -83,53 +83,52 @@ class CoverImageController extends Controller
     
     
     public function update(Request $request, $id)
-{
-    $request->validate([
-        'title_en' => 'required',
-        'title_ne' => 'required',
-        'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp',
-    ]);
-
-    $coverImage = CoverImage::findOrFail($id);
-    $imagePath = $coverImage->image; 
-
-    if ($request->has('cropped_image')) {
-        $croppedImageData = $request->cropped_image;
-        $imageData = str_replace('data:image/jpeg;base64,', '', $croppedImageData);
-        $imageData = base64_decode($imageData);
-        
-        $imagePath = 'cover-images/' . uniqid() . '.jpg';
-        file_put_contents(public_path($imagePath), $imageData);
-    }
-
-    if ($request->hasFile('image') && !$request->has('cropped_image')) {
-        if (!$this->checkImageSize($request->file('image'))) {
-            return redirect()->back()
-                ->withInput()
-                ->withErrors(['image' => "Image size must be less than {$this->maxFileSize}MB. Please compress the image before uploading."]);
-        }
-
-        $this->imageService->deleteImage($coverImage->image);
-
-        $imagePath = $this->imageService->compressAndStore(
-            $request->file('image'),
-            'cover-images',
-            60,
-            1024
-        );
-    }
-
-    $coverImage->update([
-        'title_en' => $request->title_en,
-        'title_ne' => $request->title_ne,
-        'image' => $imagePath,
-        'is_active' => $request->is_active ? true : false,
-    ]);
-
-    return redirect()->route('admin.cover-images.index')->with('success', 'Cover image updated successfully.');
-}
-
+    {
+        $coverImage = CoverImage::findOrFail($id);
     
+        $request->validate([
+            'title_en' => 'required|string|max:255',
+            'title_ne' => 'required|string|max:255',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp',
+            'cropped_image' => 'nullable|string',
+        ]);
+    
+        $imagePath = $coverImage->image; 
+
+        if ($request->has('cropped_image') && $request->cropped_image) {
+            if ($coverImage->image && file_exists(public_path($coverImage->image))) {
+                unlink(public_path($coverImage->image));
+            }
+    
+            $croppedImageData = $request->cropped_image;
+            $imageData = str_replace('data:image/jpeg;base64,', '', $croppedImageData);
+            $imageData = base64_decode($imageData);
+            $imagePath = 'uploads/cover-images/' . uniqid() . '.jpg';
+            file_put_contents(public_path($imagePath), $imageData);
+        }
+        elseif ($request->hasFile('image')) {
+            if ($coverImage->image && file_exists(public_path($coverImage->image))) {
+                unlink(public_path($coverImage->image));
+            }
+    
+            $imagePath = $this->imageService->compressAndStore(
+                $request->file('image'),
+                'cover-images',
+                60,
+                1024
+            );
+        }
+    
+        $coverImage->update([
+            'title_en' => $request->title_en,
+            'title_ne' => $request->title_ne,
+            'image' => $imagePath,
+            'is_active' => $request->has('is_active') ? 1 : 0,
+        ]);
+    
+        return redirect()->route('admin.cover-images.index')
+            ->with('success', 'Cover image updated successfully');
+    }
     
     public function destroy($id)
     {

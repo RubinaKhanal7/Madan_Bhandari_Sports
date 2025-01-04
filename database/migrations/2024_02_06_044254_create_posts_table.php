@@ -14,13 +14,15 @@ return new class extends Migration {
     {
         Schema::create('posts', function (Blueprint $table) {
             $table->id();
-            $table->string('title');
-            $table->string('slug')->unique();
-            $table->text('description');
-            $table->string('image');
-
-            $table->unsignedBigInteger('category_id');
-            $table->foreign('category_id')->references('id')->on('categories')->onDelete('cascade');
+            $table->longText('title_ne');
+            $table->longText('title_en');
+            $table->longText('description_ne')->nullable();
+            $table->longText('description_en')->nullable();
+            $table->string('image')->nullable();
+            $table->json('pdf')->nullable(); 
+            $table->foreignId('category_id')->constrained('categories')->onDelete('cascade');
+            $table->boolean('is_featured')->default(false);
+            $table->boolean('is_active')->default(true);
             $table->timestamps();
         });
     }
