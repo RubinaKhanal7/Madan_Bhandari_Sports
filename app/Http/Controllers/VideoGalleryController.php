@@ -4,119 +4,130 @@ namespace App\Http\Controllers;
 
 use App\Models\VideoGallery;
 use Illuminate\Http\Request;
-use Cviebrock\EloquentSluggable\Services\SlugService;
-use App\Models\SummernoteContent;
 
 class VideoGalleryController extends Controller
 {
+    /**
+     * Display a listing of the video galleries.
+     *
+     * @return \Illuminate\View\View
+     */
     public function index()
-    {
-        $videos = VideoGallery::latest()->paginate(5);
-        
-        return view('backend.videogallery.index', ['videos' => $videos, 'page_title' => 'Video Gallery']);
-    }
+{
+    $videos = VideoGallery::latest()->paginate(10); // Adjust the number per page as needed
+    $page_title = "Video Galleries";
+
+    return view('backend.videogallery.index', compact('videos', 'page_title'));
+}
+
+    /**
+     * Show the form for creating a new video gallery.
+     *
+     * @return \Illuminate\View\View
+     */
     public function create()
     {
-        return view('backend.videogallery.create', ['page_title' => 'Add VideoGallerys']);
+        return view('backend.videogallery.index');
     }
+
+    /**
+     * Store a newly created video gallery in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function store(Request $request)
     {
-        $this->validate($request, [
-            'title' => 'required|string',
-            'url' => 'required',
-            'status' => 'required|boolean',
+        $validatedData = $request->validate([
+            'title_ne' => 'required|string|max:255',
+            'title_en' => 'required|string|max:255',
+            'videos' => 'required|string|max:255',
+            'url' => 'required|url',
+            'description_ne' => 'nullable|string',
+            'description_en' => 'nullable|string',
+            'is_featured' => 'nullable|boolean',
+            'is_active' => 'nullable|boolean',
         ]);
-    
-        try {
-            $video = new VideoGallery();
-            $video->title = $request->title;
-            $video->slug = SlugService::createSlug(VideoGallery::class, 'slug', $request->title);
-    
-            // Extract video ID from the provided embedded URL
-            $video_id = $this->getYoutubeVideoIdFromEmbedUrl($request->url);
-            $video->status = $request->status;
 
-         
-            $video->url= $request->url;
-            if ($video_id) {
-                // Use the provided embedded URL directly
-                $video->url = 'https://www.youtube.com/embed/' . $video_id;
-            } else {
-                // If we couldn't extract a video ID, store the URL as-is
-                $video->url = $request->url;
-            }
-    
-            if ($video->save()) {
-                return redirect()->route('admin.video-galleries.index')->with('success', 'Success! Video created.');
-            } else {
-                return redirect()->back()->with('error', 'Error! Video not created.');
-            }
-        } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Error! Something went wrong: ' . $e->getMessage());
-        }
+        VideoGallery::create($validatedData);
+
+        return redirect()->route('video_galleries.index')->with('success', 'Video gallery created successfully.');
     }
-    
-    // Helper function to extract YouTube video ID from embedded URL
-    private function getYoutubeVideoIdFromEmbedUrl($url)
-    {
-        $parsed_url = parse_url($url);
 
-        // Check if it's a valid YouTube URL
-        if (isset($parsed_url['host']) && ($parsed_url['host'] === 'www.youtube.com' || $parsed_url['host'] === 'youtube.com')) {
-            parse_str($parsed_url['query'], $query_vars);
-    
-            // Check if 'v' exists in the query parameters
-            if (isset($query_vars['v'])) {
-                return $query_vars['v']; // Video ID
-            }
-        }
-    
-        return null;
+    /**
+     * Show the form for editing the specified video gallery.
+     *
+     * @param  VideoGallery  $videoGallery
+     * @return \Illuminate\View\View
+     */
+    public function edit(VideoGallery $videoGallery)
+    {
+        return view('video_galleries.edit', compact('videoGallery'));
     }
-    public function edit($id)
-    {
-        $video = VideoGallery::find($id);
 
-        return view('backend.videogallery.update', ['video' => $video, 'page_title' => 'Update Video Gallery']);
-
-    }
-    public function update(Request $request, $id)
+    /**
+     * Update the specified video gallery in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  VideoGallery  $videoGallery
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function update(Request $request, VideoGallery $videoGallery)
     {
-        $this->validate($request, [
-            'title' => 'nullable|string',
-            'url' => 'nullable',
-            'status' => 'nullable|boolean',
+        $validatedData = $request->validate([
+            'title_ne' => 'required|string|max:255',
+            'title_en' => 'required|string|max:255',
+            'videos' => 'required|string|max:255',
+            'url' => 'required|url',
+            'description_ne' => 'nullable|string',
+            'description_en' => 'nullable|string',
+            'is_featured' => 'nullable|boolean',
+            'is_active' => 'nullable|boolean',
         ]);
-        try {
 
-            $video = VideoGallery::findOrFail($id);
+        $videoGallery->update($validatedData);
 
-            $video->title = $request->title ?? '';
-            $video->slug = SlugService::createSlug(VideoGallery::class, 'slug', $request->title);
-            
-            $video->status = $request->status;
-
-            $video->url = $request->url;
-
-            if ($video->save()) {
-                return redirect()->route('admin.video-galleries.index')->with('success', 'Success! Video Updated.');
-            } else {
-                return redirect()->back()->with('error', 'Error! Video not updated.');
-            }
-        } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Error! Something went wrong.');
-        }
+        return redirect()->route('video_galleries.index')->with('success', 'Video gallery updated successfully.');
     }
-    public function destroy($id)
+
+    /**
+     * Remove the specified video gallery from storage.
+     *
+     * @param  VideoGallery  $videoGallery
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function destroy(VideoGallery $videoGallery)
     {
-        $video = VideoGallery::find($id);
+        $videoGallery->delete();
 
-        if ($video) {
-            $video->delete();
-            return redirect()->route('admin.video-galleries.index')->with(['success' => 'Success !!VideoGallery Deleted']);
-        } else {
-            return redirect()->route('admin.video-galleries.index')->with('error', 'VideoGallery not found.');
-        }
+        return redirect()->route('video_galleries.index')->with('success', 'Video gallery deleted successfully.');
+    }
 
+    /**
+     * Toggle the 'is_featured' status.
+     *
+     * @param  VideoGallery  $videoGallery
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function toggleFeatured(VideoGallery $videoGallery)
+    {
+        $videoGallery->is_featured = !$videoGallery->is_featured;
+        $videoGallery->save();
+
+        return redirect()->route('video_galleries.index')->with('success', 'Featured status updated successfully.');
+    }
+
+    /**
+     * Toggle the 'is_active' status.
+     *
+     * @param  VideoGallery  $videoGallery
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function toggleActive(VideoGallery $videoGallery)
+    {
+        $videoGallery->is_active = !$videoGallery->is_active;
+        $videoGallery->save();
+
+        return redirect()->route('video_galleries.index')->with('success', 'Active status updated successfully.');
     }
 }

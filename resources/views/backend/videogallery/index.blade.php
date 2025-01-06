@@ -17,12 +17,10 @@
     <!-- Add video button -->
     <div class="row mb-2">
         <div class="col-sm-6">
-            <h1 class="m-0">{{ $page_title }}</h1>
-            <a href="{{ route('admin.video-galleries.create') }}">
-                <button class="btn btn-primary btn-sm">
-                    <i class="fa fa-plus"></i> Add
-                </button>
-            </a>
+            <h1 class="m-0">Video Gallery</h1>
+            <button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#createVideoModal">
+                <i class="fa fa-plus"></i> Add
+            </button>
             <a href="{{ url('admin') }}">
                 <button class="btn btn-primary btn-sm">
                     <i class="fa fa-arrow-left"></i> Back
@@ -49,29 +47,24 @@
             </tr>
         </thead>
         <tbody>
-           
             @foreach ($videos as $video)
                 <tr>
                     <td width="5%">{{ $loop->iteration }}</td>
                     <td>{{ $video->title ?? '' }}</td>
+                    <td>{{ Str::limit(strip_tags($video->url), 200) }}</td>
                     <td>
-                        {{ Str::limit(strip_tags($video->url), 200) }}
+                        @if ($video->status == 1)
+                            <span class="badge badge-success">Active</span>
+                        @else
+                            <span class="badge badge-danger">Inactive</span>
+                        @endif
                     </td>
-                
-                    <td> @if ($video->status == 1)
-                        <span class="badge badge-success text-black">Active</span>
-                    @else
-                        <span class="badge badge-danger text-danger">Inactive</span>
-                    @endif
-                    </td>
-                  
                     <td>
-                        <div style="display: flex; flex-direction: row;">
+                        <div style="display: flex; gap: 10px;">
                             <button type="button" class="btn btn-warning btn-sm" data-toggle="modal"
-                                data-target="#editModal{{ $video->id }}">
+                                data-target="#editVideoModal" onclick="editVideo({{ $video->id }})">
                                 <i class="fas fa-edit"></i> Edit
                             </button>
-                            <!-- Delete Button -->
                             <button type="button" class="btn btn-danger btn-sm" data-toggle="modal"
                                 data-target="#deleteModal{{ $video->id }}">
                                 <i class="fas fa-trash"></i> Delete
@@ -79,30 +72,6 @@
                         </div>
                     </td>
                 </tr>
-               
-                <!-- Edit Modal -->
-                <div class="modal fade" id="editModal{{ $video->id }}" tabindex="-1" role="dialog"
-                    aria-labelledby="editModalLabel{{ $video->id }}" aria-hidden="true">
-                    <div class="modal-dialog" role="document">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title" id="editModalLabel{{ $video->id }}">Edit</h5>
-                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                    <span aria-hidden="true">&times;</span>
-                                </button>
-                            </div>
-                            <div class="modal-body">
-                                <p>To edit this Video, please click the button below:</p>
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                                <a href="{{ route('admin.video-galleries.edit', $video->id) }}"
-                                    class="btn btn-primary">Edit</a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
 
                 <!-- Delete Modal -->
                 <div class="modal fade" id="deleteModal{{ $video->id }}" tabindex="-1" role="dialog"
@@ -129,55 +98,19 @@
                         </div>
                     </div>
                 </div>
-
-
             @endforeach
         </tbody>
     </table>
 
-    {{-- <!-- Edit Video Modal -->
-    <div class="modal fade" id="editVideoModal" tabindex="-1" role="dialog" aria-labelledby="editVideoModalLabel"
-        aria-hidden="true">
-        <!-- Modal content for editing video -->
-    </div>
-
-    <!-- Delete Video Modal -->
-    <div class="modal fade" id="deleteVideoModal" tabindex="-1" role="dialog" aria-labelledby="deleteVideoModalLabel"
-        aria-hidden="true">
-        <!-- Modal content for deleting video -->
-    </div>
-
-    <!-- JavaScript functions for modals -->
-    <script>
-        // Function to open edit video modal and set action URL
-        function editVideo(id) {
-            var url = "{{ route('admin.video-galleries.edit', ':id') }}";
-            url = url.replace(':id', id);
-            $('#editVideoModal').load(url, function() {
-                $(this).modal('show');
-            });
-        }
-
-        // Function to open delete video modal and set action URL
-        function deleteVideo(id) {
-            var url = "{{ route('admin.video-galleries.destroy', ':id') }}";
-            url = url.replace(':id', id);
-            $('#deleteVideoModal').load(url, function() {
-                $(this).modal('show');
-            });
-        }
-    </script>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> --}}
     <!-- Pagination -->
     <nav aria-label="Page navigation">
         <ul class="pagination justify-content-center">
             @if ($videos->onFirstPage())
                 <li class="page-item disabled"><span class="page-link">&laquo;</span></li>
             @else
-                <li class="page-item"><a class="page-link" href="{{ $videos->previousPageUrl() }}"
-                        rel="prev">&laquo;</a></li>
+                <li class="page-item"><a class="page-link" href="{{ $videos->previousPageUrl() }}" rel="prev">&laquo;</a></li>
             @endif
-
+    
             @foreach ($videos->getUrlRange(1, $videos->lastPage()) as $page => $url)
                 @if ($page == $videos->currentPage())
                     <li class="page-item active"><span class="page-link">{{ $page }}</span></li>
@@ -185,13 +118,58 @@
                     <li class="page-item"><a class="page-link" href="{{ $url }}">{{ $page }}</a></li>
                 @endif
             @endforeach
-
+    
             @if ($videos->hasMorePages())
-                <li class="page-item"><a class="page-link" href="{{ $videos->nextPageUrl() }}" rel="next">&raquo;</a>
-                </li>
+                <li class="page-item"><a class="page-link" href="{{ $videos->nextPageUrl() }}" rel="next">&raquo;</a></li>
             @else
                 <li class="page-item disabled"><span class="page-link">&raquo;</span></li>
             @endif
         </ul>
     </nav>
+    
+
+    <!-- Create Video Modal -->
+    <div class="modal fade" id="createVideoModal" tabindex="-1" role="dialog" aria-labelledby="createVideoModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="createVideoModalLabel">Add New Video</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    @include('backend.videogallery.create')
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Video Modal -->
+    <div class="modal fade" id="editVideoModal" tabindex="-1" role="dialog" aria-labelledby="editVideoModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editVideoModalLabel">Edit Video</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" id="editVideoContent">
+                    <!-- Edit form content will be loaded dynamically here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function editVideo(id) {
+            const url = `{{ url('admin/video-galleries/') }}/${id}/edit`;
+            $('#editVideoContent').load(url, function() {
+                $('#editVideoModal').modal('show');
+            });
+        }
+    </script>
 @endsection

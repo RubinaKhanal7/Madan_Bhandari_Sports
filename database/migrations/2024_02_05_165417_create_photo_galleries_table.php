@@ -12,15 +12,15 @@ return new class extends Migration {
      */
     public function up()
     {
-        Schema::create('galleries', function (Blueprint $table) {
+        Schema::create('photo_galleries', function (Blueprint $table) {
             $table->id();
             $table->string('title_ne'); 
             $table->string('title_en'); 
             $table->json('images'); 
             $table->text('description_ne')->nullable(); 
             $table->text('description_en')->nullable(); 
-            $table->boolean('is_featured')->default(false); 
-            $table->boolean('is_active')->default(true); 
+            $table->boolean('is_featured')->default(false)->nullable(); 
+            $table->boolean('is_active')->default(true)->nullable(); 
             $table->timestamps();
         });
     }
@@ -32,6 +32,6 @@ return new class extends Migration {
      */
     public function down()
     {
-        Schema::dropIfExists('galleries');
+        Schema::dropIfExists('photo_galleries');
     }
 };
