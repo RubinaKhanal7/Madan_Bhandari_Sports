@@ -1,83 +1,128 @@
 <?php
 namespace App\Services;
 
+use Exception;
 use Intervention\Image\Facades\Image;
 use Illuminate\Support\Facades\File;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Log;
 
 class ImageCompressionService
 {
-    /**
-     * Base path for uploads
-     */
-    protected $basePath = 'uploads/cover-images'; // Ensure it's relative to public directory
+    protected $basePath;
+    protected $allowedMimes = ['image/jpeg', 'image/png', 'image/jpg', 'image/gif', 'image/webp'];
+    protected $maxFileSize = 10485760;
+
+    public function __construct(string $basePath = 'uploads')
+    {
+        $this->basePath = $basePath;
+    }
 
     /**
      * Compress and store the image
      * 
-     * @param \Illuminate\Http\UploadedFile $image
-     * @param string $folderName
-     * @param int $quality
-     * @param int $maxWidth
+     * @param UploadedFile|string $image
+     * @param array $options
      * @return string
+     * @throws Exception
      */
-    public function compressAndStore($image, $folderName, $quality = 60, $maxWidth = 1024)
+    public function compressAndStore($image, array $options = [])
     {
-        // Create full directory path within the public folder
-        $directory = public_path($this->basePath);
-        
-        // Create directory if it doesn't exist
-        if (!File::exists($directory)) {
-            File::makeDirectory($directory, 0755, true);
+        $options = array_merge([
+            'quality' => 60,
+            'maxWidth' => 1024,
+            'subfolder' => '',
+            'crop' => null
+        ], $options);
+
+        try {
+            // Create directory if it doesn't exist
+            $directory = public_path($this->basePath . '/' . trim($options['subfolder'], '/'));
+            if (!File::exists($directory)) {
+                File::makeDirectory($directory, 0755, true);
+            }
+
+            // Handle base64 image
+            if (is_string($image) && strpos($image, 'data:image') === 0) {
+                $img = Image::make($image);
+            } 
+            // Handle uploaded file
+            else if ($image instanceof UploadedFile) {
+                $this->validateImage($image);
+                $img = Image::make($image->getRealPath());
+            } else {
+                throw new Exception('Invalid image input');
+            }
+
+            // Generate unique filename
+            $filename = uniqid('img_') . '_' . time() . '.webp';
+            
+            // Apply crop if specified
+            if ($options['crop']) {
+                $img->crop(
+                    $options['crop']['width'],
+                    $options['crop']['height'],
+                    $options['crop']['x'],
+                    $options['crop']['y']
+                );
+            }
+
+            // Resize if needed
+            if ($img->width() > $options['maxWidth']) {
+                $img->resize($options['maxWidth'], null, function ($constraint) {
+                    $constraint->aspectRatio();
+                    $constraint->upsize();
+                });
+            }
+
+            // Optimize and save
+            $fullPath = $directory . '/' . $filename;
+            $img->encode('webp', $options['quality'])->save($fullPath);
+
+            // Return relative path
+            return trim($this->basePath . '/' . trim($options['subfolder'], '/') . '/' . $filename, '/');
+        } catch (Exception $e) {
+            Log::error('Image compression failed: ' . $e->getMessage());
+            throw new Exception('Failed to process image: ' . $e->getMessage());
         }
-
-        // Generate unique filename
-        $filename = uniqid() . '_' . time() . '.' . $image->getClientOriginalExtension();
-        
-        // Create instance of Intervention Image
-        $img = Image::make($image);
-
-        // Resize image if width is greater than maximum width
-        if ($img->width() > $maxWidth) {
-            $img->resize($maxWidth, null, function ($constraint) {
-                $constraint->aspectRatio();
-                $constraint->upsize();
-            });
-        }
-
-        // Full path for saving
-        $fullPath = $directory . '/' . $filename;
-
-        // Save compressed image
-        $img->save($fullPath, $quality);
-
-        // Return relative path for database storage
-        return $this->basePath . '/' . $filename; // Store relative path
     }
 
     /**
-     * Get the size of the file in MB
-     * 
-     * @param string $path
-     * @return float
+     * Validate uploaded image
      */
-    public function getFileSize($path)
+    protected function validateImage(UploadedFile $image): void
     {
-        $fullPath = public_path($path);
-        return round(File::size($fullPath) / 1024 / 1024, 2);
+        if (!in_array($image->getMimeType(), $this->allowedMimes)) {
+            throw new Exception('Invalid image type. Allowed types: ' . implode(', ', $this->allowedMimes));
+        }
+
+        if ($image->getSize() > $this->maxFileSize) {
+            throw new Exception('Image size exceeds maximum allowed size of ' . ($this->maxFileSize / 1048576) . 'MB');
+        }
     }
 
     /**
-     * Delete an image
-     * 
-     * @param string $path
-     * @return bool
+     * Delete an image and its directory if empty
      */
-    public function deleteImage($path)
+    public function deleteImage(string $path): bool
     {
-        $fullPath = public_path($path);
-        if (File::exists($fullPath)) {
-            return File::delete($fullPath);
+        try {
+            $fullPath = public_path($path);
+            if (File::exists($fullPath)) {
+                File::delete($fullPath);
+                
+                // Delete parent directory if empty
+                $directory = dirname($fullPath);
+                if (File::exists($directory) && count(File::files($directory)) === 0) {
+                    File::deleteDirectory($directory);
+                }
+                
+                return true;
+            }
+            return false;
+        } catch (Exception $e) {
+            Log::error('Failed to delete image: ' . $e->getMessage());
+            return false;
         }
-        return false;
     }
 }
