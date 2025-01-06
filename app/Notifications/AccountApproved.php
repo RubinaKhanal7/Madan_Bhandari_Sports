@@ -40,6 +40,4 @@ class AccountApproved extends Notification implements ShouldQueue
         throw $e;
     }
 }
-
-
 }
