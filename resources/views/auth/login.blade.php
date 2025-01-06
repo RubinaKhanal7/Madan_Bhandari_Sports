@@ -93,6 +93,19 @@
                                                         <h3>{{ __('Account Login') }}</h3>
                                                     </div>
                                                 </div>
+                                                @if(session('error'))
+                                                <div class="alert alert-danger">{{ session('error') }}</div>
+                                            @endif
+                                
+                                            @if ($errors->any())
+                                                <div class="alert alert-danger">
+                                                    <ul>
+                                                        @foreach ($errors->all() as $error)
+                                                            <li>{{ $error }}</li>
+                                                        @endforeach
+                                                    </ul>
+                                                </div>
+                                            @endif
                                                 <form id="loginForm" method="POST" action="{{ route('login') }}">
                                                     @csrf
                                                     <div class="mb-3">
