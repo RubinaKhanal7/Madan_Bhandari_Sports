@@ -2,14 +2,24 @@
 
 @section('content')
 <div class="container">
-    <h2>Roles Management</h2>
 
+
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h2>Roles Management</h2>
+        <button type="button" 
+            class="btn btn-outline-primary btn-sm" 
+            data-bs-toggle="modal" 
+            data-bs-target="#createRoleModal">
+            + Add New
+        </button>
+    </div>
     @if(session('success'))
-        <div class="alert alert-success">{{ session('success') }}</div>
+    <div class="alert alert-success border-2 d-flex align-items-center" role="alert">
+        <div class="bg-success me-3 icon-item"><span class="fas fa-check-circle text-white fs-3"></span></div>
+        <p class="mb-0 flex-1">{{ session('success') }}</p>
+        <button class="btn-close" type="button" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
     @endif
-
-    <button class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#createRoleModal">Create Role</button>
-
     <table class="table table-bordered">
         <thead>
             <tr>

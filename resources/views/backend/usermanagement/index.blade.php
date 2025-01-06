@@ -8,7 +8,7 @@
                     class="btn btn-outline-primary btn-sm" 
                     data-bs-toggle="modal" 
                     data-bs-target="#createUserModal">
-                + Add New User
+                + Add New
             </button>
         </div>
         <div class="table-responsive">

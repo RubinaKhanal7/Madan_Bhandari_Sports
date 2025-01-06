@@ -32,11 +32,12 @@ class CategoryController extends Controller
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:10240',
             'cropped_image' => 'nullable|string',
         ]);
-
+    
         try {
             $imagePath = null;
             
-            if ($request->has('cropped_image')) {
+            // Only process image if it's provided
+            if ($request->has('cropped_image') && !empty($request->cropped_image)) {
                 $imagePath = $this->imageService->compressAndStore(
                     $request->cropped_image,
                     [
@@ -55,7 +56,7 @@ class CategoryController extends Controller
                     ]
                 );
             }
-
+    
             Category::create([
                 'title_ne' => $request->title_ne,
                 'title_en' => $request->title_en,
@@ -64,10 +65,10 @@ class CategoryController extends Controller
                 'image' => $imagePath,
                 'is_active' => (bool) $request->is_active,
             ]);
-
+    
             return redirect()->route('admin.categories.index')
                 ->with('success', 'Category created successfully!');
-
+    
         } catch (Exception $e) {
             return redirect()->back()
                 ->withErrors(['error' => $e->getMessage()])
@@ -76,55 +77,57 @@ class CategoryController extends Controller
     }
 
     public function update(Request $request, $id)
-    {
-        $category = Category::findOrFail($id);
+{
+    $category = Category::findOrFail($id);
 
-        $request->validate([
-            'title_ne' => 'required|string|max:255',
-            'title_en' => 'required|string|max:255',
-            'description_ne' => 'nullable|string|max:1000',
-            'description_en' => 'nullable|string|max:1000',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:10240',
-            'cropped_image' => 'nullable|string',
-        ]);
+    $request->validate([
+        'title_ne' => 'required|string|max:255',
+        'title_en' => 'required|string|max:255',
+        'description_ne' => 'nullable|string|max:1000',
+        'description_en' => 'nullable|string|max:1000',
+        'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:10240',
+        'cropped_image' => 'nullable|string',
+    ]);
 
-        try {
-            $imagePath = $category->image;
+    try {
+        $imagePath = $category->image;
 
-            if ($request->has('cropped_image') || $request->hasFile('image')) {
-                // Delete old image
-                if ($category->image) {
-                    $this->imageService->deleteImage($category->image);
-                }
-
-                $imagePath = $this->imageService->compressAndStore(
-                    $request->has('cropped_image') ? $request->cropped_image : $request->file('image'),
-                    [
-                        'quality' => 60,
-                        'maxWidth' => 1024,
-                        'subfolder' => 'categories/' . date('Y/m')
-                    ]
-                );
+        if (($request->has('cropped_image') && !empty($request->cropped_image)) || $request->hasFile('image')) {
+            // Delete old image if exists
+            if ($category->image) {
+                $this->imageService->deleteImage($category->image);
             }
 
-            $category->update([
-                'title_ne' => $request->title_ne,
-                'title_en' => $request->title_en,
-                'description_ne' => $request->description_ne,
-                'description_en' => $request->description_en,
-                'image' => $imagePath,
-                'is_active' => (bool) $request->is_active,
-            ]);
-
-            return redirect()->route('admin.categories.index')
-                ->with('success', 'Category updated successfully!');
-
-        } catch (Exception $e) {
-            return redirect()->back()
-                ->withErrors(['error' => $e->getMessage()])
-                ->withInput();
+            $imagePath = $this->imageService->compressAndStore(
+                $request->has('cropped_image') && !empty($request->cropped_image) 
+                    ? $request->cropped_image 
+                    : $request->file('image'),
+                [
+                    'quality' => 60,
+                    'maxWidth' => 1024,
+                    'subfolder' => 'categories/' . date('Y/m')
+                ]
+            );
         }
+
+        $category->update([
+            'title_ne' => $request->title_ne,
+            'title_en' => $request->title_en,
+            'description_ne' => $request->description_ne,
+            'description_en' => $request->description_en,
+            'image' => $imagePath,
+            'is_active' => (bool) $request->is_active,
+        ]);
+
+        return redirect()->route('admin.categories.index')
+            ->with('success', 'Category updated successfully!');
+
+    } catch (Exception $e) {
+        return redirect()->back()
+            ->withErrors(['error' => $e->getMessage()])
+            ->withInput();
     }
+}
 
     public function destroy(Category $category)
     {
