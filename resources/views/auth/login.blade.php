@@ -139,20 +139,28 @@
                                                         @enderror
                                                         <br>
                                                     </div>
-                                                    <div class="row flex-between-center">
-                                                        <div class="col-auto">
+                                                    <div class="g-recaptcha" data-sitekey="{{ config('services.recaptcha.site_key') }}"></div>
+                                                    <div id="recaptcha-error" style="color: red; font-size: 0.9rem; margin-top: 5px;"></div>
+                                                    
+                                                    
+                                                    <div class="mb-3">
+                                                        <button class="btn btn-primary d-block w-100 mt-3" type="submit" name="submit">{{ __('Login') }}</button>
+                                                    </div>
+                                                    <div class="row align-items-center justify-content-between">
+                                                        <!-- Remember Me Checkbox -->
+                                                        <div class="col-auto d-flex align-items-center">
                                                             <div class="form-check mb-0">
                                                                 <input class="form-check-input" type="checkbox" id="card-checkbox" checked="checked" name="remember">
                                                                 <label class="form-check-label mb-0" for="card-checkbox">{{ __('Remember Me') }}</label>
                                                             </div>
                                                         </div>
+                                                        
+                                                        <!-- Register Link -->
+                                                        <div class="col-auto">
+                                                            <a href="/register" class="text-decoration-none">Don't have an account?</a>
+                                                        </div>
                                                     </div>
-                                                    <div class="mb-3">
-                                                        <button class="btn btn-primary d-block w-100 mt-3" type="submit" name="submit">{{ __('Login') }}</button>
-                                                    </div>
-                                                    <div class="d-flex">
-                                                        <a href="/register" class="d">Don't have account? </a>     
-                                                    </div>
+                                                    
     
                                                 </form>
                                             </div>
@@ -166,7 +174,19 @@
             </main>
         </div>
     </main>
-
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', function(event) {
+            var response = grecaptcha.getResponse();
+            var errorDiv = document.getElementById('recaptcha-error');
+            errorDiv.textContent = '';
+    
+            if (response.length == 0) {
+                event.preventDefault();
+                errorDiv.textContent = "Please verify that you are not a robot.";
+            }
+        });
+    </script>
     <script type="text/javascript">
         InitializeUnicodeNepali();
     </script>
