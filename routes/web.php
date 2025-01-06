@@ -26,6 +26,7 @@ use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\MemberTypeController;
 use App\Http\Controllers\UserManagementController;
 use App\Http\Controllers\Auth\VerificationController;
+use App\Http\Controllers\Auth\LoginController;
 
 /*
 |--------------------------------------------------------------------------
@@ -47,6 +48,9 @@ use App\Http\Controllers\Auth\VerificationController;
 Route::group(['middleware' => ['auth', 'admin'], 'prefix' => 'admin', 'as' => 'admin.'], function () {
     Route::post('/users/{user}/approve', [UserManagementController::class, 'approve'])->name('users.approve');
 });
+Route::get('login', [LoginController::class, 'showLoginForm'])->name('login');
+Route::post('login', [LoginController::class, 'login']);
+Route::post('logout', [LoginController::class, 'logout'])->name('logout');
 Auth::routes(['verify' => true]);
 
 // Route to handle the verification when the user clicks the link in the email
