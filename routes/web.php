@@ -44,6 +44,9 @@ use App\Http\Controllers\Auth\VerificationController;
 //     session()->put('locale',$lang);
 //     return redirect()->route('fronted.index');
 // });
+Route::group(['middleware' => ['auth', 'admin'], 'prefix' => 'admin', 'as' => 'admin.'], function () {
+    Route::post('/users/{user}/approve', [UserManagementController::class, 'approve'])->name('users.approve');
+});
 Auth::routes(['verify' => true]);
 
 // Route to handle the verification when the user clicks the link in the email

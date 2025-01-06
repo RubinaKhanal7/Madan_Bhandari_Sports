@@ -8,6 +8,8 @@ use Illuminate\Http\Request;
 use Spatie\Permission\Models\Role;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use App\Notifications\AccountApproved;
+use Illuminate\Support\Facades\Log;
 
 class UserManagementController extends Controller
 {
@@ -59,16 +61,28 @@ class UserManagementController extends Controller
                 ->with('error', 'Error deleting user: ' . $e->getMessage());
         }
     }
-
-    public function approve(User $user)
+    public function approve($id)
     {
         try {
+            $user = User::findOrFail($id);
             $user->update(['is_approved' => true]);
-            return redirect()->route('admin.users.index')
-                ->with('success', 'User approved successfully');
+            
+            try {
+                $user->notify(new AccountApproved());
+                Log::info('Approval notification sent to user:', ['user_id' => $user->id, 'email' => $user->email]);
+            } catch (\Exception $e) {
+                Log::error('Failed to send approval notification:', [
+                    'user_id' => $user->id,
+                    'error' => $e->getMessage()
+                ]);
+                return redirect()->back()->with('error', 'User approved but failed to send notification email.');
+            }
+            
+            return redirect()->back()->with('success', 'User has been approved successfully and notification sent.');
+            
         } catch (\Exception $e) {
-            return redirect()->route('admin.users.index')
-                ->with('error', 'Error approving user: ' . $e->getMessage());
+            Log::error('Failed to approve user:', ['error' => $e->getMessage()]);
+            return redirect()->back()->with('error', 'Failed to approve user.');
         }
     }
 
