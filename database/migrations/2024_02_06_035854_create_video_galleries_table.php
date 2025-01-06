@@ -14,10 +14,14 @@ return new class extends Migration {
     {
         Schema::create('video_galleries', function (Blueprint $table) {
             $table->id();
-            $table->string('title');
-            $table->string('slug')->unique();
-            $table->string('url')->nullable;
-            $table->boolean('status')->default('0');
+            $table->string('title_ne'); 
+            $table->string('title_en'); 
+            $table->string('videos');
+            $table->string('url'); 
+            $table->text('description_ne')->nullable(); 
+            $table->text('description_en')->nullable(); 
+            $table->boolean('is_featured')->default(false)->nullable(); 
+            $table->boolean('is_active')->default(true)->nullable(); 
             $table->timestamps();
         });
     }

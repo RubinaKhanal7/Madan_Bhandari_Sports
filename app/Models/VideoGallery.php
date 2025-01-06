@@ -3,20 +3,23 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Cviebrock\EloquentSluggable\Sluggable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class VideoGallery extends Model
 {
-    use HasFactory, Sluggable;
-    protected $fillable = ['title', 'slug', 'url'];
+    use HasFactory;
 
-    public function sluggable(): array
-    {
-        return [
-            'slug' => [
-                'source' => 'title'
-            ]
-        ];
-    }
+    // Specify the fillable fields
+    protected $fillable = [
+        'title_ne',
+        'title_en',
+        'videos',
+        'url',
+        'description_ne',
+        'description_en',
+        'is_featured',
+        'is_active',
+    ];
+
+   
 }

@@ -7,109 +7,69 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Spatie\Permission\Models\Role;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Validator;
 
 class UserManagementController extends Controller
 {
     public function index()
     {
-        $users = User::all();
+        $users = User::latest()->paginate(10);
         return view('backend.usermanagement.index', compact('users'));
-    }
-
-    public function create()
-    {
-        $roles = Role::all(); // Fetch all available roles
-        return view('backend.usermanagement.create', compact('roles'));
     }
 
     public function store(Request $request)
     {
-        $validatedData = $request->validate([
-            'name' => 'required|max:255',
-            'email' => 'required|email|max:255|unique:users',
-            'password' => 'required|min:8|confirmed',
-            'role' => 'required|exists:roles,name',
+        $validator = Validator::make($request->all(), [
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users',
+            'password' => 'required|string|min:8|confirmed',
+
         ]);
 
-        // Create the user
-        $user = User::create([
-            'name' => $validatedData['name'],
-            'email' => $validatedData['email'],
-            'password' => Hash::make($validatedData['password']),
-        ]);
-
-        $role = Role::where('name', $validatedData['role'])->first();
-
-        if ($role) {
-            $user->assignRole($role);
+        if ($validator->fails()) {
+            return back()
+                ->withErrors($validator)
+                ->withInput();
         }
 
-        return redirect()->route('backend.usermanagement.index')
-            ->with('success', 'User created successfully.');
-    }
-
-    public function edit($id)
-    {
-        $user = User::findOrFail($id);
-        $roles = Role::all();
-        return view('backend.usermanagement.update', compact('user', 'roles'));
-    }
-
-    public function update(Request $request, $id)
-    {
-        $validatedData = $request->validate([
-            'name' => 'required|max:255',
-            'email' => 'required|email|max:255',
-            'password' => 'sometimes|min:8|confirmed',
-            'role' => 'nullable|exists:roles,name',
-        ]);
-
-        // Find the user by ID
-        $user = User::findOrFail($id);
-
         try {
-            $userData = [
-                'name' => $validatedData['name'],
-                'email' => $validatedData['email'],
-            ];
+            User::create([
+                'name' => $request->name,
+                'email' => $request->email,
+                'password' => Hash::make($request->password),
+            ]);
 
-            if (isset($validatedData['password'])) {
-                $userData['password'] = Hash::make($validatedData['password']);
-            }
-
-            $user->update($userData);
-
-            // Update the user's role (only one role)
-            if (isset($validatedData['role'])) {
-                $role = Role::where('name', $validatedData['role'])->first();
-                if ($role) {
-                    $user->syncRoles([$role->name]); // Use syncRoles to set a single role
-                }
-            }
-
-            return redirect()->route('backend.usermanagement.index')
-                ->with('success', 'User updated successfully.');
+            return redirect()->route('admin.users.index')
+                ->with('success', 'User created successfully');
         } catch (\Exception $e) {
-            // Handle the exception here, you can log it or return an error message
-            return redirect()->back()->with('error', 'An error occurred during the update: ' . $e->getMessage());
+            return back()
+                ->with('error', 'Error creating user: ' . $e->getMessage())
+                ->withInput();
         }
     }
 
-    public function destroy($id)
+    public function destroy(User $user)
     {
-        // Find the user by ID
-        $user = User::findOrFail($id);
-
         try {
-            // Delete the user
             $user->delete();
-
-            return redirect()->route('backend.usermanagement.index')
-                ->with('success', 'User deleted successfully.');
+            return redirect()->route('admin.users.index')
+                ->with('success', 'User deleted successfully');
         } catch (\Exception $e) {
-            // Handle the exception here, you can log it or return an error message
-            return redirect()->route('backend.usermanagement.index')
-                ->with('error', 'An error occurred during the delete: ' . $e->getMessage());
+            return redirect()->route('admin.users.index')
+                ->with('error', 'Error deleting user: ' . $e->getMessage());
         }
     }
+
+    public function approve(User $user)
+    {
+        try {
+            $user->update(['is_approved' => true]);
+            return redirect()->route('admin.users.index')
+                ->with('success', 'User approved successfully');
+        } catch (\Exception $e) {
+            return redirect()->route('admin.users.index')
+                ->with('error', 'Error approving user: ' . $e->getMessage());
+        }
+    }
+
 }

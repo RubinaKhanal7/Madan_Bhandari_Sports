@@ -41,6 +41,25 @@
                     </a>
                 </li>
 
+                {{-- User Management Section --}}
+                @hasanyrole('superadmin')
+                <li class="nav-item">
+                    <div class="row navbar-vertical-label-wrapper mt-3 mb-2">
+                        <div class="col-auto navbar-vertical-label">User Management</div>
+                        <div class="col ps-0">
+                            <hr class="mb-0 navbar-vertical-divider">
+                        </div>
+                    </div>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ route('admin.users.index') }}">
+                        <div class="d-flex align-items-center">
+                            <span class="nav-link-icon"><i class="fas fa-user"></i></span>
+                            <span class="nav-link-text ps-1">Users</span>
+                        </div>
+                    </a>
+                </li>
+            @endhasanyrole
 
                 {{-- Beginning of Site Settings --}}
                 @hasanyrole('superadmin')

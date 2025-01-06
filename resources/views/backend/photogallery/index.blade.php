@@ -1,155 +1,233 @@
 @extends('backend.layouts.master')
 
 @section('content')
-    <div class="container">
-        @if (Session::has('success'))
-            <div class="alert alert-success">
-                {{ Session::get('success') }}
-            </div>
-        @endif
-
-        @if (Session::has('error'))
-            <div class="alert alert-danger">
-                {{ Session::get('error') }}
-            </div>
-        @endif
-
-        <div class="row mb-2">
-            <div class="col-sm-6">
-                <h1 class="m-0">{{ $page_title }}</h1>
-                <a href="{{ route('admin.photo-galleries.create') }}" class="btn btn-primary btn-sm">
-                    <i class="fa fa-plus"></i> Add
-                </a>
-                <a href="{{ url()->previous() }}" class="btn btn-primary btn-sm">
-                    <i class="fa fa-arrow-left"></i> Back
-                </a>
-            </div>
-            <div class="col-sm-6">
-                <ol class="breadcrumb float-sm-right">
-                    <li class="breadcrumb-item"><a href="{{ url('admin') }}">Home</a></li>
-                    <li class="breadcrumb-item active">Dashboard</li>
-                </ol>
-            </div>
+<div class="container">
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h2>Photo Galleries</h2>
+            <button class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#createPhotoGalleryModal">Create Photo Gallery</button>
         </div>
+        <div class="card-body">
+            @if(session('success'))
+                <div class="alert alert-success">{{ session('success') }}</div>
+            @endif
+            @if(session('error'))
+                <div class="alert alert-danger">{{ session('error') }}</div>
+            @endif
 
-        <table class="table table-bordered table-hover">
-            <thead>
-                <tr>
-                    <th>S.N.</th>
-                    <th>Title</th>
-                    <th>Description</th>
-                    <th>Images</th>
-                    <th>Status</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-            <tbody>
-                {{-- @php
-                    $perPage = $gallery->perPage(); 
-                    $currentPage = $gallery->currentPage(); 
-                    $serialNumber = ($currentPage - 1) * $perPage + 1; 
-                @endphp --}}
-                @foreach ($gallery as $image)
+            @if ($errors->any())
+                <div class="alert alert-danger">
+                    <ul>
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
+
+            <table class="table table-bordered table-striped">
+                <thead>
                     <tr>
-                        {{-- <td>{{ $serialNumber++ }}</td> --}}
-                        <td>{{ $loop->iteration }}</td>
-                        <td>{{ $image->title }}</td>
-                        <td>{{ $image->img_desc }}</td>
-                        <td>
-                            @if (is_array($image->img))
-                                <div class="album-container">
-                                    @foreach ($image->img as $index => $imagePath)
-                                        <img class="album-image"
-                                            id="preview{{ $loop->parent->iteration }}{{ $index }}"
-                                            src="{{ asset($imagePath) }}"
-                                            style="width: 100px; height:100px; margin-right: 5px;" />
-                                     @endforeach
-                                </div>
-                            @else
-                                <img src="{{ asset($image->img) }}" style="width: 150px; height:150px;" />
-                            @endif
-                        </td>
-
-                        <td> @if ($image->status == 1)
-                            <span class="badge badge-success text-black">Active</span>
-                        @else
-                            <span class="badge badge-danger text-danger">Inactive</span>
-                        @endif
-                        </td>
-
-
-                        <td>
-                            
-                            <div style="display: flex; flex-direction:row;">
-                                <!-- Edit button triggers edit modal -->
-                                <button class="btn btn-warning btn-sm" data-toggle="modal"
-                                    data-target="#editModal{{ $image->id }}" style="margin-right: 5px;"><i
-                                        class="fas fa-edit"></i> Edit</button>
-                                <!-- Delete button triggers delete modal -->
-                                <button class="btn btn-danger btn-sm" data-toggle="modal"
-                                    data-target="#deleteModal{{ $image->id }}">
-                                    <i class="fas fa-trash"></i> Delete
-                                </button>
-                            </div>
-                        </td>
+                        <th>Title (EN)</th>
+                        <th>Title (NE)</th>
+                        <th>Images</th>
+                        <th>Actions</th>
                     </tr>
-
-                    <!-- Edit Modal -->
-                    <div class="modal fade" id="editModal{{ $image->id }}" tabindex="-1" role="dialog"
-                        aria-labelledby="editModalLabel{{ $image->id }}" aria-hidden="true">
-                        <div class="modal-dialog" role="document">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h5 class="modal-title">Edit Photo Gallery</h5>
-                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                        <span aria-hidden="true">&times;</span>
+                </thead>
+            
+                    <tbody>
+                        @foreach($photoGalleries as $photoGallery)
+                            <tr>
+                                <td>{{ $photoGallery->title_en }}</td>
+                                <td>{{ $photoGallery->title_ne }}</td>
+                                <td>
+                                    @foreach($photoGallery->images as $image)  <!-- No json_decode() needed -->
+                                        <img src="{{ asset($image) }}" alt="Photo Gallery Image" style="max-width: 100px;">
+                                    @endforeach
+                                </td>
+                                <td>
+                                    <button class="btn btn-outline-info btn-sm" 
+                                            data-bs-toggle="modal" 
+                                            data-bs-target="#editPhotoGalleryModal{{ $photoGallery->id }}" 
+                                            style="width: 32px;">
+                                        <i class="fas fa-edit"></i>
                                     </button>
-                                </div>
-                                <div class="modal-body">
-                                    <p>Are you sure you want to edit this photo gallery?</p>
-                                </div>
-                                <div class="modal-footer">
-                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                                    <a href="{{ route('admin.photo-galleries.edit', $image->id) }}" class="btn btn-primary">Edit</a>
-                                </div>
+                                     
+                                    <button class="btn btn-outline-danger btn-sm" 
+                                            data-bs-toggle="modal" 
+                                            data-bs-target="#deletePhotoGalleryModal{{ $photoGallery->id }}" 
+                                            style="width: 32px;">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                           
+                    <!-- Edit Modal -->
+                    <div class="modal fade" id="editPhotoGalleryModal{{ $photoGallery->id }}" tabindex="-1">
+                        <div class="modal-dialog modal-lg">
+                            <div class="modal-content">
+                                <form action="{{ route('admin.photo-galleries.update', $photoGallery->id) }}" 
+                                      method="POST" 
+                                      enctype="multipart/form-data">
+                                    @csrf
+                                    @method('PUT')
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">Edit Photo Gallery</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <div class="mb-3">
+                                            <label class="form-label">Title (EN)</label>
+                                            <input type="text" name="title_en" class="form-control" value="{{ $photoGallery->title_en }}" required>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Title (NE)</label>
+                                            <input type="text" name="title_ne" class="form-control" value="{{ $photoGallery->title_ne }}" required>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Images</label>
+                                            <div class="preview-container-{{ $photoGallery->id }}">
+                                                @foreach(json_decode($photoGallery->images) as $image)
+                                                    <img src="{{ asset($image) }}" 
+                                                         alt="Current Image" 
+                                                         id="imagePreview{{ $photoGallery->id }}" 
+                                                         style="max-width: 200px; margin-bottom: 10px;">
+                                                @endforeach
+                                            </div>
+                                            <input type="file" 
+                                                   name="images[]" 
+                                                   class="form-control" 
+                                                   multiple
+                                                   onchange="previewImagesEdit(event, {{ $photoGallery->id }})">
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label class="form-label">Description (EN)</label>
+                                            <textarea name="description_en" class="form-control">{{ $photoGallery->description_en }}</textarea>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Description (NE)</label>
+                                            <textarea name="description_ne" class="form-control">{{ $photoGallery->description_ne }}</textarea>
+                                        </div>
+                                        
+                                        <div class="mb-3">
+                                            <label class="form-label">Is Active?</label>
+                                            <input type="checkbox" 
+                                                name="is_active" 
+                                                value="1" 
+                                                {{ $photoGallery->is_active ? 'checked' : '' }}>
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                        <button type="submit" class="btn btn-success">Update</button>
+                                    </div>
+                                </form>
                             </div>
                         </div>
-                    </div>
+                    </div>   
 
-                    <!-- Delete Modal -->
-                    <div class="modal fade" id="deleteModal{{ $image->id }}" tabindex="-1" role="dialog"
-                        aria-labelledby="deleteModalLabel{{ $image->id }}" aria-hidden="true">
-                        <div class="modal-dialog" role="document">
+                      <!-- Delete Confirmation Modal -->
+                      <div class="modal fade" id="deletePhotoGalleryModal{{ $photoGallery->id }}" tabindex="-1" aria-labelledby="deletePhotoGalleryModalLabel{{ $photoGallery->id }}" aria-hidden="true">
+                        <div class="modal-dialog">
                             <div class="modal-content">
                                 <div class="modal-header">
-                                    <h5 class="modal-title">Delete Photo Gallery</h5>
-                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                        <span aria-hidden="true">&times;</span>
-                                    </button>
+                                    <h5 class="modal-title" id="deletePhotoGalleryModalLabel{{ $photoGallery->id }}">Delete Photo Gallery</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                 </div>
                                 <div class="modal-body">
-                                    <p>Are you sure you want to delete this photo gallery?</p>
+                                    Are you sure you want to delete this photo gallery?
                                 </div>
                                 <div class="modal-footer">
-                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                                    <form action="{{ route('admin.photo-galleries.destroy', $image->id) }}" method="POST">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                    <form action="{{ route('admin.photo-galleries.destroy', $photoGallery->id) }}" method="POST">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" class="btn btn-danger">Delete</button>
+                                        <button type="submit" class="btn btn-danger">Yes, Delete</button>
                                     </form>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                @endforeach
-            </tbody>
-        </table>
-
-        <!-- Pagination -->
-        <nav aria-label="Page navigation">
-            <ul class="pagination">
-                {{ $gallery->links() }}
-            </ul>
-        </nav>
+                    </div>                    
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
     </div>
-@stop
+</div>
+
+<!-- Create Modal -->
+<div class="modal fade" id="createPhotoGalleryModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <form action="{{ route('admin.photo-galleries.store') }}" method="POST" enctype="multipart/form-data">
+                @csrf
+                <div class="modal-header">
+                    <h5 class="modal-title">Create Photo Gallery</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Title (EN)</label>
+                        <input type="text" name="title_en" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Title (NE)</label>
+                        <input type="text" name="title_ne" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Images</label>
+                        <div id="imagePreviewContainer" style="margin-bottom: 10px;">
+                            <img id="imagePreview" src="#" alt="Selected Image" style="max-width: 200px; display: none;">
+                        </div>
+                        <input type="file" name="images[]" class="form-control" multiple required onchange="previewImages(event)">
+                    </div>
+            
+                    <div class="mb-3">
+                        <label class="form-label">Description (EN)</label>
+                        <textarea name="description_en" class="form-control"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Description (NE)</label>
+                        <textarea name="description_ne" class="form-control"></textarea>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Is Active?</label>
+                        <input type="checkbox" name="is_active" checked value="1">
+                    </div>
+
+                    <button type="submit" class="btn btn-success">Submit</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+function previewImages(event, photoGalleryId = null) {
+    var reader = new FileReader();
+    reader.onload = function() {
+        var output;
+        if (photoGalleryId) {
+            output = document.getElementById('imagePreview' + photoGalleryId); 
+        } else {
+            output = document.getElementById('imagePreview'); 
+        }
+        output.src = reader.result;
+        output.style.display = 'block';
+    };
+    reader.readAsDataURL(event.target.files[0]);
+}
+
+function previewImagesEdit(event, photoGalleryId) {
+    var reader = new FileReader();
+    reader.onload = function() {
+        var output = document.getElementById('imagePreview' + photoGalleryId);
+        output.src = reader.result;
+        output.style.display = 'block';
+    };
+    reader.readAsDataURL(event.target.files[0]);
+}
+</script>
+@endsection

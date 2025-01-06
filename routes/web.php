@@ -24,6 +24,7 @@ use App\Http\Controllers\SocialMediaController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\MemberTypeController;
+use App\Http\Controllers\UserManagementController;
 use App\Http\Controllers\Auth\VerificationController;
 
 /*
@@ -154,6 +155,10 @@ Route::prefix('/admin')->name('admin.')->middleware(['web', 'auth'])->group(func
 
     // Video galleries
     Route::resource('video-galleries', VideoGalleryController::class);
+
+    //Users
+    Route::resource('users', UserManagementController::class);
+    Route::post('users/{user}/approve', [UserManagementController::class, 'approve'])->name('users.approve');
         
     // Teams
     Route::get('/teams', [TeamController::class, 'index'])->middleware('auth');

@@ -1,19 +1,20 @@
 <?php
 
 namespace App\Http\Controllers;
+
 use Exception;
 use App\Models\PhotoGallery;
 use Illuminate\Http\Request;
-use Cviebrock\EloquentSluggable\Services\SlugService;
 use Illuminate\Support\Facades\File;
 
 class PhotoGalleryController extends Controller
 {
     public function index()
     {
-        $gallery = PhotoGallery::latest()->paginate(5);
+        // Fetch paginated galleries
+        $photoGalleries = PhotoGallery::paginate(5); 
         return view('backend.photogallery.index', [
-            'gallery' => $gallery,
+            'photoGalleries' => $photoGalleries,
             'page_title' => 'Photo Gallery'
         ]);
     }
@@ -26,43 +27,39 @@ class PhotoGalleryController extends Controller
     public function store(Request $request)
     {
         $this->validate($request, [
-            'title' => 'required|string',
-            'img_desc' => 'nullable|string',
-            'img' => 'required|array', // Ensure at least one image is uploaded
-            'img.*' => 'required|image|mimes:jpeg,png,jpg,gif,avif,webp,avi|max:2048', // Maximum file size of 2 MB
-            'status' => 'boolean|required',
+            'title_en' => 'required|string',
+            'title_ne' => 'required|string',
+            'description_en' => 'nullable|string',
+            'description_ne' => 'nullable|string',
+            'images' => 'required|array',
+            'images.*' => 'required|image|mimes:jpeg,png,jpg,gif,avif,webp|max:2048',
+            'is_active' => 'required|boolean',
+            'is_featured' => 'nullable|boolean',
         ]);
 
         try {
-            $gallery = new PhotoGallery();
-            $gallery->title = $request->title;
-            $gallery->img_desc = $request->img_desc;
-            $gallery->slug = SlugService::createSlug(PhotoGallery::class, 'slug', $request->title);
-         
-
-            // Save each uploaded image
             $convertedImages = [];
-            foreach ($request->file('img') as $image) {
+            foreach ($request->file('images') as $image) {
                 $imageName = time() . '_' . uniqid() . '.' . $image->getClientOriginalExtension();
                 $image->move(public_path('uploads/photogallery/'), $imageName);
                 $convertedImages[] = 'uploads/photogallery/' . $imageName;
             }
 
-            $gallery->img = $convertedImages;
-            $gallery->status = $request->status;
+            PhotoGallery::create([
+                'title_en' => $request->title_en,
+                'title_ne' => $request->title_ne,
+                'description_en' => $request->description_en,
+                'description_ne' => $request->description_ne,
+                'images' => json_encode($convertedImages), // Store as JSON string
+                'is_active' => $request->is_active,
+                'is_featured' => $request->is_featured,
+            ]);
 
-
-            if ($gallery->save()) {
-                return redirect()->route('admin.photo-galleries.index')->with('success', 'Gellry created successfully.');
-            } else {
-                return redirect()->back()->with('error', 'Error! Gallery not created.');
-            }
+            return redirect()->route('admin.photo-galleries.index')
+                ->with('success', 'Gallery created successfully.');
         } catch (Exception $e) {
             return redirect()->back()->with('error', 'Error! ' . $e->getMessage());
         }
-
-
-          
     }
 
     public function edit($id)
@@ -77,35 +74,42 @@ class PhotoGalleryController extends Controller
     public function update(Request $request, $id)
     {
         $this->validate($request, [
-            'title' => 'required|string',
-            'img_desc' => 'nullable|string',
-            'img' => 'nullable|array', // Allow null or array (for single or multiple photo updates)
-            'img.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,avif,webp,avi|max:2048', // Maximum file size of 2 MB
-            'status' => 'nullable|boolean',
+            'title_en' => 'required|string',
+            'title_ne' => 'required|string',
+            'description_en' => 'nullable|string',
+            'description_ne' => 'nullable|string',
+            'images' => 'nullable|array',
+            'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,avif,webp|max:2048',
+            'is_active' => 'nullable|boolean',
+            'is_featured' => 'nullable|boolean',
         ]);
 
         try {
             $gallery = PhotoGallery::findOrFail($id);
-            $gallery->title = $request->title;
-            $gallery->img_desc = $request->img_desc;
-            $gallery->slug = SlugService::createSlug(PhotoGallery::class, 'slug', $request->title);
-            $gallery->status = $request->status;
 
-            // Check if new images are uploaded
-            if ($request->hasFile('img')) {
+            $gallery->title_en = $request->title_en;
+            $gallery->title_ne = $request->title_ne;
+            $gallery->description_en = $request->description_en;
+            $gallery->description_ne = $request->description_ne;
+            $gallery->is_active = $request->is_active;
+            $gallery->is_featured = $request->is_featured;
+
+            if ($request->hasFile('images')) {
                 $convertedImages = [];
-                foreach ($request->file('img') as $image) {
+                foreach ($request->file('images') as $image) {
                     $imageName = time() . '_' . uniqid() . '.' . $image->getClientOriginalExtension();
                     $image->move(public_path('uploads/photogallery/'), $imageName);
                     $convertedImages[] = 'uploads/photogallery/' . $imageName;
                 }
-                $gallery->img = json_encode($convertedImages);
+                $gallery->images = json_encode($convertedImages); // Store as JSON string
             }
 
             $gallery->save();
-            return redirect()->route('admin.photo-galleries.index')->with(['success' => 'Success!! Gallery Updated']);
-        } catch (\Exception $e) {
-            return redirect()->back()->with(['error' => 'Error updating gallery. Please try again.']);
+            return redirect()->route('admin.photo-galleries.index')
+                ->with('success', 'Gallery updated successfully.');
+        } catch (Exception $e) {
+            return redirect()->back()
+                ->with('error', 'Error updating gallery. ' . $e->getMessage());
         }
     }
 
@@ -113,13 +117,15 @@ class PhotoGalleryController extends Controller
     {
         $gallery = PhotoGallery::find($id);
         if ($gallery) {
-            foreach (json_decode($gallery->img) as $image) {
+            foreach (json_decode($gallery->images, true) as $image) {
                 File::delete(public_path($image));
             }
             $gallery->delete();
-            return redirect()->route('admin.photo-galleries.index')->with('success', 'Success !! Photo Gallery Deleted');
+            return redirect()->route('admin.photo-galleries.index')
+                ->with('success', 'Gallery deleted successfully.');
         } else {
-            return redirect()->route('admin.photo-galleries.index')->with('error', 'Photo Gallery not found.');
+            return redirect()->route('admin.photo-galleries.index')
+                ->with('error', 'Gallery not found.');
         }
     }
 }

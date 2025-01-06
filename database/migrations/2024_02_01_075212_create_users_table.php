@@ -25,6 +25,7 @@ return new class extends Migration
             $table->timestamps();
             $table->softDeletes();
             $table->foreign('role')->references('id')->on('roles')->onDelete('cascade');
+            $table->boolean('is_approved')->default(false);
         });
     }
 
