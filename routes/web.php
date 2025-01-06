@@ -158,6 +158,7 @@ Route::prefix('/admin')->name('admin.')->middleware(['web', 'auth'])->group(func
 
     //Users
     Route::resource('users', UserManagementController::class);
+    Route::post('users/{user}/approve', [UserManagementController::class, 'approve'])->name('users.approve');
         
     // Teams
     Route::get('/teams', [TeamController::class, 'index'])->middleware('auth');
