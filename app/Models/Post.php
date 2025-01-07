@@ -31,4 +31,9 @@ class Post extends Model
     {
         return $this->belongsTo(Category::class);
     }
+
+    public function metadata()
+    {
+        return $this->belongsTo(MetaData::class, 'meta_data_id');
+    }
 }

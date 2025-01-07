@@ -161,6 +161,10 @@ Route::prefix('/admin')->name('admin.')->middleware(['web', 'auth'])->group(func
 
     // Posts
     Route::resource('posts', PostController::class);
+    Route::post('posts/{post}/metadata', [PostController::class, 'storeMetadata'])->name('posts.metadata.store');
+    Route::put('posts/{post}/metadata', [PostController::class, 'updateMetadata'])->name('posts.metadata.update');
+    Route::patch('/posts/{post}/toggle-featured', [PostController::class, 'toggleFeatured'])->name('posts.toggle-featured');
+    Route::patch('/posts/{post}/toggle-status', [PostController::class, 'toggleStatus'])->name('posts.toggle-status');
 
     // Photo galleries
     Route::resource('photo-galleries', PhotoGalleryController::class);

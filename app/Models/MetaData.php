@@ -20,5 +20,10 @@ class MetaData extends Model
     {
         return $this->hasOne(Category::class);
     }
+
+    public function post()
+    {
+        return $this->hasOne(Post::class);
+    }
 }
 

@@ -39,7 +39,7 @@
                         <th>Category</th>
                         <th>Image</th>
                         <th>Featured</th>
-                        <th>Active</th>
+                        <th>Status</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
@@ -57,17 +57,28 @@
                                 <span class="text-muted">No Image</span>
                             @endif
                         </td>
+                        <td>
+                            <button class="btn {{ $post->is_featured ? 'btn-success' : 'btn-danger' }} btn-sm" 
+                                    data-bs-toggle="modal" 
+                                    data-bs-target="#featuredModal{{ $post->id }}">
+                                {{ $post->is_featured ? 'Featured' : 'Not Featured' }}
+                            </button>
+                        </td>
+                        <td>
+                            <button class="btn {{ $post->is_active ? 'btn-success' : 'btn-danger' }} btn-sm"
+                                    data-bs-toggle="modal" 
+                                    data-bs-target="#statusModal{{ $post->id }}">
+                                {{ $post->is_active ? 'Active' : 'Inactive' }}
+                            </button>
+                        </td>
                             <td>
-                                <span class="badge {{ $post->is_featured ? 'bg-success' : 'bg-danger' }}">
-                                    {{ $post->is_featured ? 'Yes' : 'No' }}
-                                </span>
-                            </td>
-                            <td>
-                                <span class="badge {{ $post->is_active ? 'bg-success' : 'bg-danger' }}">
-                                    {{ $post->is_active ? 'Yes' : 'No' }}
-                                </span>
-                            </td>
-                            <td>
+                                <button class="btn btn-outline-primary btn-sm" 
+                                        data-bs-toggle="modal" 
+                                        data-bs-target="#metadataModal{{ $post->id }}" 
+                                        style="width: 32px; text-align: center; font-size: 15px;">
+                                    <span>M</span>
+                                </button>
+
                                 <!-- Edit Button -->
                                 <button class="btn btn-outline-info btn-sm" data-bs-toggle="modal" data-bs-target="#editModal{{ $post->id }}">
                                     <i class="fas fa-edit"></i>
@@ -80,6 +91,57 @@
                             </td>
                         </tr>
 
+                        <!-- Featured Status Modal -->
+                        <div class="modal fade" id="featuredModal{{ $post->id }}" tabindex="-1">
+                            <div class="modal-dialog">
+                                <form method="POST" action="{{ route('admin.posts.toggle-featured', $post->id) }}">
+                                    @csrf
+                                    @method('PATCH')
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title">Change Featured Status</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <p>Do you want to {{ $post->is_featured ? 'remove' : 'set' }} this post as featured?</p>
+                                            <p><strong>Current status:</strong> {{ $post->is_featured ? 'Featured' : 'Not Featured' }}</p>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                            <button type="submit" class="btn {{ $post->is_featured ? 'btn-danger' : 'btn-success' }}">
+                                                {{ $post->is_featured ? 'Remove from Featured' : 'Set as Featured' }}
+                                            </button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+
+                        <!-- Active Status Modal -->
+                        <div class="modal fade" id="statusModal{{ $post->id }}" tabindex="-1">
+                            <div class="modal-dialog">
+                                <form method="POST" action="{{ route('admin.posts.toggle-status', $post->id) }}">
+                                    @csrf
+                                    @method('PATCH')
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title">Change Status</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <p>Do you want to {{ $post->is_active ? 'deactivate' : 'activate' }} this post?</p>
+                                            <p><strong>Current status:</strong> {{ $post->is_active ? 'Active' : 'Inactive' }}</p>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                            <button type="submit" class="btn {{ $post->is_active ? 'btn-danger' : 'btn-success' }}">
+                                                {{ $post->is_active ? 'Deactivate' : 'Activate' }}
+                                            </button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
                         <!-- Edit Modal -->
                         <div class="modal fade" id="editModal{{ $post->id }}" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
                             <div class="modal-dialog">
@@ -92,30 +154,39 @@
                                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                         </div>
                                         <div class="modal-body">
-                                            <!-- Title NE Field -->
-                                            <div class="mb-3">
-                                                <label for="title_ne" class="form-label">Title (NE)</label>
-                                                <textarea id="title_ne" name="title_ne" class="form-control" required>{{ old('title_ne', $post->title_ne) }}</textarea>
-                                            </div>
-                                            
-                                            <!-- Title EN Field -->
-                                            <div class="mb-3">
-                                                <label for="title_en" class="form-label">Title (EN)</label>
-                                                <textarea id="title_en" name="title_en" class="form-control" required>{{ old('title_en', $post->title_en) }}</textarea>
-                                            </div>
-
-                                            <!-- Description NE Field -->
-                                            <div class="mb-3">
-                                                <label for="description_ne" class="form-label">Description (NE) (Optional)</label>
-                                                <textarea id="description_ne" name="description_ne" class="form-control">{{ old('description_ne', $post->description_ne) }}</textarea>
-                                            </div>
-
-                                            <!-- Description EN Field -->
-                                            <div class="mb-3">
-                                                <label for="description_en" class="form-label">Description (EN) (Optional)</label>
-                                                <textarea id="description_en" name="description_en" class="form-control">{{ old('description_en', $post->description_en) }}</textarea>
-                                            </div>
-
+                                            <!-- Start Row for English and Nepali Fields -->
+                                            <div class="row">
+                                                <!-- English Fields Column -->
+                                                <div class="col-md-6">
+                                                    <!-- Title EN Field -->
+                                                    <div class="mb-3">
+                                                        <label for="title_en" class="form-label">Title (EN)</label>
+                                                        <textarea id="title_en" name="title_en" class="form-control" required>{{ old('title_en', $post->title_en) }}</textarea>
+                                                    </div>
+                        
+                                                    <!-- Description EN Field -->
+                                                    <div class="mb-3">
+                                                        <label for="description_en" class="form-label">Description (EN) (Optional)</label>
+                                                        <textarea id="description_en" name="description_en" class="form-control">{{ old('description_en', $post->description_en) }}</textarea>
+                                                    </div>
+                                                </div>
+                        
+                                                <!-- Nepali Fields Column -->
+                                                <div class="col-md-6">
+                                                    <!-- Title NE Field -->
+                                                    <div class="mb-3">
+                                                        <label for="title_ne" class="form-label">Title (NE)</label>
+                                                        <textarea id="title_ne" name="title_ne" class="form-control" required>{{ old('title_ne', $post->title_ne) }}</textarea>
+                                                    </div>
+                        
+                                                    <!-- Description NE Field -->
+                                                    <div class="mb-3">
+                                                        <label for="description_ne" class="form-label">Description (NE) (Optional)</label>
+                                                        <textarea id="description_ne" name="description_ne" class="form-control">{{ old('description_ne', $post->description_ne) }}</textarea>
+                                                    </div>
+                                                </div>
+                                            </div> <!-- End Row -->
+                        
                                             <!-- Category Selection -->
                                             <div class="mb-3">
                                                 <label for="category_id" class="form-label">Category</label>
@@ -128,7 +199,7 @@
                                                     @endforeach
                                                 </select>
                                             </div>
-
+                        
                                             <!-- Image Upload -->
                                             <div class="mb-3">
                                                 <label for="image" class="form-label">Image</label>
@@ -138,25 +209,23 @@
                                                              id="imagePreview{{ $post->id }}" style="max-width: 200px;">
                                                     @endif
                                                 </div>
-                                                <input type="file" name="image" class="form-control" 
-                                                       onchange="previewImageEdit(event, {{ $post->id }})">
+                                                <input type="file" name="image" class="form-control" onchange="previewImageEdit(event, {{ $post->id }})">
                                             </div>
-                                            
+                        
                                             <div class="mb-3">
                                                 <div class="crop-container-{{ $post->id }}" style="display: none;">
                                                     <img id="imageToCrop{{ $post->id }}" src="#" style="max-width: 100%;">
                                                 </div>
                                             </div>
-                                            
+                        
                                             <input type="hidden" name="cropped_image" id="croppedImage{{ $post->id }}" value="">
-                                            
+                        
                                             <!-- Add Save Cropped Image button before the form submit button -->
-                                            <button type="button" class="btn btn-primary" 
-                                                    onclick="saveCroppedImageEdit({{ $post->id }})">
+                                            <button type="button" class="btn btn-primary" onclick="saveCroppedImageEdit({{ $post->id }})">
                                                 Save Cropped Image
                                             </button>
-
-                                            <!-- PDF Upload -->
+                        
+                                           <!-- PDF Upload -->
                                             <div class="mb-3">
                                                 <label for="pdf" class="form-label">PDF (Optional)</label>
                                                 <input type="file" id="pdf" name="pdf[]" class="form-control" multiple>
@@ -164,19 +233,18 @@
                                                     <div class="mt-2">
                                                         <p>Existing PDF(s):</p>
                                                         @foreach($post->pdf as $pdf)
-                                                            <a href="{{ asset('storage/' . $pdf) }}" target="_blank">{{ basename($pdf) }}</a><br>
+                                                            <a href="{{ asset($pdf) }}" target="_blank">{{ basename($pdf) }}</a><br>
                                                         @endforeach
                                                     </div>
                                                 @endif
                                             </div>
-
                                             <!-- Featured Checkbox -->
                                             <div class="mb-3 form-check">
                                                 <input type="hidden" name="is_featured" value="0">
                                                 <input type="checkbox" id="is_featured" name="is_featured" value="1" class="form-check-input" {{ $post->is_featured ? 'checked' : '' }}>
                                                 <label class="form-check-label" for="is_featured">Featured</label>
                                             </div>
-
+                        
                                             <!-- Active Checkbox -->
                                             <div class="mb-3 form-check">
                                                 <input type="hidden" name="is_active" value="0">
@@ -192,7 +260,7 @@
                                 </form>
                             </div>
                         </div>
-
+                        
 
                         <!-- Delete Modal -->
                         <div class="modal fade" id="deleteModal{{ $post->id }}" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
@@ -211,6 +279,45 @@
                                         <div class="modal-footer">
                                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                                             <button type="submit" class="btn btn-danger">Delete</button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+
+                         <!-- Metadata Modal -->
+                         <div class="modal fade" id="metadataModal{{ $post->id }}" tabindex="-1">
+                            <div class="modal-dialog">
+                                <form method="POST" 
+                                    action="{{ $post->metadata ? route('admin.posts.metadata.update', $post->id) : route('admin.posts.metadata.store', $post->id) }}">
+                                    @csrf
+                                    @if($post->metadata)
+                                        @method('PUT')
+                                    @endif
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title">{{ $post->metadata ? 'Edit' : 'Add' }} Metadata</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <div class="mb-3">
+                                                <label class="form-label">Meta Title</label>
+                                                <input type="text" name="metaTitle" class="form-control" 
+                                                    value="{{ old('metaTitle', $post->metadata?->metaTitle) }}" required>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label">Meta Description</label>
+                                                <textarea name="metaDescription" class="form-control" rows="3">{{ old('metaDescription', $post->metadata?->metaDescription) }}</textarea>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label">Meta Keywords</label>
+                                                <textarea name="metaKeywords" class="form-control" rows="2">{{ old('metaKeywords', $post->metadata?->metaKeywords) }}</textarea>
+                                                <small class="text-muted">Separate keywords with commas</small>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                            <button type="submit" class="btn btn-success">{{ $post->metadata ? 'Update' : 'Save' }}</button>
                                         </div>
                                     </div>
                                 </form>
@@ -259,22 +366,33 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <div class="mb-3">
-                        <label for="title_ne" class="form-label">Title (NE)</label>
-                        <textarea id="title_ne" name="title_ne" class="form-control" required></textarea>
-                    </div>
-                    <div class="mb-3">
-                        <label for="title_en" class="form-label">Title (EN)</label>
-                        <textarea id="title_en" name="title_en" class="form-control" required></textarea>
-                    </div>
-                    <div class="mb-3">
-                        <label for="description_ne" class="form-label">Description (NE) (Optional)</label>
-                        <textarea id="description_ne" name="description_ne" class="form-control"></textarea>
-                    </div>
-                    <div class="mb-3">
-                        <label for="description_en" class="form-label">Description (EN) (Optional)</label>
-                        <textarea id="description_en" name="description_en" class="form-control"></textarea>
-                    </div>
+                    <!-- Start Row for English and Nepali Fields -->
+                    <div class="row">
+                        <!-- Nepali Fields Column -->
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="title_ne" class="form-label">Title (NE)</label>
+                                <textarea id="title_ne" name="title_ne" class="form-control" required></textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label for="description_ne" class="form-label">Description (NE) (Optional)</label>
+                                <textarea id="description_ne" name="description_ne" class="form-control"></textarea>
+                            </div>
+                        </div>
+
+                        <!-- English Fields Column -->
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="title_en" class="form-label">Title (EN)</label>
+                                <textarea id="title_en" name="title_en" class="form-control" required></textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label for="description_en" class="form-label">Description (EN) (Optional)</label>
+                                <textarea id="description_en" name="description_en" class="form-control"></textarea>
+                            </div>
+                        </div>
+                    </div> <!-- End Row -->
+
                     <div class="mb-3">
                         <label for="category_id" class="form-label">Category</label>
                         <select id="category_id" name="category_id" class="form-select" required>
@@ -329,6 +447,7 @@
         </form>
     </div>
 </div>
+
 
 <script>
     let croppers = {};
@@ -461,5 +580,33 @@
             });
         });
     });
+    </script>
+
+<script>
+    function populateMetadata(postId) {
+    const titleEn = document.querySelector(`#editModal${postId} textarea[name="title_en"]`).value;
+    const descriptionEn = document.querySelector(`#editModal${postId} textarea[name="description_en"]`)?.value || '';
+    
+    const metadataModal = document.querySelector(`#metadataModal${postId}`);
+    const metaTitleInput = metadataModal.querySelector('input[name="metaTitle"]');
+    const metaDescriptionTextarea = metadataModal.querySelector('textarea[name="metaDescription"]');
+
+    if (!metaTitleInput.value) {
+        metaTitleInput.value = titleEn;
+    }
+    
+    if (!metaDescriptionTextarea.value) {
+        metaDescriptionTextarea.value = descriptionEn;
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('[data-bs-target^="#metadataModal"]').forEach(button => {
+        button.addEventListener('click', function() {
+            const postId = this.getAttribute('data-bs-target').replace('#metadataModal', '');
+            populateMetadata(postId);
+        });
+    });
+});
     </script>
 @endsection
