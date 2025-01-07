@@ -177,10 +177,10 @@
                             {{-- Services --}}
                             <li class="nav-item">
                                 <a class="nav-link {{ Request::segment(2) == 'services' ? 'active' : '' }}"
-                                    href="{{ route('admin.services.index') }}">
+                                    href="{{ route('admin.faqs.index') }}">
                                     <div class="d-flex align-items-center">
                                         <i class="fa fa-angle-double-right"></i>
-                                        <span class="nav-link-text ps-1">Awards & Achievements</span>
+                                        <span class="nav-link-text ps-1">FAQ</span>
                                     </div>
                                 </a>
                             </li>

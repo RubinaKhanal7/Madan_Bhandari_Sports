@@ -26,6 +26,7 @@ use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\MemberTypeController;
 use App\Http\Controllers\UserManagementController;
 use App\Http\Controllers\MetadataController;
+use App\Http\Controllers\FaqController;
 use App\Http\Controllers\Auth\VerificationController;
 use App\Http\Controllers\Auth\LoginController;
 
@@ -170,6 +171,9 @@ Route::prefix('/admin')->name('admin.')->middleware(['web', 'auth'])->group(func
 
     //Metadata
     Route::resource('meta-data', MetaDataController::class);
+
+    //FAQ
+    Route::resource('faqs', FaqController::class);
         
     // Teams
     Route::get('/teams', [TeamController::class, 'index'])->middleware('auth');

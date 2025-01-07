@@ -12,7 +12,7 @@ use Database\Seeders\CategorySeeder;
 use Database\Seeders\SocialmediaSeeder;
 use Database\Seeders\SitesettingSeeder;
 use Database\Seeders\RolePermissionSeeder;
-use Database\Seeders\BlogPostsCategorySeeder;
+use Database\Seeders\FaqSeeder;
 
 class DatabaseSeeder extends Seeder
 {
@@ -26,7 +26,7 @@ class DatabaseSeeder extends Seeder
             FavIconSeeder::class,
             CategorySeeder::class,
             AboutSeeder::class,
-        
+            FaqSeeder::class,
 
         ]);
     }
