@@ -7,6 +7,9 @@ use App\Providers\RouteServiceProvider;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Models\User;
+use Illuminate\Support\Facades\Hash;
+
 
 class LoginController extends Controller
 {
@@ -56,33 +59,48 @@ class LoginController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Http\Response|\Illuminate\Http\JsonResponse
      */
-    public function login(Request $request)
-    {
-        // Validate input
-        $request->validate([
-            'login_field' => 'required|string',
-            'password' => 'required|string',
-        ]);
-    
-        // Check if the input is an email or phone number
-        $loginField = filter_var($request->login_field, FILTER_VALIDATE_EMAIL) ? 'email' : 'phonenumber';
-    
-        // Attempt login using either email or phone number and password
-        if (Auth::attempt([$loginField => $request->login_field, 'password' => $request->password], $request->remember)) {
-            
-            // Check if the user is approved
-            $user = Auth::user();
-            if (!$user->is_approved) {
-                Auth::logout();
-                return redirect()->route('login')->withErrors(['login_field' => 'Please wait for the admin to approve your account.']);
-            }
-            
-            return redirect()->intended($this->redirectTo);
-        } else {
-            return back()->withErrors(['login_field' => 'These credentials do not match our records.']);
-        }
-    }
-    
+
+
+     public function login(Request $request)
+     {
+         // Validate input (either email/phone number and password or pin)
+         $request->validate([
+             'login_field' => 'required|string',
+             'password' => 'required|string',
+         ]);
+     
+         // Check if the input is an email or phone number
+         $loginField = filter_var($request->login_field, FILTER_VALIDATE_EMAIL) ? 'email' : 'phonenumber';
+     
+         // Check if the password is a PIN (numeric check)
+         $isPin = is_numeric($request->password);
+     
+         // Attempt login using either email/phone number and password or pin
+         if ($isPin) {
+             // If it's a PIN, check the pin column directly
+             $user = User::where($loginField, $request->login_field)->first();
+     
+             // Check if user exists and the hashed PIN matches
+             if ($user && Hash::check($request->password, $user->pin)) {
+                 Auth::login($user, $request->remember);
+                 return redirect()->intended($this->redirectTo);
+             }
+         } else {
+             // If it's a password, proceed with the normal authentication check
+             if (Auth::attempt([$loginField => $request->login_field, 'password' => $request->password], $request->remember)) {
+                 $user = Auth::user();
+                 if (!$user->is_approved) {
+                     Auth::logout();
+                     return redirect()->route('login')->withErrors(['login_field' => 'Please wait for the admin to approve your account.']);
+                 }
+                 return redirect()->intended($this->redirectTo);
+             }
+         }
+     
+         // If login fails for either PIN or password, show error
+         return back()->withErrors(['login_field' => 'These credentials do not match our records.']);
+     }     
+
 
     /**
      * The user has been authenticated.
