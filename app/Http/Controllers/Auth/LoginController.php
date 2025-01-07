@@ -58,27 +58,31 @@ class LoginController extends Controller
      */
     public function login(Request $request)
     {
-        $this->validateLogin($request);
-
-        // If the class is using the ThrottlesLogins trait, we can automatically throttle
-        // the login attempts for this application. We'll key this by the username and
-        // the IP address of the client making these requests into this application.
-        if (method_exists($this, 'hasTooManyLoginAttempts') &&
-            $this->hasTooManyLoginAttempts($request)) {
-            $this->fireLockoutEvent($request);
-            return $this->sendLockoutResponse($request);
+        // Validate input
+        $request->validate([
+            'login_field' => 'required|string',
+            'password' => 'required|string',
+        ]);
+    
+        // Check if the input is an email or phone number
+        $loginField = filter_var($request->login_field, FILTER_VALIDATE_EMAIL) ? 'email' : 'phonenumber';
+    
+        // Attempt login using either email or phone number and password
+        if (Auth::attempt([$loginField => $request->login_field, 'password' => $request->password], $request->remember)) {
+            
+            // Check if the user is approved
+            $user = Auth::user();
+            if (!$user->is_approved) {
+                Auth::logout();
+                return redirect()->route('login')->withErrors(['login_field' => 'Please wait for the admin to approve your account.']);
+            }
+            
+            return redirect()->intended($this->redirectTo);
+        } else {
+            return back()->withErrors(['login_field' => 'These credentials do not match our records.']);
         }
-
-        if ($this->attemptLogin($request)) {
-            return $this->sendLoginResponse($request);
-        }
-
-        // If the login attempt was unsuccessful we will increment the number of attempts
-        // to login and redirect the user back to the login form.
-        $this->incrementLoginAttempts($request);
-
-        return $this->sendFailedLoginResponse($request);
     }
+    
 
     /**
      * The user has been authenticated.
@@ -89,6 +93,7 @@ class LoginController extends Controller
      */
     protected function authenticated(Request $request, $user)
     {
+        // If the user's account is not approved, log them out and redirect to login page
         if (!$user->is_approved) {
             Auth::logout();
             session()->invalidate();
@@ -98,6 +103,7 @@ class LoginController extends Controller
                 ->with('error', 'Your account is pending approval from the administrator.');
         }
 
+        // Redirect to the intended page or the default redirect path
         return redirect()->intended($this->redirectPath());
     }
 

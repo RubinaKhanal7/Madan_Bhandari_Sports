@@ -21,7 +21,8 @@ class User extends Authenticatable
         'pin',
         'is_approved',
         'role',
-        'is_active'
+        'is_active',
+        'created_by_admin'
     ];
 
     protected $hidden = [
