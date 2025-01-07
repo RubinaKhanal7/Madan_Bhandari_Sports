@@ -20,6 +20,7 @@ return new class extends Migration {
             $table->longText('description_en')->nullable();
             $table->string('image')->nullable();
             $table->boolean('is_active')->default(true);
+            $table->foreignId('meta_data_id')->nullable()->constrained('meta_data')->onDelete('set null');
             $table->timestamps();
         });
     }

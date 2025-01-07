@@ -155,6 +155,9 @@ Route::prefix('/admin')->name('admin.')->middleware(['web', 'auth'])->group(func
 
     // Categories
     Route::resource('categories', CategoryController::class);
+    Route::post('categories/{category}/metadata', [CategoryController::class, 'storeMetadata'])->name('categories.metadata.store');
+    Route::put('categories/{category}/metadata', [CategoryController::class, 'updateMetadata'])->name('categories.metadata.update');
+    Route::put('/categories/{category}/update-status', [CategoryController::class, 'updateStatus'])->name('categories.updateStatus');
 
     // Posts
     Route::resource('posts', PostController::class);

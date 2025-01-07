@@ -15,5 +15,10 @@ class MetaData extends Model
         'metaKeywords',
         'slug',
     ];
+
+    public function category()
+    {
+        return $this->hasOne(Category::class);
+    }
 }
 

@@ -3,9 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\Category;
+use App\Models\MetaData;
 use App\Services\ImageCompressionService;
 use Illuminate\Http\Request;
 use Exception;
+use Illuminate\Support\Str;
+
 
 class CategoryController extends Controller
 {
@@ -142,4 +145,67 @@ class CategoryController extends Controller
             return redirect()->back()->withErrors(['error' => $e->getMessage()]);
         }
     }
+
+    public function storeMetadata(Request $request, Category $category)
+{
+    $request->validate([
+        'metaTitle' => 'required|string|max:255',
+        'metaDescription' => 'nullable|string',
+        'metaKeywords' => 'nullable|string',
+    ]);
+
+    try {
+        $metadata = MetaData::create([
+            'metaTitle' => $request->metaTitle,
+            'metaDescription' => $request->metaDescription,
+            'metaKeywords' => $request->metaKeywords,
+            'slug' => Str::slug($request->metaTitle)
+        ]);
+
+        $category->update(['meta_data_id' => $metadata->id]);
+
+        return redirect()->back()->with('success', 'Metadata added successfully!');
+    } catch (Exception $e) {
+        return redirect()->back()
+            ->withErrors(['error' => $e->getMessage()])
+            ->withInput();
+    }
+}
+
+public function updateMetadata(Request $request, Category $category)
+{
+    $request->validate([
+        'metaTitle' => 'required|string|max:255',
+        'metaDescription' => 'nullable|string',
+        'metaKeywords' => 'nullable|string',
+    ]);
+
+    try {
+        if ($category->metadata) {
+            $category->metadata->update([
+                'metaTitle' => $request->metaTitle,
+                'metaDescription' => $request->metaDescription,
+                'metaKeywords' => $request->metaKeywords,
+                'slug' => Str::slug($request->metaTitle)
+            ]);
+        } else {
+            $this->storeMetadata($request, $category);
+        }
+
+        return redirect()->back()->with('success', 'Metadata updated successfully!');
+    } catch (Exception $e) {
+        return redirect()->back()
+            ->withErrors(['error' => $e->getMessage()])
+            ->withInput();
+    }
+}
+public function updateStatus($categoryId)
+{
+    $category = Category::findOrFail($categoryId);
+    $category->is_active = !$category->is_active; 
+    $category->save();
+
+    return redirect()->route('admin.categories.index')->with('success', 'Status updated successfully.');
+}
+
 }
