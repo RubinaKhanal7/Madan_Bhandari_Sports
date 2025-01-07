@@ -2,12 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
-use Spatie\Permission\Models\Role;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Validator;
 use App\Notifications\AccountApproved;
 use Illuminate\Support\Facades\Log;
 
@@ -21,35 +18,35 @@ class UserManagementController extends Controller
 
     public function store(Request $request)
     {
-        $validator = Validator::make($request->all(), [
+        $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:8|confirmed',
-
+            'email' => 'nullable|email',
+            'phonenumber' => 'required|string',
+            'password' => 'nullable|min:8|required_without:pin|confirmed',
+            'pin' => 'nullable|digits:4|required_without:password|confirmed',
         ]);
 
-        if ($validator->fails()) {
-            return back()
-                ->withErrors($validator)
-                ->withInput();
-        }
-
         try {
-            User::create([
+            $data = [
                 'name' => $request->name,
                 'email' => $request->email,
-                'password' => Hash::make($request->password),
-            ]);
+                'phonenumber' => $request->phonenumber,
+            ];
 
-            return redirect()->route('admin.users.index')
-                ->with('success', 'User created successfully');
+            if ($request->password) {
+                $data['password'] = Hash::make($request->password);
+            } elseif ($request->pin) {
+                $data['password'] = Hash::make($request->pin); // Hash the pin as well
+            }
+
+            User::create($data);
+
+            return redirect()->route('admin.users.index')->with('success', 'User created successfully.');
         } catch (\Exception $e) {
-            return back()
-                ->with('error', 'Error creating user: ' . $e->getMessage())
-                ->withInput();
+            return redirect()->route('admin.users.index')->with('error', 'Something went wrong, please try again.');
         }
     }
-
+    
     public function destroy(User $user)
     {
         try {
@@ -61,12 +58,13 @@ class UserManagementController extends Controller
                 ->with('error', 'Error deleting user: ' . $e->getMessage());
         }
     }
+
     public function approve($id)
     {
         try {
             $user = User::findOrFail($id);
             $user->update(['is_approved' => true]);
-            
+
             try {
                 $user->notify(new AccountApproved());
                 Log::info('Approval notification sent to user:', ['user_id' => $user->id, 'email' => $user->email]);
@@ -77,13 +75,12 @@ class UserManagementController extends Controller
                 ]);
                 return redirect()->back()->with('error', 'User approved but failed to send notification email.');
             }
-            
+
             return redirect()->back()->with('success', 'User has been approved successfully and notification sent.');
-            
+
         } catch (\Exception $e) {
             Log::error('Failed to approve user:', ['error' => $e->getMessage()]);
-            return redirect()->back()->with('error', 'Failed to approve user.');
+            return redirect()->back()->with('error', 'Something went wrong while approving the user.');
         }
     }
-
 }
