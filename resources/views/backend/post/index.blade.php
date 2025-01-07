@@ -84,6 +84,15 @@
                                     <i class="fas fa-edit"></i>
                                 </button>
 
+                                 <!-- Other images Button -->
+
+                                <button class="btn btn-outline-success btn-sm" 
+                                    data-bs-toggle="modal" 
+                                    data-bs-target="#addImagesModal{{ $post->id }}"
+                                    title="Add More Images">
+                                <i class="fas fa-images"></i>
+                            </button>
+
                                 <!-- Delete Button -->
                                 <button class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteModal{{ $post->id }}">
                                     <i class="fas fa-trash"></i>
@@ -142,7 +151,64 @@
                                 </form>
                             </div>
                         </div>
-                        <!-- Edit Modal -->
+
+                        <!-- Other Images Modal -->
+                        <div class="modal fade" id="addImagesModal{{ $post->id }}" tabindex="-1">
+                            <div class="modal-dialog modal-lg">
+                                <form method="POST" 
+                                    action="{{ route('admin.posts.add-images', $post->id) }}" 
+                                    enctype="multipart/form-data">
+                                    @csrf
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title">Add Additional Images</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <!-- Current Images -->
+                                            @if($post->other_images && count($post->other_images) > 0)
+                                                <div class="mb-4">
+                                                    <h6>Current Additional Images</h6>
+                                                    <div class="row">
+                                                        @foreach($post->other_images as $index => $image)
+                                                            <div class="col-md-4 mb-3" id="image-container-{{ $index }}">
+                                                                <div class="position-relative">
+                                                                    <img src="{{ asset($image) }}" 
+                                                                        class="img-thumbnail" 
+                                                                        alt="Additional Image {{ $index + 1 }}">
+                                                                    <button type="button" 
+                                                                            class="btn btn-danger btn-sm position-absolute top-0 end-0 m-2"
+                                                                            onclick="deleteImage('{{ $post->id }}', {{ $index }})">
+                                                                        <i class="fas fa-trash"></i>
+                                                                    </button>
+                                                                </div>
+                                                            </div>
+                                                        @endforeach
+                                                    </div>
+                                                </div>
+                                            @endif
+
+                                            <!-- Upload New Images -->
+                                            <div class="mb-3">
+                                                <label class="form-label">Upload New Images</label>
+                                                <input type="file" 
+                                                    name="images[]" 
+                                                    class="form-control" 
+                                                    multiple 
+                                                    accept="image/*"
+                                                    required>
+                                                <small class="text-muted">You can select multiple images. Maximum size: 2MB per image</small>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                            <button type="submit" class="btn btn-primary">Upload Images</button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                                                <!-- Edit Modal -->
                         <div class="modal fade" id="editModal{{ $post->id }}" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
                             <div class="modal-dialog">
                                 <form method="POST" action="{{ route('admin.posts.update', $post->id) }}" enctype="multipart/form-data">
@@ -608,5 +674,29 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 });
+
+function deleteImage(postId, index) {
+    if (confirm('Are you sure you want to delete this image?')) {
+        fetch(`/admin/posts/${postId}/delete-image/${index}`, {
+            method: 'DELETE',
+            headers: {
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Accept': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                document.getElementById(`image-container-${index}`).remove();
+            } else {
+                alert('Failed to delete image: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Failed to delete image');
+        });
+    }
+}
     </script>
 @endsection

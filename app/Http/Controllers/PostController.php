@@ -75,12 +75,10 @@ class PostController extends Controller
     public function destroy(Post $post)
     {
         try {
-            // Delete image if exists
             if ($post->image) {
                 $this->imageService->deleteImage($post->image);
             }
-            
-            // Delete PDFs if they exist
+
             if ($post->pdf) {
                 foreach ($post->pdf as $pdfPath) {
                     $fullPath = public_path($pdfPath);
@@ -274,4 +272,72 @@ class PostController extends Controller
         
         return back()->with('success', 'Post status updated successfully');
     }
+
+    public function addImages(Request $request, Post $post)
+{
+    $validator = Validator::make($request->all(), [
+        'images.*' => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:' . self::MAX_IMAGE_SIZE
+    ], [
+        'images.*.max' => 'Each image must not be greater than 2MB.',
+    ]);
+
+    if ($validator->fails()) {
+        return redirect()->back()
+            ->withErrors($validator)
+            ->withInput();
+    }
+
+    try {
+        if ($request->hasFile('images')) {
+            $otherImages = $post->other_images ?? [];
+            
+            foreach ($request->file('images') as $image) {
+                $imagePath = $this->imageService->compressAndStore($image, [
+                    'quality' => 60,
+                    'maxWidth' => 1024,
+                    'subfolder' => self::IMAGE_UPLOAD_PATH
+                ]);
+                
+                $otherImages[] = $imagePath;
+            }
+            
+            $post->update(['other_images' => $otherImages]);
+            
+            return redirect()->back()->with('success', 'Additional images uploaded successfully!');
+        }
+        
+        return redirect()->back()->with('error', 'No images were uploaded.');
+
+    } catch (Exception $e) {
+        Log::error('Error uploading additional images: ' . $e->getMessage());
+        return redirect()->back()->withErrors(['error' => 'Failed to upload images: ' . $e->getMessage()]);
+    }
+}
+
+public function deleteImage(Post $post, $index)
+{
+    try {
+        $otherImages = $post->other_images ?? [];
+        
+        if (isset($otherImages[$index])) {
+            $imagePath = $otherImages[$index];
+            
+            $this->imageService->deleteImage($imagePath);
+            
+            unset($otherImages[$index]);
+            $otherImages = array_values($otherImages);
+            
+            $post->update(['other_images' => $otherImages]);
+            
+            return response()->json(['success' => true]);
+        }
+        
+        return response()->json(['success' => false, 'message' => 'Image not found'], 404);
+
+    } catch (Exception $e) {
+        Log::error('Error deleting additional image: ' . $e->getMessage());
+        return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
+    }
+}
+
 }
