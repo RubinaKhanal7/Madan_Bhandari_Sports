@@ -26,6 +26,7 @@ return new class extends Migration
             $table->softDeletes();
             $table->foreign('role')->references('id')->on('roles')->onDelete('cascade');
             $table->boolean('is_approved')->default(false);
+            $table->boolean('created_by_admin')->default(false);
         });
     }
 

@@ -7,6 +7,7 @@
     <title>Register</title>
     <link rel="stylesheet" href="{{ asset('adminassets/assets/bootstrap/dist/css/bootstrap.min.css') }}" />
     <!-- Favicons and theme styles as per your login page -->
+    
     <link rel="apple-touch-icon" sizes="180x180"
         href="{{ asset('adminassets/assets/img/favicons/apple-touch-icon.png') }}">
     <link rel="icon" type="image/png" sizes="32x32"
@@ -72,103 +73,165 @@
                                             @csrf
                                             <div class="mb-3">
                                                 <label class="form-label" for="name">Full Name</label>
-                                                <input class="form-control" id="name" type="text" name="name"
-                                                    value="{{ old('name') }}" required>
+                                                <input type="text" 
+                                                       class="form-control @error('name') is-invalid @enderror" 
+                                                       id="name" 
+                                                       name="name" 
+                                                       value="{{ old('name') }}" 
+                                                       required 
+                                                       autocomplete="name" 
+                                                       autofocus>
                                                 @error('name')
-                                                    <span class="text-danger">{{ $message }}</span>
+                                                    <span class="invalid-feedback" role="alert">
+                                                        <strong>{{ $message }}</strong>
+                                                    </span>
                                                 @enderror
                                             </div>
+                    
                                             <div class="mb-3">
                                                 <label class="form-label" for="email">Email Address</label>
-                                                <input class="form-control" id="email" type="email" name="email"
-                                                    value="{{ old('email') }}" required>
+                                                <input type="email" 
+                                                       class="form-control @error('email') is-invalid @enderror" 
+                                                       id="email" 
+                                                       name="email" 
+                                                       value="{{ old('email') }}" 
+                                                       required 
+                                                       autocomplete="email">
                                                 @error('email')
-                                                    <span class="text-danger">{{ $message }}</span>
+                                                    <span class="invalid-feedback" role="alert">
+                                                        <strong>{{ $message }}</strong>
+                                                    </span>
                                                 @enderror
                                             </div>
+                    
                                             <div class="mb-3">
-                                                <label class="form-label" for="password">Password</label>
-                                                <div class="input-group">
-                                                    <input class="form-control" id="password" type="password"
-                                                        name="password" required>
-                                                    <div class="input-group-append">
-                                                        <span class="input-group-text"
-                                                            onclick="togglePassword('password', this)">
-                                                            <i class="fas fa-eye"></i>
-                                                        </span>
-                                                    </div>
-                                                </div>
-                                                @error('password')
-                                                    <span class="text-danger">{{ $message }}</span>
+                                                <label class="form-label" for="phonenumber">Phone Number</label>
+                                                <input type="text" 
+                                                       class="form-control @error('phonenumber') is-invalid @enderror" 
+                                                       id="phonenumber" 
+                                                       name="phonenumber" 
+                                                       value="{{ old('phonenumber') }}" 
+                                                       required>
+                                                @error('phonenumber')
+                                                    <span class="invalid-feedback" role="alert">
+                                                        <strong>{{ $message }}</strong>
+                                                    </span>
                                                 @enderror
                                             </div>
-                                            <div class="mb-3">
-                                                <label class="form-label" for="password_confirmation">Confirm
-                                                    Password</label>
-                                                <div class="input-group">
-                                                    <input class="form-control" id="password-confirm" type="password"
-                                                        name="password_confirmation" required>
-                                                    <div class="input-group-append">
-                                                        <span class="input-group-text"
-                                                            onclick="togglePassword('password-confirm', this)">
+                    
+                                            <div class="row mb-3">
+                                                <div class="col-md-6">
+                                                    <label class="form-label" for="password">Password</label>
+                                                    <div class="input-group">
+                                                        <input type="password" 
+                                                               class="form-control @error('password') is-invalid @enderror" 
+                                                               id="password" 
+                                                               name="password" 
+                                                               required>
+                                                        <button type="button" class="btn btn-outline-secondary" onclick="togglePassword('password', this)">
                                                             <i class="fas fa-eye"></i>
+                                                        </button>
+                                                    </div>
+                                                    @error('password')
+                                                        <span class="invalid-feedback" role="alert">
+                                                            <strong>{{ $message }}</strong>
                                                         </span>
+                                                    @enderror
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <label class="form-label" for="password-confirm">Confirm Password</label>
+                                                    <div class="input-group">
+                                                        <input type="password" 
+                                                               class="form-control" 
+                                                               id="password-confirm" 
+                                                               name="password_confirmation" 
+                                                               required>
+                                                        <button type="button" class="btn btn-outline-secondary" onclick="togglePassword('password-confirm', this)">
+                                                            <i class="fas fa-eye"></i>
+                                                        </button>
                                                     </div>
                                                 </div>
                                             </div>
-
-                                            <div class="g-recaptcha" data-sitekey="{{ config('services.recaptcha.site_key') }}"></div>
-                                                    <div id="recaptcha-error" style="color: red; font-size: 0.9rem; margin-top: 5px;"></div>
-                                                    
-
-                                            <button class="btn btn-primary d-block w-100 mt-3"
-                                                type="submit">Register</button>
+                                            
+                                            <div class="row mb-3">
+                                                <div class="col-md-6">
+                                                    <label class="form-label" for="pin">PIN</label>
+                                                    <div class="input-group">
+                                                        <input type="password" 
+                                                               class="form-control @error('pin') is-invalid @enderror" 
+                                                               id="pin" 
+                                                               name="pin" 
+                                                               maxlength="4">
+                                                        <button type="button" class="btn btn-outline-secondary" onclick="togglePassword('pin', this)">
+                                                            <i class="fas fa-eye"></i>
+                                                        </button>
+                                                    </div>
+                                                    @error('pin')
+                                                        <span class="invalid-feedback" role="alert">
+                                                            <strong>{{ $message }}</strong>
+                                                        </span>
+                                                    @enderror
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <label class="form-label" for="pin-confirm">Confirm PIN</label>
+                                                    <div class="input-group">
+                                                        <input type="password" 
+                                                               class="form-control" 
+                                                               id="pin-confirm" 
+                                                               name="pin_confirmation" 
+                                                               maxlength="4">
+                                                        <button type="button" class="btn btn-outline-secondary" onclick="togglePassword('pin-confirm', this)">
+                                                            <i class="fas fa-eye"></i>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="mb-0">
+                                                <button type="submit" class="btn btn-primary w-100">
+                                                    Register
+                                                </button>
+                                            </div>
+                    
+                                            <div class="text-center mt-3">
+                                                <a href="{{ route('login') }}">Already have an account? Login</a>
+                                            </div>
                                         </form>
-                                        <div class="text-center mt-3">
-                                            <a href="{{ route('login') }}">Already have an account? Login</a>
-                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
-            </div>
-        </div>
-    </main>
-
-    <!-- JavaScripts -->
-    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
-    <script>
-        document.getElementById('loginForm').addEventListener('submit', function(event) {
-            var response = grecaptcha.getResponse();
-            var errorDiv = document.getElementById('recaptcha-error');
-            errorDiv.textContent = '';
-    
-            if (response.length == 0) {
-                event.preventDefault();
-                errorDiv.textContent = "Please verify that you are not a robot.";
-            }
-        });
-    </script>
-    <script src="{{ asset('adminassets/assets/jquery/dist/jquery.min.js') }}"></script>
-    <script src="{{ asset('adminassets/vendors/bootstrap/bootstrap.min.js') }}"></script>
-    <script src="{{ asset('adminassets/vendors/fontawesome/all.min.js') }}"></script>
-    <script>
-        function togglePassword(fieldId, element) {
-            var inputField = document.getElementById(fieldId);
-            var icon = element.querySelector('i');
-            if (inputField.type === 'password') {
-                inputField.type = 'text';
-                icon.classList.remove('fa-eye');
-                icon.classList.add('fa-eye-slash');
-            } else {
-                inputField.type = 'password';
-                icon.classList.remove('fa-eye-slash');
-                icon.classList.add('fa-eye');
-            }
-        }
-    </script>
-</body>
-
-</html>
+                    
+                    @push('scripts')
+                    <script>
+                        function togglePassword(fieldId, element) {
+                            var inputField = document.getElementById(fieldId);
+                            var icon = element.querySelector('i');
+                            if (inputField.type === 'password') {
+                                inputField.type = 'text';
+                                icon.classList.remove('fa-eye');
+                                icon.classList.add('fa-eye-slash');
+                            } else {
+                                inputField.type = 'password';
+                                icon.classList.remove('fa-eye-slash');
+                                icon.classList.add('fa-eye');
+                            }
+                        }
+                    </script>
+                    @endpush
+                    <style>
+                        .btn-outline-secondary {
+                            border: none;
+                            background: transparent;
+                        }
+                    
+                        .btn-outline-secondary:hover {
+                            background: #f8f9fa; /* Light hover effect */
+                        }
+                    
+                        .btn-outline-secondary i {
+                            font-size: 20px; /* Adjust icon size */
+                        }
+                    </style>
+                    

@@ -10,8 +10,9 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use App\Notifications\AccountApproved;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\Rules\Password;
 
-class UserManagementController extends Controller
+class UserManagementController extends Controller 
 {
     public function index()
     {
@@ -19,14 +20,33 @@ class UserManagementController extends Controller
         return view('backend.usermanagement.index', compact('users'));
     }
 
-    public function store(Request $request)
+    public function store(Request $request) 
     {
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:8|confirmed',
-
+            'email' => 'nullable|string|email|max:255|unique:users',
+            'phonenumber' => 'required|string|unique:users|regex:/^([0-9\s\-\+\(\)]*)$/|min:10',
+            'password' => [
+                'nullable',
+                'string',
+                Password::min(8),
+                'confirmed'
+            ],
+            'pin' => [
+                'nullable',
+                'string',
+                'size:4',
+                'regex:/^[0-9]+$/',
+                'confirmed'
+            ],
         ]);
+
+        // Custom validation to ensure either password or PIN is provided
+        $validator->after(function ($validator) use ($request) {
+            if (empty($request->password) && empty($request->pin)) {
+                $validator->errors()->add('auth', 'Either Password or PIN must be provided');
+            }
+        });
 
         if ($validator->fails()) {
             return back()
@@ -35,11 +55,23 @@ class UserManagementController extends Controller
         }
 
         try {
-            User::create([
+            $userData = [
                 'name' => $request->name,
                 'email' => $request->email,
-                'password' => Hash::make($request->password),
-            ]);
+                'phonenumber' => $request->phonenumber,
+                'created_by_admin' => true, 
+                'is_approved' => true, 
+            ];
+
+            if ($request->filled('password')) {
+                $userData['password'] = Hash::make($request->password);
+            }
+
+            if ($request->filled('pin')) {
+                $userData['pin'] = Hash::make($request->pin);
+            }
+
+            User::create($userData);
 
             return redirect()->route('admin.users.index')
                 ->with('success', 'User created successfully');
@@ -65,6 +97,12 @@ class UserManagementController extends Controller
     {
         try {
             $user = User::findOrFail($id);
+            
+            // Only allow approval of self-registered users
+            if ($user->created_by_admin) {
+                return redirect()->back()->with('error', 'Admin-created users do not need approval.');
+            }
+            
             $user->update(['is_approved' => true]);
             
             try {
@@ -79,7 +117,6 @@ class UserManagementController extends Controller
             }
             
             return redirect()->back()->with('success', 'User has been approved successfully and notification sent.');
-            
         } catch (\Exception $e) {
             Log::error('Failed to approve user:', ['error' => $e->getMessage()]);
             return redirect()->back()->with('error', 'Failed to approve user.');

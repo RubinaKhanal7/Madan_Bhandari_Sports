@@ -24,7 +24,8 @@ class UserSeeder extends Seeder
             'password' => Hash::make('password'),
             'is_active' => 1,
             'role' => 1,
-            'is_approved' => 1
+            'is_approved' => 1,
+            'created_by_admin' => 1
         ]);
 
         $superAdminRole = Role::where('name', 'superadmin')->first();
