@@ -116,6 +116,11 @@
                                                     </div>
                                                 </div>
                                             </div>
+
+                                            <div class="g-recaptcha" data-sitekey="{{ config('services.recaptcha.site_key') }}"></div>
+                                                    <div id="recaptcha-error" style="color: red; font-size: 0.9rem; margin-top: 5px;"></div>
+                                                    
+
                                             <button class="btn btn-primary d-block w-100 mt-3"
                                                 type="submit">Register</button>
                                         </form>
@@ -133,6 +138,19 @@
     </main>
 
     <!-- JavaScripts -->
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', function(event) {
+            var response = grecaptcha.getResponse();
+            var errorDiv = document.getElementById('recaptcha-error');
+            errorDiv.textContent = '';
+    
+            if (response.length == 0) {
+                event.preventDefault();
+                errorDiv.textContent = "Please verify that you are not a robot.";
+            }
+        });
+    </script>
     <script src="{{ asset('adminassets/assets/jquery/dist/jquery.min.js') }}"></script>
     <script src="{{ asset('adminassets/vendors/bootstrap/bootstrap.min.js') }}"></script>
     <script src="{{ asset('adminassets/vendors/fontawesome/all.min.js') }}"></script>
