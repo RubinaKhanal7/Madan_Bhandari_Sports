@@ -7,13 +7,20 @@
             <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h3 class="card-title">Team Members</h3>
-                    <button type="button" class="btn btn-primary float-right" data-toggle="modal" data-target="#createTeamModal">
-                        Add New Team Member
-                    </button>
+                    <button type="button" 
+                    class="btn btn-outline-primary btn-sm" 
+                    data-bs-toggle="modal" 
+                    data-bs-target="#createTeamModal">
+                + Add New
+            </button>
                 </div>
                 <div class="card-body">
                     @if(session('success'))
-                        <div class="alert alert-success">{{ session('success') }}</div>
+                    <div class="alert alert-success border-2 d-flex align-items-center" role="alert">
+                        <div class="bg-success me-3 icon-item"><span class="fas fa-check-circle text-white fs-3"></span></div>
+                        <p class="mb-0 flex-1">{{ session('success') }}</p>
+                        <button class="btn-close" type="button" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
                     @endif
                     @if(session('error'))
                         <div class="alert alert-danger">{{ session('error') }}</div>

@@ -19,10 +19,12 @@ return new class extends Migration {
             $table->longText('description_ne')->nullable();
             $table->longText('description_en')->nullable();
             $table->string('image')->nullable();
+            $table->json('other_images')->nullable();
             $table->json('pdf')->nullable(); 
             $table->foreignId('category_id')->constrained('categories')->onDelete('cascade');
             $table->boolean('is_featured')->default(false);
             $table->boolean('is_active')->default(true);
+            $table->foreignId('meta_data_id')->nullable()->constrained('meta_data')->onDelete('set null');
             $table->timestamps();
         });
     }

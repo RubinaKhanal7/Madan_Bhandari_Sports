@@ -15,15 +15,20 @@
     <div class="card">
         <div class="card-header d-flex justify-content-between align-items-center">
             <h5 class="mb-0">Team Types</h5>
-            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createModal">
-                Create New Team Type
-            </button>
+            <button type="button" 
+            class="btn btn-outline-primary btn-sm" 
+            data-bs-toggle="modal" 
+            data-bs-target="#createModal">
+        + Add New
+    </button>
         </div>
         <div class="card-body">
             @if(session('success'))
-                <div class="alert alert-success">
-                    {{ session('success') }}
-                </div>
+            <div class="alert alert-success border-2 d-flex align-items-center" role="alert">
+                <div class="bg-success me-3 icon-item"><span class="fas fa-check-circle text-white fs-3"></span></div>
+                <p class="mb-0 flex-1">{{ session('success') }}</p>
+                <button class="btn-close" type="button" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
             @endif
 
             <table class="table">

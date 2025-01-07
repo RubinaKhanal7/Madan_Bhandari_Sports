@@ -25,6 +25,8 @@ use App\Http\Controllers\RoleController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\MemberTypeController;
 use App\Http\Controllers\UserManagementController;
+use App\Http\Controllers\MetadataController;
+use App\Http\Controllers\FaqController;
 use App\Http\Controllers\Auth\VerificationController;
 use App\Http\Controllers\Auth\LoginController;
 
@@ -153,9 +155,18 @@ Route::prefix('/admin')->name('admin.')->middleware(['web', 'auth'])->group(func
 
     // Categories
     Route::resource('categories', CategoryController::class);
+    Route::post('categories/{category}/metadata', [CategoryController::class, 'storeMetadata'])->name('categories.metadata.store');
+    Route::put('categories/{category}/metadata', [CategoryController::class, 'updateMetadata'])->name('categories.metadata.update');
+    Route::put('/categories/{category}/update-status', [CategoryController::class, 'updateStatus'])->name('categories.updateStatus');
 
     // Posts
     Route::resource('posts', PostController::class);
+    Route::post('posts/{post}/metadata', [PostController::class, 'storeMetadata'])->name('posts.metadata.store');
+    Route::put('posts/{post}/metadata', [PostController::class, 'updateMetadata'])->name('posts.metadata.update');
+    Route::patch('/posts/{post}/toggle-featured', [PostController::class, 'toggleFeatured'])->name('posts.toggle-featured');
+    Route::patch('/posts/{post}/toggle-status', [PostController::class, 'toggleStatus'])->name('posts.toggle-status');
+    Route::post('/posts/{post}/add-images', [PostController::class, 'addImages'])->name('posts.add-images');
+    Route::delete('/posts/{post}/delete-image/{index}', [PostController::class, 'deleteImage'])->name('posts.delete-image');
 
     // Photo galleries
     Route::resource('photo-galleries', PhotoGalleryController::class);
@@ -166,6 +177,12 @@ Route::prefix('/admin')->name('admin.')->middleware(['web', 'auth'])->group(func
     //Users
     Route::resource('users', UserManagementController::class);
     Route::post('users/{user}/approve', [UserManagementController::class, 'approve'])->name('users.approve');
+
+    //Metadata
+    Route::resource('meta-data', MetaDataController::class);
+
+    //FAQ
+    Route::resource('faqs', FaqController::class);
         
     // Teams
     Route::get('/teams', [TeamController::class, 'index'])->middleware('auth');

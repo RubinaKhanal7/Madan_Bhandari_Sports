@@ -1,18 +1,7 @@
 @extends('backend.layouts.master')
 
 @section('content')
-    @if (Session::has('success'))
-        <div class="alert alert-success">
-            {{ Session::get('success') }}
-        </div>
-    @endif
-
-    @if (Session::has('error'))
-        <div class="alert alert-danger">
-            {{ Session::get('error') }}
-        </div>
-    @endif
-
+  
     <div class="card">
         <div class="card-header">
             <div class="row mb-2">
@@ -25,6 +14,20 @@
                 </div>
             </div>
         </div>
+            @if(session('success'))
+                <div class="alert alert-success border-2 d-flex align-items-center" role="alert">
+                    <div class="bg-success me-3 icon-item"><span class="fas fa-check-circle text-white fs-3"></span></div>
+                    <p class="mb-0 flex-1">{{ session('success') }}</p>
+                    <button class="btn-close" type="button" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            @endif
+
+            @if (Session::has('error'))
+                <div class="alert alert-danger">
+                    {{ Session::get('error') }}
+                </div>
+             @endif
+
 
         <div class="card-body">
             <table class="table table-bordered table-hover">

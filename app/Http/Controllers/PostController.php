@@ -3,12 +3,14 @@ namespace App\Http\Controllers;
 
 use App\Models\Post;
 use App\Models\Category;
+use App\Models\MetaData;
 use App\Services\ImageCompressionService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Log;
 use Exception;
+use Illuminate\Support\Str;
 
 class PostController extends Controller
 {
@@ -16,7 +18,7 @@ class PostController extends Controller
     private const MAX_IMAGE_SIZE = 2048; // 2MB
     private const MAX_PDF_SIZE = 10240;  // 10MB
     private const IMAGE_UPLOAD_PATH = 'posts';
-    private const PDF_UPLOAD_PATH = 'posts/pdf';
+    private const PDF_UPLOAD_PATH = 'uploads/posts/pdf'; 
 
     public function __construct(ImageCompressionService $imageService)
     {
@@ -76,11 +78,12 @@ class PostController extends Controller
             if ($post->image) {
                 $this->imageService->deleteImage($post->image);
             }
-            
+
             if ($post->pdf) {
                 foreach ($post->pdf as $pdfPath) {
-                    if (file_exists(public_path($pdfPath))) {
-                        unlink(public_path($pdfPath));
+                    $fullPath = public_path($pdfPath);
+                    if (File::exists($fullPath)) {
+                        File::delete($fullPath);
                     }
                 }
             }
@@ -90,42 +93,55 @@ class PostController extends Controller
                 ->with('success', 'Post deleted successfully!');
 
         } catch (Exception $e) {
-            return redirect()->back()->withErrors(['error' => $e->getMessage()]);
+            Log::error('Error deleting post: ' . $e->getMessage());
+            return redirect()->back()->withErrors(['error' => 'Failed to delete post: ' . $e->getMessage()]);
         }
     }
 
     protected function validatePostRequest(Request $request)
     {
-        return Validator::make($request->all(), [
+        $rules = [
             'title_ne' => 'required|string|max:5000',
             'title_en' => 'required|string|max:5000',
             'description_ne' => 'nullable|string|max:10000',
             'description_en' => 'nullable|string|max:10000',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:' . self::MAX_IMAGE_SIZE,
-            'cropped_image' => 'nullable|string',
-            'pdf' => 'nullable|array',
-            'pdf.*' => 'file|mimes:pdf|max:' . self::MAX_PDF_SIZE,
             'category_id' => 'required|exists:categories,id',
-        ], [
+        ];
+
+        if ($request->hasFile('image')) {
+            $rules['image'] = 'image|mimes:jpeg,png,jpg,gif,webp|max:' . self::MAX_IMAGE_SIZE;
+        }
+
+        if ($request->has('cropped_image') && !empty($request->cropped_image)) {
+            $rules['cropped_image'] = 'string';
+        }
+
+        if ($request->hasFile('pdf')) {
+            $rules['pdf'] = 'array';
+            $rules['pdf.*'] = 'file|mimes:pdf|max:' . self::MAX_PDF_SIZE;
+        }
+
+        return Validator::make($request->all(), $rules, [
             'image.max' => 'The image size must not be greater than 2MB.',
             'pdf.*.max' => 'Each PDF file size must not be greater than 10MB.',
             'pdf.*.mimes' => 'Only PDF files are allowed.',
         ]);
     }
 
+
     protected function processPostData(Request $request, ?Post $post = null): array
     {
         $imagePath = $post?->image;
         $pdfPaths = $post?->pdf ?? [];
-
-        // Process image
-        if ($request->has('cropped_image') || $request->hasFile('image')) {
+        if ($request->hasFile('image') || ($request->has('cropped_image') && !empty($request->cropped_image))) {
             if ($post && $post->image) {
                 $this->imageService->deleteImage($post->image);
             }
 
             $imagePath = $this->imageService->compressAndStore(
-                $request->has('cropped_image') ? $request->cropped_image : $request->file('image'),
+                $request->has('cropped_image') && !empty($request->cropped_image) 
+                    ? $request->cropped_image 
+                    : $request->file('image'),
                 [
                     'quality' => 60,
                     'maxWidth' => 1024,
@@ -133,10 +149,13 @@ class PostController extends Controller
                 ]
             );
         }
-
-        // Process PDFs
         if ($request->hasFile('pdf')) {
-            $pdfPaths = $this->processPDFFiles($request->file('pdf'));
+            if ($post) {
+                $newPdfPaths = $this->processPDFFiles($request->file('pdf'));
+                $pdfPaths = array_merge($pdfPaths, $newPdfPaths);
+            } else {
+                $pdfPaths = $this->processPDFFiles($request->file('pdf'));
+            }
         }
 
         return [
@@ -151,24 +170,26 @@ class PostController extends Controller
             'is_active' => (bool) $request->is_active,
         ];
     }
-
     protected function processPDFFiles(array $files): array
     {
         $pdfPaths = [];
         $pdfDirectory = public_path(self::PDF_UPLOAD_PATH);
-
         if (!File::exists($pdfDirectory)) {
             File::makeDirectory($pdfDirectory, 0755, true);
         }
 
         foreach ($files as $file) {
-            $filename = uniqid() . '_' . $file->getClientOriginalName();
-            $file->move($pdfDirectory, $filename);
-            $pdfPaths[] = self::PDF_UPLOAD_PATH . '/' . $filename;
+            if ($file->isValid()) {
+                $filename = uniqid() . '_' . Str::slug($file->getClientOriginalName());
+                $file->move($pdfDirectory, $filename);
+                $pdfPaths[] = self::PDF_UPLOAD_PATH . '/' . $filename;
+            }
         }
 
         return $pdfPaths;
     }
+
+   
 
     protected function handleValidationFailure($validator)
     {
@@ -185,4 +206,138 @@ class PostController extends Controller
             ->withErrors(['error' => 'Operation failed: ' . $e->getMessage()])
             ->withInput();
     }
+    public function storeMetadata(Request $request, Post $post)
+    {
+        $request->validate([
+            'metaTitle' => 'required|string|max:255',
+            'metaDescription' => 'nullable|string',
+            'metaKeywords' => 'nullable|string',
+        ]);
+    
+        try {
+            $metadata = MetaData::create([
+                'metaTitle' => $request->metaTitle,
+                'metaDescription' => $request->metaDescription,
+                'metaKeywords' => $request->metaKeywords,
+                'slug' => Str::slug($request->metaTitle)
+            ]);
+    
+            $post->update(['meta_data_id' => $metadata->id]);
+    
+            return redirect()->back()->with('success', 'Metadata added successfully!');
+        } catch (Exception $e) {
+            return redirect()->back()
+                ->withErrors(['error' => $e->getMessage()])
+                ->withInput();
+        }
+    }
+    
+    public function updateMetadata(Request $request, Post $post)
+    {
+        $request->validate([
+            'metaTitle' => 'required|string|max:255',
+            'metaDescription' => 'nullable|string',
+            'metaKeywords' => 'nullable|string',
+        ]);
+    
+        try {
+            if ($post->metadata) {
+                $post->metadata->update([
+                    'metaTitle' => $request->metaTitle,
+                    'metaDescription' => $request->metaDescription,
+                    'metaKeywords' => $request->metaKeywords,
+                    'slug' => Str::slug($request->metaTitle)
+                ]);
+            } else {
+                $this->storeMetadata($request, $post);
+            }
+    
+            return redirect()->back()->with('success', 'Metadata updated successfully!');
+        } catch (Exception $e) {
+            return redirect()->back()
+                ->withErrors(['error' => $e->getMessage()])
+                ->withInput();
+        }
+    }
+    public function toggleFeatured(Post $post)
+    {
+        $post->update(['is_featured' => !$post->is_featured]);
+        
+        return back()->with('success', 'Post featured status updated successfully');
+    }
+    
+    public function toggleStatus(Post $post)
+    {
+        $post->update(['is_active' => !$post->is_active]);
+        
+        return back()->with('success', 'Post status updated successfully');
+    }
+
+    public function addImages(Request $request, Post $post)
+{
+    $validator = Validator::make($request->all(), [
+        'images.*' => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:' . self::MAX_IMAGE_SIZE
+    ], [
+        'images.*.max' => 'Each image must not be greater than 2MB.',
+    ]);
+
+    if ($validator->fails()) {
+        return redirect()->back()
+            ->withErrors($validator)
+            ->withInput();
+    }
+
+    try {
+        if ($request->hasFile('images')) {
+            $otherImages = $post->other_images ?? [];
+            
+            foreach ($request->file('images') as $image) {
+                $imagePath = $this->imageService->compressAndStore($image, [
+                    'quality' => 60,
+                    'maxWidth' => 1024,
+                    'subfolder' => self::IMAGE_UPLOAD_PATH
+                ]);
+                
+                $otherImages[] = $imagePath;
+            }
+            
+            $post->update(['other_images' => $otherImages]);
+            
+            return redirect()->back()->with('success', 'Additional images uploaded successfully!');
+        }
+        
+        return redirect()->back()->with('error', 'No images were uploaded.');
+
+    } catch (Exception $e) {
+        Log::error('Error uploading additional images: ' . $e->getMessage());
+        return redirect()->back()->withErrors(['error' => 'Failed to upload images: ' . $e->getMessage()]);
+    }
+}
+
+public function deleteImage(Post $post, $index)
+{
+    try {
+        $otherImages = $post->other_images ?? [];
+        
+        if (isset($otherImages[$index])) {
+            $imagePath = $otherImages[$index];
+            
+            $this->imageService->deleteImage($imagePath);
+            
+            unset($otherImages[$index]);
+            $otherImages = array_values($otherImages);
+            
+            $post->update(['other_images' => $otherImages]);
+            
+            return response()->json(['success' => true]);
+        }
+        
+        return response()->json(['success' => false, 'message' => 'Image not found'], 404);
+
+    } catch (Exception $e) {
+        Log::error('Error deleting additional image: ' . $e->getMessage());
+        return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
+    }
+}
+
 }

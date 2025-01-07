@@ -16,7 +16,8 @@ class Category extends Model
         'description_ne',
         'description_en',
         'image',
-        'is_active'
+        'is_active',
+        'meta_data_id'
     ];
 
     public function sluggable(): array
@@ -31,5 +32,10 @@ class Category extends Model
     public function posts()
     {
         return $this->hasMany(Post::class);
+    }
+
+    public function metadata()
+    {
+        return $this->belongsTo(MetaData::class, 'meta_data_id');
     }
 }

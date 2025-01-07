@@ -111,6 +111,24 @@ class RolePermissionSeeder extends Seeder
             'list_social_media',
             'edit_social_media',
             'delete_social_media',
+
+             // Metadata Permissions
+             'create_metadata',
+             'list_metadata',
+             'edit_metadata',
+             'delete_metadata',
+
+            // User Permissions
+            'create_user',
+            'list_user',
+            'edit_user',
+            'delete_user',
+
+            // FAQ Permissions
+            'create_faq',
+            'list_faq',
+            'edit_faq',
+            'delete_faq',
         ];
 
         // Create the permissions
@@ -190,6 +208,16 @@ class RolePermissionSeeder extends Seeder
             'list_member_types',
             'edit_member_types',
             'delete_member_types',
+
+             'create_metadata',
+             'list_metadata',
+             'edit_metadata',
+             'delete_metadata',
+
+            'create_faq',
+            'list_faq',
+            'edit_faq',
+            'delete_faq',
         ];
 
         foreach ($listOfRoles as $roleName) {

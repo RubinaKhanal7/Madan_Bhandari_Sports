@@ -69,7 +69,7 @@
                                 <div class="col-md-7 d-flex flex-center">
                                     <div class="p-4 p-md-5 flex-grow-1">
                                         <h3>Register a New Account</h3>
-                                        <form method="POST" action="{{ route('register') }}">
+                                        <form method="POST" action="{{ route('register') }}" id="registerForm">
                                             @csrf
                                             <div class="mb-3">
                                                 <label class="form-label" for="name">Full Name</label>
@@ -186,52 +186,57 @@
                                                     </div>
                                                 </div>
                                             </div>
+                                            <div class="g-recaptcha" data-sitekey="{{ config('services.recaptcha.site_key') }}"></div>
+                                            <div id="recaptcha-error" style="color: red; font-size: 0.9rem; margin-top: 5px;"></div>
                                             
-                                            <div class="mb-0">
-                                                <button type="submit" class="btn btn-primary w-100">
-                                                    Register
-                                                </button>
-                                            </div>
-                    
-                                            <div class="text-center mt-3">
-                                                <a href="{{ route('login') }}">Already have an account? Login</a>
-                                            </div>
+                                            <button class="btn btn-primary d-block w-100 mt-3"
+                                                type="submit">Register</button>
                                         </form>
+                                        <div class="text-center mt-3">
+                                            <a href="{{ route('login') }}">Already have an account? Login</a>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    
-                    @push('scripts')
-                    <script>
-                        function togglePassword(fieldId, element) {
-                            var inputField = document.getElementById(fieldId);
-                            var icon = element.querySelector('i');
-                            if (inputField.type === 'password') {
-                                inputField.type = 'text';
-                                icon.classList.remove('fa-eye');
-                                icon.classList.add('fa-eye-slash');
-                            } else {
-                                inputField.type = 'password';
-                                icon.classList.remove('fa-eye-slash');
-                                icon.classList.add('fa-eye');
-                            }
-                        }
-                    </script>
-                    @endpush
-                    <style>
-                        .btn-outline-secondary {
-                            border: none;
-                            background: transparent;
-                        }
-                    
-                        .btn-outline-secondary:hover {
-                            background: #f8f9fa; /* Light hover effect */
-                        }
-                    
-                        .btn-outline-secondary i {
-                            font-size: 20px; /* Adjust icon size */
-                        }
-                    </style>
-                    
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- JavaScripts -->
+    <script src="{{ asset('adminassets/assets/jquery/dist/jquery.min.js') }}"></script>
+    <script src="{{ asset('adminassets/vendors/bootstrap/bootstrap.min.js') }}"></script>
+    <script src="{{ asset('adminassets/vendors/fontawesome/all.min.js') }}"></script>
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', function(event) {
+            var response = grecaptcha.getResponse();
+            var errorDiv = document.getElementById('recaptcha-error');
+            errorDiv.textContent = '';
+    
+            if (response.length == 0) {
+                event.preventDefault();
+                errorDiv.textContent = "Please verify that you are not a robot.";
+            }
+        });
+    </script>
+    <script>
+        function togglePassword(fieldId, element) {
+            var inputField = document.getElementById(fieldId);
+            var icon = element.querySelector('i');
+            if (inputField.type === 'password') {
+                inputField.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                inputField.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        }
+    </script>
+</body>
+
+</html>

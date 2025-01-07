@@ -93,7 +93,6 @@ class UserManagementController extends Controller
                 ->with('error', 'Error deleting user: ' . $e->getMessage());
         }
     }
-
     public function approve($id)
     {
         try {
@@ -105,7 +104,7 @@ class UserManagementController extends Controller
             }
             
             $user->update(['is_approved' => true]);
-
+            
             try {
                 $user->notify(new AccountApproved());
                 Log::info('Approval notification sent to user:', ['user_id' => $user->id, 'email' => $user->email]);
@@ -116,11 +115,12 @@ class UserManagementController extends Controller
                 ]);
                 return redirect()->back()->with('error', 'User approved but failed to send notification email.');
             }
-
+            
             return redirect()->back()->with('success', 'User has been approved successfully and notification sent.');
         } catch (\Exception $e) {
             Log::error('Failed to approve user:', ['error' => $e->getMessage()]);
             return redirect()->back()->with('error', 'Failed to approve user.');
         }
     }
+
 }
