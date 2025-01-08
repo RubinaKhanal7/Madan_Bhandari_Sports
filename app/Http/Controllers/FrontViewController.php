@@ -26,8 +26,8 @@ class FrontViewController extends Controller
       
         $coverImages = CoverImage::latest()->get();
      
-        $images = PhotoGallery::where('status', 1)->latest()->take(6)->get(); // Fetch the photos
-        $videos = VideoGallery::where('status', 1)->latest()->take(6)->get(); // Fetch the videos
+        $images = PhotoGallery::latest()->take(6)->get(); // Fetch the photos
+        $videos = VideoGallery::latest()->take(6)->get(); // Fetch the videos
        
             // Fetch all news
         $types = [ 'Honour', 'Award', 'Judge', 'Album Launch', 'Social Work & Activities', 'Other Events', 'Research & Articles'];
