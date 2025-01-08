@@ -13,6 +13,9 @@ use Database\Seeders\SocialmediaSeeder;
 use Database\Seeders\SitesettingSeeder;
 use Database\Seeders\RolePermissionSeeder;
 use Database\Seeders\FaqSeeder;
+use Database\Seeders\ProvinceSeeder;
+use Database\Seeders\DistrictSeeder;
+use Database\Seeders\LocalGovernmentSeeder;
 
 class DatabaseSeeder extends Seeder
 {
@@ -27,6 +30,9 @@ class DatabaseSeeder extends Seeder
             CategorySeeder::class,
             AboutSeeder::class,
             FaqSeeder::class,
+            ProvinceSeeder::class,
+            DistrictSeeder::class,
+            LocalGovernmentSeeder::class,
 
         ]);
     }
