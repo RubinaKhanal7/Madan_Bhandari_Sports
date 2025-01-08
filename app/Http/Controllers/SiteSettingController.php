@@ -7,127 +7,160 @@ use App\Models\SocialMedia;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Validator;
 
 class SiteSettingController extends Controller
 {
     public function index()
     {
-        $sitesettings = SiteSetting::all();
-        return view('backend.sitesetting.index', ['sitesettings' => $sitesettings, 'page_title' => 'Site Settings']);
-    }
-
-    public function create()
-    {
-        $socialmedias = SocialMedia::all(); // Get social media options
-        return view('backend.sitesetting.create', ['socialmedias' => $socialmedias, 'page_title' => 'Create Site Setting']);
-    }
-
-    public function store(Request $request)
-    {
-        $this->validate($request, [
-            'title_ne' => 'required|string|max:255',
-            'title_en' => 'required|string|max:255',
-            'main_logo' => 'nullable|image|mimes:jpg,jpeg,png',
-            'alt_logo' => 'nullable|image|mimes:jpg,jpeg,png',
-            'google_map' => 'nullable|url',
-        ]);
-
-        $sitesetting = new SiteSetting();
-        $sitesetting->title_ne = $request->title_ne;
-        $sitesetting->title_en = $request->title_en;
-        $sitesetting->slogan_ne = $request->slogan_ne;
-        $sitesetting->slogan_en = $request->slogan_en;
-
-        // Handle file uploads
-        if ($request->hasFile('main_logo')) {
-            $main_logo = $request->file('main_logo');
-            $main_logo_name = time() . '-' . $main_logo->getClientOriginalName();
-            $main_logo->move(public_path('uploads/sitesetting'), $main_logo_name);
-            $sitesetting->main_logo = $main_logo_name;
+        try {
+            $sitesettings = SiteSetting::all();
+            return view('backend.sitesetting.index', [
+                'sitesettings' => $sitesettings,
+                'page_title' => 'Site Settings',
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error in SiteSettings index: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Unable to load site settings. Please try again.');
         }
-
-        if ($request->hasFile('alt_logo')) {
-            $alt_logo = $request->file('alt_logo');
-            $alt_logo_name = time() . '-' . $alt_logo->getClientOriginalName();
-            $alt_logo->move(public_path('uploads/sitesetting'), $alt_logo_name);
-            $sitesetting->alt_logo = $alt_logo_name;
-        }
-
-        $sitesetting->phone_no = json_encode($request->phone_no);
-        $sitesetting->email = json_encode($request->email);
-        $sitesetting->established_year = $request->established_year;
-        $sitesetting->description_ne = $request->description_ne;
-        $sitesetting->description_en = $request->description_en;
-        $sitesetting->socialmedia = $request->socialmedia;
-        $sitesetting->google_map = $request->google_map;
-        $sitesetting->save();
-
-        return redirect()->route('admin.site-settings.index')->with('success', 'Site settings created successfully!');
     }
 
     public function edit($id)
     {
-        $sitesetting = SiteSetting::findOrFail($id);
-        $socialmedias = SocialMedia::all(); // Get social media options
-        return view('backend.sitesetting.update', ['sitesetting' => $sitesetting, 'socialmedias' => $socialmedias, 'page_title' => 'Edit Site Setting']);
+        try {
+            $sitesetting = SiteSetting::findOrFail($id);
+            $socialmedias = SocialMedia::all();
+            return view('backend.sitesetting.update', [
+                'sitesetting' => $sitesetting,
+                'socialmedias' => $socialmedias,
+                'page_title' => 'Edit Site Setting',
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error in SiteSettings edit: ' . $e->getMessage());
+            return redirect()->route('admin.site-settings.index')
+                ->with('error', 'Unable to find the requested site setting.');
+        }
     }
 
     public function update(Request $request, $id)
-{
-    $sitesetting = SiteSetting::findOrFail($id);
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                'title_ne' => 'required|string|max:255',
+                'title_en' => 'required|string|max:255',
+                'slogan_ne' => 'nullable|string|max:255',
+                'slogan_en' => 'nullable|string|max:255',
+                'description_ne' => 'nullable|string',
+                'description_en' => 'nullable|string',
+                'established_year' => 'nullable|string|max:4',
+                'google_map' => 'nullable|string|max:1000',
+                'phone_no' => 'required|array',
+                'phone_no.*' => 'required|string',
+                'email' => 'required|array',
+                'email.*' => 'required|email',
+                'main_logo_cropped' => 'nullable|string',
+                'alt_logo_cropped' => 'nullable|string',
+            ]);
 
-    // Process main logo
-    if ($request->has('main_logo_cropped') && $request->main_logo_cropped != '') {
-        // Remove header from base64 string
-        $image_parts = explode(";base64,", $request->main_logo_cropped);
-        $image_base64 = base64_decode($image_parts[1]);
-        
-        // Generate unique filename
-        $filename = 'main_logo_' . time() . '.png';
-        
-        // Save file
-        Storage::disk('public')->put('uploads/sitesetting/' . $filename, $image_base64);
-        
-        // Update database
-        $sitesetting->main_logo = $filename;
+            if ($validator->fails()) {
+                return redirect()->route('admin.site-settings.index')
+                    ->with('form_id', $id)
+                    ->withErrors($validator)
+                    ->withInput();
+            }
+
+            $sitesetting = SiteSetting::findOrFail($id);
+
+            // Process logos
+            $sitesetting->main_logo = $this->processLogo($request, $sitesetting->main_logo, 'main_logo_cropped', 'main_logo');
+            $sitesetting->alt_logo = $this->processLogo($request, $sitesetting->alt_logo, 'alt_logo_cropped', 'alt_logo');
+
+            // Prepare update data
+            $updateData = $request->except([
+                'main_logo',
+                'alt_logo',
+                'main_logo_cropped',
+                'alt_logo_cropped',
+            ]);
+
+            $updateData['phone_no'] = json_encode(array_filter($updateData['phone_no']));
+            $updateData['email'] = json_encode(array_filter($updateData['email']));
+
+            $sitesetting->update($updateData);
+
+            return redirect()->route('admin.site-settings.index')
+                ->with('success', 'Site settings updated successfully');
+        } catch (\Exception $e) {
+            Log::error('Error in SiteSettings update: ' . $e->getMessage());
+            return redirect()->route('admin.site-settings.index')
+                ->with('error', 'An error occurred while updating site settings. Please try again.')
+                ->withInput();
+        }
     }
-
-    // Process alt logo
-    if ($request->has('alt_logo_cropped') && $request->alt_logo_cropped != '') {
-        // Remove header from base64 string
-        $image_parts = explode(";base64,", $request->alt_logo_cropped);
-        $image_base64 = base64_decode($image_parts[1]);
-        
-        // Generate unique filename
-        $filename = 'alt_logo_' . time() . '.png';
-        
-        // Save file
-        Storage::disk('public')->put('uploads/sitesetting/' . $filename, $image_base64);
-        
-        // Update database
-        $sitesetting->alt_logo = $filename;
-    }
-
-    // Update other fields
-    $sitesetting->update($request->except(['main_logo', 'alt_logo', 'main_logo_cropped', 'alt_logo_cropped', 'main_logo_crop_data', 'alt_logo_crop_data']));
-
-    return redirect()->back()->with('success', 'Site settings updated successfully');
-}
 
     public function destroy($id)
     {
-        $sitesetting = SiteSetting::findOrFail($id);
+        try {
+            $sitesetting = SiteSetting::findOrFail($id);
 
-        // Delete files if exists
-        if (File::exists(public_path('uploads/sitesetting/' . $sitesetting->main_logo))) {
-            File::delete(public_path('uploads/sitesetting/' . $sitesetting->main_logo));
+            // Delete logos
+            $this->deleteLogo($sitesetting->main_logo, 'main_logo');
+            $this->deleteLogo($sitesetting->alt_logo, 'alt_logo');
+
+            $sitesetting->delete();
+
+            return redirect()->route('admin.site-settings.index')
+                ->with('success', 'Site settings deleted successfully!');
+        } catch (\Exception $e) {
+            Log::error('Error in SiteSettings destroy: ' . $e->getMessage());
+            return redirect()->route('admin.site-settings.index')
+                ->with('error', 'Unable to delete site settings. Please try again.');
         }
+    }
 
-        if (File::exists(public_path('uploads/sitesetting/' . $sitesetting->alt_logo))) {
-            File::delete(public_path('uploads/sitesetting/' . $sitesetting->alt_logo));
+    public function toggleStatus(SiteSetting $siteSetting)
+{
+    $siteSetting->is_active = !$siteSetting->is_active;
+    $siteSetting->save();
+    
+    return redirect()->back()->with('success', 'Status updated successfully');
+}
+
+    private function processLogo($request, $currentLogo, $logoInput, $logoType)
+    {
+        if ($request->has($logoInput) && $request->$logoInput != '') {
+            try {
+                // Delete old logo if exists
+                if ($currentLogo && Storage::disk('public')->exists('uploads/sitesetting/' . $currentLogo)) {
+                    Storage::disk('public')->delete('uploads/sitesetting/' . $currentLogo);
+                }
+
+                // Process and save new logo
+                $image_parts = explode(";base64,", $request->$logoInput);
+                $image_base64 = base64_decode($image_parts[1]);
+                $filename = $logoType . '_' . time() . '.png';
+
+                if (!Storage::disk('public')->put('uploads/sitesetting/' . $filename, $image_base64)) {
+                    throw new \Exception('Failed to save ' . $logoType);
+                }
+
+                return $filename;
+            } catch (\Exception $e) {
+                Log::error('Error processing ' . $logoType . ': ' . $e->getMessage());
+                throw $e;
+            }
         }
+        return $currentLogo;
+    }
 
-        $sitesetting->delete();
-        return redirect()->route('admin.site-settings.index')->with('success', 'Site settings deleted successfully!');
+    private function deleteLogo($logo, $logoType)
+    {
+        if ($logo) {
+            $logoPath = public_path('uploads/sitesetting/' . $logo);
+            if (File::exists($logoPath)) {
+                File::delete($logoPath);
+            }
+        }
     }
 }

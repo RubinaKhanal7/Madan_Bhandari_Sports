@@ -18,9 +18,16 @@ class MemberTypeController extends Controller
     {
         $request->validate([
             'title' => 'required|string|max:255',
+            'is_active' => 'nullable|boolean', // Validate is_active field
         ]);
 
-        MemberType::create($request->all());
+        // Handle is_active checkbox input
+        $is_active = $request->has('is_active') ? true : false;
+
+        MemberType::create([
+            'title' => $request->input('title'),
+            'is_active' => $is_active,
+        ]);
 
         return redirect()->route('admin.member_types.index')->with('success', 'Member Type created successfully!');
     }
@@ -29,12 +36,28 @@ class MemberTypeController extends Controller
     {
         $request->validate([
             'title' => 'required|string|max:255',
+            'is_active' => 'nullable|boolean', // Validate is_active field
         ]);
 
         $memberType = MemberType::findOrFail($id);
-        $memberType->update($request->all());
+
+        // Handle is_active checkbox input
+        $is_active = $request->has('is_active') ? true : false;
+
+        $memberType->update([
+            'title' => $request->input('title'),
+            'is_active' => $is_active,
+        ]);
 
         return redirect()->route('admin.member_types.index')->with('success', 'Member Type updated successfully!');
+    }
+
+    public function toggleStatus(MemberType $memberType)
+    {
+        $memberType->is_active = !$memberType->is_active;
+        $memberType->save();
+
+        return redirect()->back()->with('success', 'Status updated successfully');
     }
 
     public function destroy($id)

@@ -16,6 +16,7 @@ return new class extends Migration
         Schema::create('member_types', function (Blueprint $table) {
             $table->id();
             $table->string('title');
+            $table->boolean('is_active')->default(true);
             $table->timestamps();
         });
     }

@@ -38,7 +38,11 @@ class UserManagementController extends Controller
                 'size:4',
                 'regex:/^[0-9]+$/',
                 'confirmed'
-            ],
+            ],], [
+                'pin.confirmed' => 'PIN confirmation does not match',
+                'password.confirmed' => 'Password confirmation does not match',
+                'pin.digits' => 'PIN must be exactly 6 digits',
+                'password.min' => 'Password must be at least 8 characters'
         ]);
 
         // Custom validation to ensure either password or PIN is provided

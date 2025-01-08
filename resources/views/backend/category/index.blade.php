@@ -1,10 +1,10 @@
 @extends('backend.layouts.master')
 
+
 @section('content')
-<div class="container mt-4">
-    <div class="card">
-        <div class="card-header d-flex justify-content-between align-items-center">
-            <h4>Categories</h4>
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+            <h5>Categories</h5>
             <button type="button" 
             class="btn btn-outline-primary btn-sm" 
             data-bs-toggle="modal" 
@@ -20,18 +20,38 @@
                 <button class="btn-close" type="button" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
             @endif
+    
+            @if(session('error'))
+            <div class="alert alert-danger border-2 d-flex align-items-center" role="alert">
+                <div class="bg-danger me-3 icon-item"><span class="fas fa-exclamation-circle text-white fs-3"></span></div>
+                <p class="mb-0 flex-1">{{ session('error') }}</p>
+                <button class="btn-close" type="button" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            @endif
+    
             @if($errors->any())
-                <div class="alert alert-danger">
-                    <ul>
-                        @foreach($errors->all() as $error)
-                            <li>{{ $error }}</li>
-                        @endforeach
-                    </ul>
+                <div class="alert alert-danger border-2" role="alert">
+                    <div class="d-flex">
+                        <div class="bg-danger me-3 icon-item">
+                            <span class="fas fa-exclamation-circle text-white fs-3"></span>
+                        </div>
+                        <div class="flex-1">
+                            <ul class="mb-0">
+                                @foreach($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                        <button class="btn-close" type="button" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
                 </div>
             @endif
-            <table class="table table-bordered">
-                <thead>
-                    <tr>
+    
+    
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
                         <th>SN</th>
                         <th>Title (EN)</th>
                         <th>Title (NE)</th>
@@ -63,14 +83,14 @@
                             </td>
                             
                             <td>
-                                <button class="btn btn-outline-primary btn-sm" 
+                                <button class="btn btn-outline-info btn-sm" 
                                         data-bs-toggle="modal" 
                                         data-bs-target="#metadataModal{{ $category->id }}" 
                                         style="width: 32px; text-align: center; font-size: 15px;">
                                     <span>M</span>
                                 </button>
                         
-                                <button class="btn btn-outline-info btn-sm" data-bs-toggle="modal" 
+                                <button class="btn btn-outline-primary btn-sm edit-btn" data-bs-toggle="modal" 
                                         data-bs-target="#editModal{{ $category->id }}" style="width: 32px;">
                                     <i class="fas fa-edit"></i>
                                 </button>
@@ -81,35 +101,48 @@
                             </td>
                         </tr>
 
+                        
                         <!-- Modal for changing status -->
                         <div class="modal fade" id="statusModal{{ $category->id }}" tabindex="-1" aria-labelledby="statusModalLabel" aria-hidden="true">
-                            <div class="modal-dialog">
-                                <form method="POST" action="{{ route('admin.categories.updateStatus', $category->id) }}">
-                                    @csrf
-                                    @method('PUT')
-                                    <div class="modal-content">
-                                        <div class="modal-header">
-                                            <h5 class="modal-title" id="statusModalLabel">Change Status</h5>
-                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                        </div>
-                                        <div class="modal-body">
-                                            <p>Are you sure you want to change the status of this category?</p>
-                                            <!-- Hidden input to toggle the status -->
-                                            <input type="hidden" name="is_active" value="{{ $category->is_active ? 0 : 1 }}">
-                                        </div>
-                                        <div class="modal-footer">
-                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                            <button type="submit" class="btn btn-primary">Change Status</button>
-                                        </div>
-                                    </div>
-                                </form>
-                            </div>
+                         <div class="modal-dialog">
+                         <form method="POST" action="{{ route('admin.categories.updateStatus', $category->id) }}">
+                            @csrf
+                          @method('PUT')
+                         <div class="modal-content">
+                          <div class="modal-header">
+                          <h5 class="modal-title" id="statusModalLabel">Change Status</h5>
+                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
-
+                       <div class="modal-body">
+                    <!-- Message based on current status -->
+                    <p>
+                        Do you want to 
+                        <strong>{{ $category->is_active ? 'deactivate' : 'activate' }}</strong> 
+                        this category?
+                    </p>
+                    <p>
+                        <strong>Current Status:</strong> 
+                        {{ $category->is_active ? 'Active' : 'Inactive' }}
+                    </p>
+                    <!-- Hidden input to toggle the status -->
+                    <input type="hidden" name="is_active" value="{{ $category->is_active ? 0 : 1 }}">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <!-- Button changes dynamically -->
+                    <button type="submit" class="btn {{ $category->is_active ? 'btn-danger' : 'btn-success' }}">
+                        {{ $category->is_active ? 'Deactivate' : 'Activate' }}
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
 
                         <!-- Edit Modal -->
                         <div class="modal fade" id="editModal{{ $category->id }}" tabindex="-1">
-                            <div class="modal-dialog">
+                            <div class="modal-dialog modal-lg">
+                                <div class="modal-content">
                                 <form method="POST" action="{{ route('admin.categories.update', $category->id) }}" enctype="multipart/form-data">
                                     @csrf
                                     @method('PUT')
@@ -185,11 +218,12 @@
                                 </form>
                             </div>
                         </div>
+                    </div>
                         
 
                         <!-- Delete Modal -->
                         <div class="modal fade" id="deleteModal{{ $category->id }}" tabindex="-1">
-                            <div class="modal-dialog">
+                            <div class="modal-dialog ">
                                 <form method="POST" action="{{ route('admin.categories.destroy', $category->id) }}">
                                     @csrf
                                     @method('DELETE')
@@ -212,7 +246,8 @@
                         </div>
                         <!-- Metadata Modal -->
                             <div class="modal fade" id="metadataModal{{ $category->id }}" tabindex="-1">
-                                <div class="modal-dialog">
+                                <div class="modal-dialog modal-lg">
+                                <div class="modal-content">
                                     <form method="POST" 
                                         action="{{ $category->metadata ? route('admin.categories.metadata.update', $category->id) : route('admin.categories.metadata.store', $category->id) }}">
                                         @csrf
@@ -280,7 +315,8 @@
 
     <!-- Create Modal -->
     <div class="modal fade" id="createModal" tabindex="-1">
-        <div class="modal-dialog">
+        <div class="modal-dialog  modal-lg">
+            <div class="modal-content">
             <form method="POST" action="{{ route('admin.categories.store') }}" enctype="multipart/form-data">
                 @csrf
                 <div class="modal-content">
