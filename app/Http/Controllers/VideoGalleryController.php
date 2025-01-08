@@ -2,132 +2,123 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Controller;
 use App\Models\VideoGallery;
 use Illuminate\Http\Request;
 
 class VideoGalleryController extends Controller
 {
-    /**
-     * Display a listing of the video galleries.
-     *
-     * @return \Illuminate\View\View
-     */
     public function index()
-{
-    $videos = VideoGallery::latest()->paginate(10); // Adjust the number per page as needed
-    $page_title = "Video Galleries";
-
-    return view('backend.videogallery.index', compact('videos', 'page_title'));
-}
-
-    /**
-     * Show the form for creating a new video gallery.
-     *
-     * @return \Illuminate\View\View
-     */
-    public function create()
     {
-        return view('backend.videogallery.index');
+        $videos = VideoGallery::latest()->get();
+        return view('backend.videogallery.index', compact('videos'));
     }
 
-    /**
-     * Store a newly created video gallery in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\RedirectResponse
-     */
     public function store(Request $request)
     {
-        $validatedData = $request->validate([
+        $validated = $request->validate([
             'title_ne' => 'required|string|max:255',
             'title_en' => 'required|string|max:255',
-            'videos' => 'required|string|max:255',
-            'url' => 'required|url',
+            'url' => [
+                'required',
+                'url'
+            ],
+            'videos' => 'nullable|string|max:255',
             'description_ne' => 'nullable|string',
             'description_en' => 'nullable|string',
-            'is_featured' => 'nullable|boolean',
-            'is_active' => 'nullable|boolean',
+            'is_featured' => 'nullable',
+            'is_active' => 'nullable'
+        ], [
+            'url.required' => 'Please provide a video URL.',
+            'url.url' => 'Please enter a valid URL.',
+            'title_ne.required' => 'Please enter the title in Nepali.',
+            'title_en.required' => 'Please enter the title in English.',
         ]);
 
-        VideoGallery::create($validatedData);
+        // Handle boolean fields properly
+        $validated['is_featured'] = $request->has('is_featured');
+        $validated['is_active'] = $request->has('is_active');
+        
+        // Convert URL to embed format if needed
+        $validated['url'] = $this->convertToEmbedUrl($validated['url']);
 
-        return redirect()->route('video_galleries.index')->with('success', 'Video gallery created successfully.');
+        VideoGallery::create($validated);
+        return redirect()->back()->with('success', 'Video Gallery item added successfully.');
     }
 
-    /**
-     * Show the form for editing the specified video gallery.
-     *
-     * @param  VideoGallery  $videoGallery
-     * @return \Illuminate\View\View
-     */
-    public function edit(VideoGallery $videoGallery)
-    {
-        return view('video_galleries.edit', compact('videoGallery'));
-    }
-
-    /**
-     * Update the specified video gallery in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  VideoGallery  $videoGallery
-     * @return \Illuminate\Http\RedirectResponse
-     */
     public function update(Request $request, VideoGallery $videoGallery)
     {
-        $validatedData = $request->validate([
+        $validated = $request->validate([
             'title_ne' => 'required|string|max:255',
             'title_en' => 'required|string|max:255',
-            'videos' => 'required|string|max:255',
-            'url' => 'required|url',
+            'url' => [
+                'required',
+                'url'
+            ],
+            'videos' => 'nullable|string|max:255',
             'description_ne' => 'nullable|string',
             'description_en' => 'nullable|string',
-            'is_featured' => 'nullable|boolean',
-            'is_active' => 'nullable|boolean',
+            'is_featured' => 'nullable',
+            'is_active' => 'nullable'
+        ], [
+            'url.required' => 'Please provide a video URL.',
+            'url.url' => 'Please enter a valid URL.',
+            'title_ne.required' => 'Please enter the title in Nepali.',
+            'title_en.required' => 'Please enter the title in English.',
         ]);
 
-        $videoGallery->update($validatedData);
+        // Handle boolean fields properly
+        $validated['is_featured'] = $request->has('is_featured');
+        $validated['is_active'] = $request->has('is_active');
+        
+        // Convert URL to embed format if needed
+        $validated['url'] = $this->convertToEmbedUrl($validated['url']);
 
-        return redirect()->route('video_galleries.index')->with('success', 'Video gallery updated successfully.');
+        $videoGallery->update($validated);
+        return redirect()->back()->with('success', 'Video Gallery item updated successfully.');
     }
 
-    /**
-     * Remove the specified video gallery from storage.
-     *
-     * @param  VideoGallery  $videoGallery
-     * @return \Illuminate\Http\RedirectResponse
-     */
     public function destroy(VideoGallery $videoGallery)
     {
         $videoGallery->delete();
-
-        return redirect()->route('video_galleries.index')->with('success', 'Video gallery deleted successfully.');
+        return redirect()->back()->with('success', 'Video Gallery item deleted successfully.');
     }
 
-    /**
-     * Toggle the 'is_featured' status.
-     *
-     * @param  VideoGallery  $videoGallery
-     * @return \Illuminate\Http\RedirectResponse
-     */
-    public function toggleFeatured(VideoGallery $videoGallery)
+    private function convertToEmbedUrl($url)
     {
-        $videoGallery->is_featured = !$videoGallery->is_featured;
-        $videoGallery->save();
-
-        return redirect()->route('video_galleries.index')->with('success', 'Featured status updated successfully.');
+        // YouTube
+        if (preg_match('/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]+)/', $url, $matches)) {
+            return 'https://www.youtube.com/embed/' . $matches[1];
+        }
+        
+        // YouTube short URL
+        if (preg_match('/youtu\.be\/([a-zA-Z0-9_-]+)/', $url, $matches)) {
+            return 'https://www.youtube.com/embed/' . $matches[1];
+        }
+        
+        // Vimeo
+        if (preg_match('/vimeo\.com\/([0-9]+)/', $url, $matches)) {
+            return 'https://player.vimeo.com/video/' . $matches[1];
+        }
+        
+        // Already an embed URL
+        if (strpos($url, 'youtube.com/embed/') !== false || strpos($url, 'player.vimeo.com/video/') !== false) {
+            return $url;
+        }
+        
+        // Return original URL if no conversion needed
+        return $url;
     }
+    
+    public function toggleFeatured(VideoGallery $videoGallery)  
+{
+    $videoGallery->update(['is_featured' => !$videoGallery->is_featured]);
+    return back()->with('success', 'Featured status updated successfully');
+}
 
-    /**
-     * Toggle the 'is_active' status.
-     *
-     * @param  VideoGallery  $videoGallery
-     * @return \Illuminate\Http\RedirectResponse
-     */
-    public function toggleActive(VideoGallery $videoGallery)
-    {
-        $videoGallery->is_active = !$videoGallery->is_active;
-        $videoGallery->save();
-
-        return redirect()->route('video_galleries.index')->with('success', 'Active status updated successfully.');
-    }
+public function toggleStatus(VideoGallery $videoGallery)   
+{
+    $videoGallery->update(['is_active' => !$videoGallery->is_active]);
+    return back()->with('success', 'Status updated successfully');
+}
 }

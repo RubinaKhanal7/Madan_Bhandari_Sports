@@ -181,6 +181,10 @@ Route::prefix('/admin')->name('admin.')->middleware(['web', 'auth'])->group(func
 
     // Video galleries
     Route::resource('video-galleries', VideoGalleryController::class);
+    Route::patch('/video-galleries/{videoGallery}/toggle-featured', [VideoGalleryController::class, 'toggleFeatured'])
+    ->name('video-galleries.toggle-featured');
+    Route::patch('/video-galleries/{videoGallery}/toggle-status', [VideoGalleryController::class, 'toggleStatus'])
+    ->name('video-galleries.toggle-status');
 
     //Users
     Route::resource('users', UserManagementController::class);

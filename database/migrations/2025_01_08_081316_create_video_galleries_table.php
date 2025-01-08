@@ -16,12 +16,13 @@ return new class extends Migration {
             $table->id();
             $table->string('title_ne'); 
             $table->string('title_en'); 
-            $table->string('videos');
+            $table->string('videos')->nullable();
             $table->string('url'); 
             $table->text('description_ne')->nullable(); 
             $table->text('description_en')->nullable(); 
-            $table->boolean('is_featured')->default(false)->nullable(); 
-            $table->boolean('is_active')->default(true)->nullable(); 
+            $table->boolean('is_featured')->default(false); 
+            $table->boolean('is_active')->default(true); 
+            $table->foreignId('meta_data_id')->nullable()->constrained('meta_data')->onDelete('set null');
             $table->timestamps();
         });
     }
