@@ -1,38 +1,49 @@
 @extends('backend.layouts.master')
 
 @section('content')
-  
     <div class="card">
-        <div class="card-header">
-            <div class="row mb-2">
-                <div class="col-sm-6">
-                    <h1 class="m-0">{{ $page_title }}</h1>
-                    
-                </div>
-                <div class="col-sm-6">
-                   
-                </div>
-            </div>
-        </div>
+        <div class="card-body">
             @if(session('success'))
-                <div class="alert alert-success border-2 d-flex align-items-center" role="alert">
-                    <div class="bg-success me-3 icon-item"><span class="fas fa-check-circle text-white fs-3"></span></div>
-                    <p class="mb-0 flex-1">{{ session('success') }}</p>
-                    <button class="btn-close" type="button" data-bs-dismiss="alert" aria-label="Close"></button>
+            <div class="alert alert-success border-2 d-flex align-items-center" role="alert">
+                <div class="bg-success me-3 icon-item"><span class="fas fa-check-circle text-white fs-3"></span></div>
+                <p class="mb-0 flex-1">{{ session('success') }}</p>
+                <button class="btn-close" type="button" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            @endif
+
+            @if(session('error'))
+            <div class="alert alert-danger border-2 d-flex align-items-center" role="alert">
+                <div class="bg-danger me-3 icon-item"><span class="fas fa-exclamation-circle text-white fs-3"></span></div>
+                <p class="mb-0 flex-1">{{ session('error') }}</p>
+                <button class="btn-close" type="button" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            @endif
+
+            @if($errors->any())
+                <div class="alert alert-danger border-2" role="alert">
+                    <div class="d-flex">
+                        <div class="bg-danger me-3 icon-item">
+                            <span class="fas fa-exclamation-circle text-white fs-3"></span>
+                        </div>
+                        <div class="flex-1">
+                            <ul class="mb-0">
+                                @foreach($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                        <button class="btn-close" type="button" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
                 </div>
             @endif
 
-            @if (Session::has('error'))
-                <div class="alert alert-danger">
-                    {{ Session::get('error') }}
-                </div>
-             @endif
-
-
-        <div class="card-body">
-            <table class="table table-bordered table-hover">
-                <thead>
-                    <tr>
+             <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="card-title mb-0">Site Settings</h5>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
                         <th>S.N.</th>
                         <th>Title</th>
                         <th>Slogan</th>
@@ -62,11 +73,11 @@
                     </td>
                     <td>{{ $sitesetting->established_year }}</td>
                     <td>
-                        @if($sitesetting->is_active)
-                            <span class="badge bg-success">Active</span>
-                        @else
-                            <span class="badge bg-danger">Inactive</span>
-                        @endif
+                        <button class="btn {{ $sitesetting->is_active ? 'btn-success' : 'btn-danger' }} btn-sm"
+                                data-bs-toggle="modal" 
+                                data-bs-target="#statusModal{{ $sitesetting->id }}">
+                            {{ $sitesetting->is_active ? 'Active' : 'Inactive' }}
+                        </button>
                     </td>
                     <td style="white-space: nowrap;">
                         <button type="button" class="btn btn-outline-primary btn-sm edit-btn" 
@@ -84,6 +95,34 @@
                         </button>
                     </td>
                 </tr>
+
+
+                  <!-- Status Change Modal -->
+                      
+                  <div class="modal fade" id="statusModal{{ $sitesetting->id }}" tabindex="-1">
+                    <div class="modal-dialog">
+                  <form method="POST" action="{{ route('admin.site-settings.toggle-status', $sitesetting->id) }}">
+                  @csrf
+                  @method('PATCH')
+                  <div class="modal-content">
+                  <div class="modal-header">
+                  <h5 class="modal-title">Change Status</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                  </div>
+                  <div class="modal-body">
+                    <p>Do you want to {{ $sitesetting->is_active ? 'deactivate' : 'activate' }} this sitesetting?</p>
+                    <p><strong>Current status:</strong> {{ $sitesetting->is_active ? 'Active' : 'Inactive' }}</p>
+                   </div>
+                  <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                  <button type="submit" class="btn {{ $sitesetting->is_active ? 'btn-danger' : 'btn-success' }}">
+                  {{ $sitesetting->is_active ? 'Deactivate' : 'Activate' }}
+               </button>
+              </div>
+            </div>
+           </form>
+        </div>
+     </div>
 
                 <!-- Edit Modal -->
                 <div class="modal fade" id="editModal{{ $sitesetting->id }}" tabindex="-1" aria-labelledby="editModalLabel{{ $sitesetting->id }}" aria-hidden="true">
@@ -208,7 +247,7 @@
 
                                     <div class="modal-footer">
                                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                        <button type="submit" class="btn btn-primary">Update Changes</button>
+                                        <button type="submit" class="btn btn-success">Update</button>
                                     </div>
                                 </form>
                             </div>
@@ -282,7 +321,7 @@
                                     </div>
                 
                                     <div class="form-group">
-                                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                                        <button type="submit" class="btn btn-primary">Save</button>
                                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                                     </div>
                                 </form>
@@ -464,5 +503,23 @@
             }
         });
     });
+    \
+    // Automatically show validation errors in modals if they exist
+    $(document).ready(function() {
+        @if($errors->any())
+            // Check which form has errors and show the appropriate modal
+            @if($errors->has('facebook_link') || $errors->has('instagram_link') || 
+                $errors->has('twitter_link') || $errors->has('youtube_link') || 
+                $errors->has('linkedin_link') || $errors->has('tiktok_link') || 
+                $errors->has('snapchat_link') || $errors->has('embed_fbpage'))
+                // Show social media modal if it has errors
+                $('#socialMediaModal{{ session('form_id') }}').modal('show');
+            @else
+                // Show edit modal if it has errors
+                $('#editModal{{ session('form_id') }}').modal('show');
+            @endif
+        @endif
+    });
+
 </script>
 @endpush

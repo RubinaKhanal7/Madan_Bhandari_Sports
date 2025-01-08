@@ -3,10 +3,20 @@
 <div class="card">
     <div class="card-body">
         @if(session('success'))
-            <div class="alert alert-success">{{ session('success') }}</div>
+        <div class="alert alert-success border-2 d-flex align-items-center" role="alert">
+            <div class="bg-success me-3 icon-item"><span class="fas fa-check-circle text-white fs-3"></span></div>
+            <p class="mb-0 flex-1">{{ session('success') }}</p>
+            <button class="btn-close" type="button" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
         @endif
-        @if(session('error'))
-            <div class="alert alert-danger">{{ session('error') }}</div>
+        @if($errors->any())
+            <div class="alert alert-danger">
+                <ul>
+                    @foreach($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
         @endif
 
         <div class="d-flex justify-content-between align-items-center mb-3">
@@ -36,7 +46,7 @@
                         <td>{{ $users->firstItem() + $key }}</td>
                         <td>{{ $user->name }}</td>
                         <td>{{ $user->email }}</td>
-                        <td>{{ $user->created_at->format('Y-m-d H:i:s') }}</td>
+                        <td>{{ $user->created_at->format('Y-m-d') }}</td>
                         <td>
                             <!-- Add status column -->
                             <span class="badge {{ $user->is_approved ? 'bg-success' : 'bg-warning' }}">
@@ -46,7 +56,7 @@
                         <td>
                             @if(!$user->created_by_admin)
                                 <button type="button" 
-                                        class="btn btn-outline-info btn-sm"
+                                        class="btn btn-outline-primary btn-sm"
                                         style="width: 32px;"
                                         data-bs-toggle="modal"
                                         data-bs-target="#approveModal{{ $user->id }}"
@@ -56,7 +66,7 @@
                                 </button>
                             @endif
                             <button type="button" 
-                                    class="btn btn-outline-info btn-sm"
+                                    class="btn btn-outline-danger btn-sm"
                                     style="width: 32px;"
                                     data-bs-toggle="modal"
                                     data-bs-target="#deleteModal{{ $user->id }}"
@@ -144,7 +154,7 @@
 
                     <div class="row mb-3">
                         <div class="col-md-6">
-                            <label class="form-label" for="email">Email Address</label>
+                            <label class="form-label" for="email">Email Address (Optional)</label>
                             <input type="email" name="email" class="form-control">
                             @error('email')
                                 <span class="text-danger">{{ $message }}</span>
@@ -189,7 +199,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Create User</button>
+                    <button type="submit" class="btn btn-primary">Save</button>
                 </div>
             </form>
         </div>

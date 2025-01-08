@@ -1,36 +1,56 @@
 @extends('backend.layouts.master')
-
 @section('content')
-<div class="container">
-    <div class="card">
-        <div class="card-header d-flex justify-content-between align-items-center">
-            <h2>Cover Images</h2>
-            <button class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#createCoverImageModal">Create Cover Image</button>
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="card-title mb-0">Cover Images</h5>
+        <button class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#createCoverImageModal">
+            + Add New
+        </button>
+    </div>
+    <div class="card-body">
+        @if(session('success'))
+        <div class="alert alert-success border-2 d-flex align-items-center" role="alert">
+            <div class="bg-success me-3 icon-item"><span class="fas fa-check-circle text-white fs-3"></span></div>
+            <p class="mb-0 flex-1">{{ session('success') }}</p>
+            <button class="btn-close" type="button" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
-        <div class="card-body">
-            @if(session('success'))
-            <div class="alert alert-success border-2 d-flex align-items-center" role="alert">
-                <div class="bg-success me-3 icon-item"><span class="fas fa-check-circle text-white fs-3"></span></div>
-                <p class="mb-0 flex-1">{{ session('success') }}</p>
-                <button class="btn-close" type="button" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-            @endif
-            @if($errors->any())
-                <div class="alert alert-danger">
-                    <ul>
-                        @foreach($errors->all() as $error)
-                            <li>{{ $error }}</li>
-                        @endforeach
-                    </ul>
-                </div>
-            @endif
+        @endif
 
-            <table class="table table-bordered table-striped">
+        @if(session('error'))
+        <div class="alert alert-danger border-2 d-flex align-items-center" role="alert">
+            <div class="bg-danger me-3 icon-item"><span class="fas fa-exclamation-circle text-white fs-3"></span></div>
+            <p class="mb-0 flex-1">{{ session('error') }}</p>
+            <button class="btn-close" type="button" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        @endif
+
+        @if($errors->any())
+            <div class="alert alert-danger border-2" role="alert">
+                <div class="d-flex">
+                    <div class="bg-danger me-3 icon-item">
+                        <span class="fas fa-exclamation-circle text-white fs-3"></span>
+                    </div>
+                    <div class="flex-1">
+                        <ul class="mb-0">
+                            @foreach($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                    <button class="btn-close" type="button" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            </div>
+        @endif
+
+
+        <div class="table-responsive">
+            <table class="table table-hover">
                 <thead>
                     <tr>
                         <th>Title (EN)</th>
                         <th>Title (NE)</th>
                         <th>Image</th>
+                        <th>Status</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
@@ -47,13 +67,19 @@
                                 @endif
                             </td>
                             <td>
-                                <button class="btn btn-outline-info btn-sm" 
+                                <button class="btn btn-sm {{ $coverImage->is_active ? 'btn-success' : 'btn-danger' }}"
+                                        data-bs-toggle="modal" 
+                                        data-bs-target="#statusModal{{ $coverImage->id }}">
+                                    {{ $coverImage->is_active ? 'Active' : 'Inactive' }}
+                                </button>
+                            </td>
+                            <td>
+                                <button class="btn btn-outline-primary btn-sm edit-btn" 
                                         data-bs-toggle="modal" 
                                         data-bs-target="#editCoverImageModal{{ $coverImage->id }}" 
                                         style="width: 32px;">
                                     <i class="fas fa-edit"></i>
                                 </button>
-                                 
                                 <button class="btn btn-outline-danger btn-sm" 
                                         data-bs-toggle="modal" 
                                         data-bs-target="#deleteCoverImageModal{{ $coverImage->id }}" 
@@ -62,6 +88,33 @@
                                 </button>
                             </td>
                         </tr>
+
+                        <!-- Status Change Modal -->
+                      
+                        <div class="modal fade" id="statusModal{{ $coverImage->id }}" tabindex="-1">
+                          <div class="modal-dialog">
+                        <form method="POST" action="{{ route('admin.cover-images.toggle-status', $coverImage->id) }}">
+                        @csrf
+                        @method('PATCH')
+                        <div class="modal-content">
+                        <div class="modal-header">
+                        <h5 class="modal-title">Change Status</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body">
+                          <p>Do you want to {{ $coverImage->is_active ? 'deactivate' : 'activate' }} this cover image?</p>
+                          <p><strong>Current status:</strong> {{ $coverImage->is_active ? 'Active' : 'Inactive' }}</p>
+                         </div>
+                        <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn {{ $coverImage->is_active ? 'btn-danger' : 'btn-success' }}">
+                        {{ $coverImage->is_active ? 'Deactivate' : 'Activate' }}
+                     </button>
+                    </div>
+                  </div>
+                 </form>
+              </div>
+           </div>
 
                     <!-- Edit Modal -->
                     <div class="modal fade" id="editCoverImageModal{{ $coverImage->id }}" tabindex="-1">
@@ -77,13 +130,15 @@
                                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                                     </div>
                                     <div class="modal-body">
-                                        <div class="mb-3">
+                                        <div class="row mb-3">
+                                            <div class="col-md-6">
                                             <label class="form-label">Title (EN)</label>
                                             <input type="text" name="title_en" class="form-control" value="{{ $coverImage->title_en }}" required>
                                         </div>
-                                        <div class="mb-3">
+                                            <div class="col-md-6">
                                             <label class="form-label">Title (NE)</label>
                                             <input type="text" name="title_ne" class="form-control" value="{{ $coverImage->title_ne }}" required>
+                                            </div>
                                         </div>
                                         <div class="mb-3">
                                             <label class="form-label">Image</label>
@@ -152,7 +207,7 @@
                                     <form action="{{ route('admin.cover-images.destroy', $coverImage->id) }}" method="POST">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" class="btn btn-danger">Yes, Delete</button>
+                                        <button type="submit" class="btn btn-danger">Delete</button>
                                     </form>
                                 </div>
                             </div>
@@ -176,13 +231,15 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    <div class="mb-3">
-                        <label class="form-label">Title (EN)</label>
-                        <input type="text" name="title_en" class="form-control" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Title (NE)</label>
-                        <input type="text" name="title_ne" class="form-control" required>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Title (EN)</label>
+                            <input type="text" name="title_en" class="form-control" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Title (NE)</label>
+                            <input type="text" name="title_ne" class="form-control" required>
+                        </div>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Image</label>

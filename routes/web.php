@@ -136,12 +136,16 @@ Route::prefix('/admin')->name('admin.')->middleware(['web', 'auth'])->group(func
     Route::get('site-settings', [SiteSettingController::class, 'index'])->name('site-settings.index');
     Route::get('site-settings/edit/{id}', [SiteSettingController::class, 'edit'])->name('site-settings.edit');
     Route::put('site-settings/update/{id}', [SiteSettingController::class, 'update'])->name('site-settings.update');
+    Route::patch('/site-settings/{id}/toggle-status', [SiteSettingController::class, 'toggleStatus'])->name('site-settings.toggle-status');
+    
     
     Route::get('socialmedia', [SocialMediaController::class, 'index'])->name('socialmedia.index');
     Route::get('socialmedia/edit/{id}', [SocialMediaController::class, 'edit'])->name('socialmedia.edit');
     Route::put('socialmedia/update/{id}', [SocialMediaController::class, 'update'])->name('socialmedia.update');
     
     Route::resource('cover-images', CoverImageController::class);
+    Route::patch('cover-images/{coverImage}/toggle-status', [CoverImageController::class, 'toggleStatus'])
+    ->name('cover-images.toggle-status');
 
     // About us
     Route::resource('about-us', AboutController::class);
@@ -202,12 +206,15 @@ Route::prefix('/admin')->name('admin.')->middleware(['web', 'auth'])->group(func
     Route::post('/member_types', [MemberTypeController::class, 'store'])->name('member_types.store');
     Route::put('/member_types/{id}', [MemberTypeController::class, 'update'])->name('member_types.update');
     Route::delete('/member_types/{id}', [MemberTypeController::class, 'destroy'])->name('member_types.destroy');
+    Route::patch('/{memberType}/toggle-status', [MemberTypeController::class, 'toggleStatus'])->name('member_types.toggle-status');
 
     // Contact
     Route::resource('contacts', ContactController::class);
 
     // Favicon controller
     Route::resource('favicons', FaviconController::class);
+    Route::patch('favicons/{favicon}/toggle-status', [FaviconController::class, 'toggleStatus'])
+        ->name('favicons.toggle-status');
 
 
     // Teams types

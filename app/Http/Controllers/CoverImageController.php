@@ -125,6 +125,15 @@ class CoverImageController extends Controller
                 ->withInput();
         }
     }
+
+    public function toggleStatus(CoverImage $coverImage)
+{
+    $coverImage->is_active = !$coverImage->is_active;
+    $coverImage->save();
+    
+    return redirect()->back()->with('success', 'Status updated successfully');
+}
+
     public function destroy($id)
     {
         $coverImage = CoverImage::findOrFail($id);

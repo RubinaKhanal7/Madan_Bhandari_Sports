@@ -1,10 +1,9 @@
 @extends('backend.layouts.master')
 
 @section('content')
-<div class="container mt-4">
-    <div class="card">
-        <div class="card-header d-flex justify-content-between align-items-center">
-            <h4>Posts</h4>
+<ddiv class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+            <h5>Posts</h5>
             <button type="button" 
             class="btn btn-outline-primary btn-sm" 
             data-bs-toggle="modal" 
@@ -20,19 +19,38 @@
                 <button class="btn-close" type="button" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
             @endif
+    
+            @if(session('error'))
+            <div class="alert alert-danger border-2 d-flex align-items-center" role="alert">
+                <div class="bg-danger me-3 icon-item"><span class="fas fa-exclamation-circle text-white fs-3"></span></div>
+                <p class="mb-0 flex-1">{{ session('error') }}</p>
+                <button class="btn-close" type="button" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            @endif
+    
             @if($errors->any())
-                <div class="alert alert-danger">
-                    <ul>
-                        @foreach($errors->all() as $error)
-                            <li>{{ $error }}</li>
-                        @endforeach
-                    </ul>
+                <div class="alert alert-danger border-2" role="alert">
+                    <div class="d-flex">
+                        <div class="bg-danger me-3 icon-item">
+                            <span class="fas fa-exclamation-circle text-white fs-3"></span>
+                        </div>
+                        <div class="flex-1">
+                            <ul class="mb-0">
+                                @foreach($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                        <button class="btn-close" type="button" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
                 </div>
             @endif
-
-            <table class="table table-bordered">
-                <thead>
-                    <tr>
+    
+    
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
                         <th>SN</th>
                         <th>Title (NE)</th>
                         <th>Title (EN)</th>
@@ -61,7 +79,7 @@
                             <button class="btn {{ $post->is_featured ? 'btn-success' : 'btn-danger' }} btn-sm" 
                                     data-bs-toggle="modal" 
                                     data-bs-target="#featuredModal{{ $post->id }}">
-                                {{ $post->is_featured ? 'Featured' : 'Not Featured' }}
+                                {{ $post->is_featured ? 'Featured' : 'Unfeatured' }}
                             </button>
                         </td>
                         <td>
@@ -72,15 +90,15 @@
                             </button>
                         </td>
                             <td>
-                                <button class="btn btn-outline-primary btn-sm" 
+                                <button class="btn btn-outline-info btn-sm" 
                                         data-bs-toggle="modal" 
                                         data-bs-target="#metadataModal{{ $post->id }}" 
-                                        style="width: 32px; text-align: center; font-size: 15px;">
+                                        style="width: 33px; text-align: center; font-size: 15px;">
                                     <span>M</span>
                                 </button>
 
                                 <!-- Edit Button -->
-                                <button class="btn btn-outline-info btn-sm" data-bs-toggle="modal" data-bs-target="#editModal{{ $post->id }}">
+                                <button class="btn btn-outline-primary btn-sm edit-btn" data-bs-toggle="modal" data-bs-target="#editModal{{ $post->id }}" style="width: 33px; text-align: center; font-size: 15px;">
                                     <i class="fas fa-edit"></i>
                                 </button>
 
@@ -88,13 +106,13 @@
 
                                 <button class="btn btn-outline-success btn-sm" 
                                     data-bs-toggle="modal" 
-                                    data-bs-target="#addImagesModal{{ $post->id }}"
-                                    title="Add More Images">
+                                    data-bs-target="#addImagesModal{{ $post->id }}
+                                     style="width: 33px; text-align: center; font-size: 15px;>
                                 <i class="fas fa-images"></i>
                             </button>
 
                                 <!-- Delete Button -->
-                                <button class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteModal{{ $post->id }}">
+                                <button class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteModal{{ $post->id }}"  style="width: 30px; text-align: center; font-size: 15px;">
                                     <i class="fas fa-trash"></i>
                                 </button>
                             </td>
@@ -202,7 +220,7 @@
                                         </div>
                                         <div class="modal-footer">
                                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                            <button type="submit" class="btn btn-primary">Upload Images</button>
+                                            <button type="submit" class="btn btn-primary">Upload </button>
                                         </div>
                                     </div>
                                 </form>
@@ -210,7 +228,8 @@
                         </div>
                                                 <!-- Edit Modal -->
                         <div class="modal fade" id="editModal{{ $post->id }}" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
-                            <div class="modal-dialog">
+                            <div class="modal-dialog modal-lg">
+                                <div class="modal-content">
                                 <form method="POST" action="{{ route('admin.posts.update', $post->id) }}" enctype="multipart/form-data">
                                     @csrf
                                     @method('PUT')
@@ -320,12 +339,13 @@
                                         </div>
                                         <div class="modal-footer">
                                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                            <button type="submit" class="btn btn-primary">Update Post</button>
+                                            <button type="submit" class="btn btn-success">Update</button>
                                         </div>
                                     </div>
                                 </form>
                             </div>
                         </div>
+                    </div>
                         
 
                         <!-- Delete Modal -->
@@ -353,7 +373,8 @@
 
                          <!-- Metadata Modal -->
                          <div class="modal fade" id="metadataModal{{ $post->id }}" tabindex="-1">
-                            <div class="modal-dialog">
+                            <div class="modal-dialog modal-lg">
+                                <div class="modal-content">
                                 <form method="POST" 
                                     action="{{ $post->metadata ? route('admin.posts.metadata.update', $post->id) : route('admin.posts.metadata.store', $post->id) }}">
                                     @csrf
@@ -389,6 +410,7 @@
                                 </form>
                             </div>
                         </div>
+                    </div>
 
                     @endforeach
                 </tbody>
@@ -423,7 +445,8 @@
 
 <!-- Create Modal -->
 <div class="modal fade" id="createModal" tabindex="-1" aria-labelledby="createModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-lg">
+         <div class="modal-content">
         <form method="POST" action="{{ route('admin.posts.store') }}" enctype="multipart/form-data">
             @csrf
             <div class="modal-content">
@@ -507,13 +530,13 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="submit" class="btn btn-primary">Create Post</button>
+                    <button type="submit" class="btn btn-primary">Save</button>
                 </div>
             </div>
         </form>
     </div>
 </div>
-
+</div>
 
 <script>
     let croppers = {};

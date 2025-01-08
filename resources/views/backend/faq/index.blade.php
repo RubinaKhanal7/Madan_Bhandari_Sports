@@ -1,33 +1,47 @@
 @extends('backend.layouts.master')
-
 @section('content')
-<div class="container mt-5">
-    <div class="card">
-        <div class="card-header d-flex justify-content-between align-items-center">
-            <h3>FAQ Management</h3>
-            <button type="button" class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#createFaqModal">
-                + Add New
-            </button>
-        </div>
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="card-title mb-0">FAQ Management</h5>
+        <button class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#createCoverImageModal">
+            + Add New
+        </button>
+    </div>
         <div class="card-body">
             @if(session('success'))
-                <div class="alert alert-success d-flex align-items-center" role="alert">
-                    <div class="bg-success me-3 icon-item">
-                        <span class="fas fa-check-circle text-white fs-3"></span>
-                    </div>
-                    <p class="mb-0 flex-1">{{ session('success') }}</p>
-                    <button class="btn-close" type="button" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
+            <div class="alert alert-success border-2 d-flex align-items-center" role="alert">
+                <div class="bg-success me-3 icon-item"><span class="fas fa-check-circle text-white fs-3"></span></div>
+                <p class="mb-0 flex-1">{{ session('success') }}</p>
+                <button class="btn-close" type="button" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
             @endif
+    
+            @if(session('error'))
+            <div class="alert alert-danger border-2 d-flex align-items-center" role="alert">
+                <div class="bg-danger me-3 icon-item"><span class="fas fa-exclamation-circle text-white fs-3"></span></div>
+                <p class="mb-0 flex-1">{{ session('error') }}</p>
+                <button class="btn-close" type="button" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            @endif
+    
             @if($errors->any())
-                <div class="alert alert-danger">
-                    <ul>
-                        @foreach($errors->all() as $error)
-                            <li>{{ $error }}</li>
-                        @endforeach
-                    </ul>
+                <div class="alert alert-danger border-2" role="alert">
+                    <div class="d-flex">
+                        <div class="bg-danger me-3 icon-item">
+                            <span class="fas fa-exclamation-circle text-white fs-3"></span>
+                        </div>
+                        <div class="flex-1">
+                            <ul class="mb-0">
+                                @foreach($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                        <button class="btn-close" type="button" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
                 </div>
             @endif
+    
 
             <div class="accordion" id="faqAccordion">
                 @foreach($faqs as $key => $faq)
@@ -50,7 +64,7 @@
                                         data-bs-target="#changeStatusModal{{ $faq->id }}">
                                         {{ $faq->is_active ? 'Active' : 'Inactive' }}
                                     </button>
-                                    <button class="btn btn-outline-info btn-sm" data-bs-toggle="modal" data-bs-target="#editFaqModal{{ $faq->id }}">
+                                    <button class="btn btn-outline-primary btn-sm edit-btn" data-bs-toggle="modal" data-bs-target="#editFaqModal{{ $faq->id }}">
                                         <i class="fas fa-edit"></i>
                                     </button>
                                     <button class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteFaqModal{{ $faq->id }}">
@@ -116,11 +130,8 @@
                                         <textarea name="answer" class="form-control" required>{{ $faq->answer }}</textarea>
                                     </div>
                                     <div class="mb-3">
-                                        <label for="is_active" class="form-label">Status</label>
-                                        <select name="is_active" class="form-select" required>
-                                            <option value="1" {{ $faq->is_active ? 'selected' : '' }}>Active</option>
-                                            <option value="0" {{ !$faq->is_active ? 'selected' : '' }}>Inactive</option>
-                                        </select>
+                                        <label class="form-label">Is Active?</label>
+                                        <input type="checkbox" name="is_active" checked value="1">
                                     </div>
                                 </div>
                                 <div class="modal-footer">
@@ -180,16 +191,13 @@
                         <textarea name="answer" class="form-control" required></textarea>
                     </div>
                     <div class="mb-3">
-                        <label for="is_active" class="form-label">Status</label>
-                        <select name="is_active" class="form-select" required>
-                            <option value="1">Active</option>
-                            <option value="0">Inactive</option>
-                        </select>
+                        <label class="form-label">Is Active?</label>
+                        <input type="checkbox" name="is_active" checked value="1">
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Create</button>
+                    <button type="submit" class="btn btn-primary">Save</button>
                 </div>
             </form>
         </div>
