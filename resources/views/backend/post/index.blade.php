@@ -104,11 +104,18 @@
 
                                  <!-- Other images Button -->
 
-                                <button class="btn btn-outline-success btn-sm" 
-                                    data-bs-toggle="modal" 
-                                    data-bs-target="#addImagesModal{{ $post->id }}
-                                     style="width: 33px; text-align: center; font-size: 15px;>
-                                <i class="fas fa-images"></i>
+                                 <button class="btn btn-outline-success btn-sm" 
+                                 data-bs-toggle="modal" 
+                                 data-bs-target="#addImagesModal{{ $post->id }}"
+                                 style="width: 33px; text-align: center; font-size: 15px;">
+                                 <i class="fas fa-images"></i>
+                             </button>
+
+                            <button class="btn btn-outline-info btn-sm" 
+                                        data-bs-toggle="modal" 
+                                        data-bs-target="#showModal{{ $post->id }}"
+                                        style="width: 33px; text-align: center; font-size: 15px;">
+                                    <i class="fas fa-eye"></i>
                             </button>
 
                                 <!-- Delete Button -->
@@ -226,7 +233,145 @@
                                 </form>
                             </div>
                         </div>
-                                                <!-- Edit Modal -->
+                        <!-- Show Modal -->
+                        <div class="modal fade" id="showModal{{ $post->id }}" tabindex="-1">
+                            <div class="modal-dialog modal-lg">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">Post Details</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <div class="row">
+                                            <!-- English Content -->
+                                            <div class="col-md-6">
+                                                <h6 class="fw-bold">English Content</h6>
+                                                <hr>
+                                                <div class="mb-3">
+                                                    <label class="fw-bold">Title:</label>
+                                                    <p>{{ $post->title_en }}</p>
+                                                </div>
+                                                @if($post->description_en)
+                                                <div class="mb-3">
+                                                    <label class="fw-bold">Description:</label>
+                                                    <p>{{ $post->description_en }}</p>
+                                                </div>
+                                                @endif
+                                            </div>
+
+                                            <!-- Nepali Content -->
+                                            <div class="col-md-6">
+                                                <h6 class="fw-bold">Nepali Content</h6>
+                                                <hr>
+                                                <div class="mb-3">
+                                                    <label class="fw-bold">Title:</label>
+                                                    <p>{{ $post->title_ne }}</p>
+                                                </div>
+                                                @if($post->description_ne)
+                                                <div class="mb-3">
+                                                    <label class="fw-bold">Description:</label>
+                                                    <p>{{ $post->description_ne }}</p>
+                                                </div>
+                                                @endif
+                                            </div>
+                                        </div>
+
+                                        <!-- Category -->
+                                        <div class="mb-3">
+                                            <label class="fw-bold">Category:</label>
+                                            <p>{{ $post->category->title_en }} ({{ $post->category->title_ne }})</p>
+                                        </div>
+
+                                        <!-- Featured Image -->
+                                        <div class="mb-3">
+                                            <label class="fw-bold">Featured Image:</label>
+                                            <div>
+                                                @if($post->image)
+                                                    <img src="{{ asset($post->image) }}" alt="Featured Image" class="img-fluid" style="max-width: 300px;">
+                                                @else
+                                                    <p class="text-muted">No featured image</p>
+                                                @endif
+                                            </div>
+                                        </div>
+
+                                        <!-- Other Images -->
+                                        @if($post->other_images && count($post->other_images) > 0)
+                                        <div class="mb-3">
+                                            <label class="fw-bold">Other Images:</label>
+                                            <div class="row">
+                                                @foreach($post->other_images as $image)
+                                                    <div class="col-md-4 mb-2">
+                                                        <img src="{{ asset($image) }}" alt="Additional Image" class="img-fluid">
+                                                    </div>
+                                                @endforeach
+                                            </div>
+                                        </div>
+                                        @endif
+
+                                        <!-- PDF Files -->
+                                        @if($post->pdf && count($post->pdf) > 0)
+                                        <div class="mb-3">
+                                            <label class="fw-bold">PDF Files:</label>
+                                            <ul class="list-unstyled">
+                                                @foreach($post->pdf as $pdf)
+                                                    <li>
+                                                        <a href="{{ asset($pdf) }}" target="_blank">
+                                                            <i class="fas fa-file-pdf"></i> {{ basename($pdf) }}
+                                                        </a>
+                                                    </li>
+                                                @endforeach
+                                            </ul>
+                                        </div>
+                                        @endif
+
+                                        <!-- Metadata -->
+                                        @if($post->metadata)
+                                        <div class="mb-3">
+                                            <h6 class="fw-bold">Metadata</h6>
+                                            <hr>
+                                            <div class="mb-2">
+                                                <label class="fw-bold">Meta Title:</label>
+                                                <p>{{ $post->metadata->metaTitle }}</p>
+                                            </div>
+                                            <div class="mb-2">
+                                                <label class="fw-bold">Meta Description:</label>
+                                                <p>{{ $post->metadata->metaDescription }}</p>
+                                            </div>
+                                            <div class="mb-2">
+                                                <label class="fw-bold">Meta Keywords:</label>
+                                                <p>{{ $post->metadata->metaKeywords }}</p>
+                                            </div>
+                                        </div>
+                                        @endif
+
+                                        <!-- Status Information -->
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="mb-2">
+                                                    <label class="fw-bold">Status:</label>
+                                                    <span class="badge bg-{{ $post->is_active ? 'success' : 'danger' }}">
+                                                        {{ $post->is_active ? 'Active' : 'Inactive' }}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="mb-2">
+                                                    <label class="fw-bold">Featured Status:</label>
+                                                    <span class="badge bg-{{ $post->is_featured ? 'success' : 'danger' }}">
+                                                        {{ $post->is_featured ? 'Featured' : 'Not Featured' }}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Edit Modal -->
                         <div class="modal fade" id="editModal{{ $post->id }}" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
                             <div class="modal-dialog modal-lg">
                                 <div class="modal-content">
@@ -305,11 +450,6 @@
                         
                                             <input type="hidden" name="cropped_image" id="croppedImage{{ $post->id }}" value="">
                         
-                                            <!-- Add Save Cropped Image button before the form submit button -->
-                                            <button type="button" class="btn btn-primary" onclick="saveCroppedImageEdit({{ $post->id }})">
-                                                Save Cropped Image
-                                            </button>
-                        
                                            <!-- PDF Upload -->
                                             <div class="mb-3">
                                                 <label for="pdf" class="form-label">PDF (Optional)</label>
@@ -339,6 +479,9 @@
                                         </div>
                                         <div class="modal-footer">
                                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                            <button type="button" class="btn btn-primary" onclick="saveCroppedImageEdit({{ $post->id }})">
+                                                Save Cropped Image
+                                            </button>
                                             <button type="submit" class="btn btn-success">Update</button>
                                         </div>
                                     </div>
@@ -509,10 +652,7 @@
                     
                     <input type="hidden" name="cropped_image" id="croppedImage" value="">
                     
-                    <!-- Add Save Cropped Image button before the form submit button -->
-                    <button type="button" class="btn btn-primary" onclick="saveCroppedImage()">
-                        Save Cropped Image
-                    </button>
+                   
                     <div class="mb-3">
                         <label for="pdf" class="form-label">PDF (Optional)</label>
                         <input type="file" id="pdf" name="pdf[]" class="form-control" multiple>
@@ -530,6 +670,9 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                     <button type="button" class="btn btn-primary" onclick="saveCroppedImage()">
+                        Save Cropped Image
+                    </button>
                     <button type="submit" class="btn btn-primary">Save</button>
                 </div>
             </div>
