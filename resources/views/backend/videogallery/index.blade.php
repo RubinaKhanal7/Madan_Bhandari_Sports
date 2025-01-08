@@ -261,14 +261,17 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    <div class="form-group mb-3">
-                        <label for="title_en">Title (English)</label>
-                        <input type="text" name="title_en" class="form-control" value="{{ old('title_en') }}" required>
+                    <div class="form-group mb-3 d-flex">
+                        <div class="me-3">
+                            <label for="title_en">Title (English)</label>
+                            <input type="text" name="title_en" class="form-control" value="{{ old('title_en') }}" required style="width: 250px;">
+                        </div>
+                        <div>
+                            <label for="title_ne">Title (Nepali)</label>
+                            <input type="text" name="title_ne" class="form-control" value="{{ old('title_ne') }}" required style="width: 250px;">
+                        </div>
                     </div>
-                    <div class="form-group mb-3">
-                        <label for="title_ne">Title (Nepali)</label>
-                        <input type="text" name="title_ne" class="form-control" value="{{ old('title_ne') }}" required>
-                    </div>
+                    
                     <div class="form-group mb-3">
                         <label for="url">Video URL</label>
                         <input type="url" name="url" class="form-control" value="{{ old('url') }}" required>
