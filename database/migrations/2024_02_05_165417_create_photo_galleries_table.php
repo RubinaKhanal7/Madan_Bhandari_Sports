@@ -14,15 +14,18 @@ return new class extends Migration {
     {
         Schema::create('photo_galleries', function (Blueprint $table) {
             $table->id();
-            $table->string('title_ne'); 
-            $table->string('title_en'); 
-            $table->json('images'); 
-            $table->text('description_ne')->nullable(); 
-            $table->text('description_en')->nullable(); 
-            $table->boolean('is_featured')->default(false)->nullable(); 
-            $table->boolean('is_active')->default(true)->nullable(); 
+            $table->string('title_ne');
+            $table->string('title_en');
+            $table->text('description_ne')->nullable();
+            $table->text('description_en')->nullable();
+            $table->json('images')->nullable();
+            $table->boolean('is_featured')->default(false);
+            $table->boolean('is_active')->default(true);
+            $table->unsignedBigInteger('meta_data_id')->nullable();
+            $table->foreign('meta_data_id')->references('id') ->on('meta_data')->onDelete('set null');
             $table->timestamps();
         });
+            
     }
 
     /**

@@ -170,6 +170,10 @@ Route::prefix('/admin')->name('admin.')->middleware(['web', 'auth'])->group(func
 
     // Photo galleries
     Route::resource('photo-galleries', PhotoGalleryController::class);
+    Route::post('photo-gallery/{id}/update-status', [PhotoGalleryController::class, 'updateStatus'])->name('photo-gallery.update-status');
+    Route::post('photo-gallery/{id}/update-featured', [PhotoGalleryController::class, 'updateFeatured'])->name('photo-gallery.update-featured');
+    Route::post('photo-galleries/{id}/metadata', [PhotoGalleryController::class, 'storeMetadata'])->name('photo-galleries.metadata.store');
+
 
     // Video galleries
     Route::resource('video-galleries', VideoGalleryController::class);

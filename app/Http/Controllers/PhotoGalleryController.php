@@ -2,130 +2,216 @@
 
 namespace App\Http\Controllers;
 
-use Exception;
 use App\Models\PhotoGallery;
+use App\Models\Metadata;
+use App\Services\ImageCompressionService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\File;
+use Exception;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\DB;
 
 class PhotoGalleryController extends Controller
 {
-    public function index()
+    protected $imageService;
+
+    public function __construct(ImageCompressionService $imageService)
     {
-        // Fetch paginated galleries
-        $photoGalleries = PhotoGallery::paginate(5); 
-        return view('backend.photogallery.index', [
-            'photoGalleries' => $photoGalleries,
-            'page_title' => 'Photo Gallery'
-        ]);
+        $this->imageService = $imageService;
     }
 
-    public function create()
+    public function index()
     {
-        return view('backend.photogallery.create', ['page_title' => 'Create Photo Gallery']);
+        $galleries = PhotoGallery::latest()->paginate(10);
+        return view('backend.photogallery.index', compact('galleries'));
     }
 
     public function store(Request $request)
     {
-        $this->validate($request, [
-            'title_en' => 'required|string',
-            'title_ne' => 'required|string',
-            'description_en' => 'nullable|string',
+        $request->validate([
+            'title_ne' => 'required|string|max:255',
+            'title_en' => 'required|string|max:255',
             'description_ne' => 'nullable|string',
-            'images' => 'required|array',
-            'images.*' => 'required|image|mimes:jpeg,png,jpg,gif,avif,webp|max:2048',
-            'is_active' => 'required|boolean',
+            'description_en' => 'nullable|string',
+            'images.*' => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:10240',
             'is_featured' => 'nullable|boolean',
+            'is_active' => 'nullable|boolean',
         ]);
 
         try {
-            $convertedImages = [];
-            foreach ($request->file('images') as $image) {
-                $imageName = time() . '_' . uniqid() . '.' . $image->getClientOriginalExtension();
-                $image->move(public_path('uploads/photogallery/'), $imageName);
-                $convertedImages[] = 'uploads/photogallery/' . $imageName;
+            $imagePaths = [];
+            
+            if ($request->hasFile('images')) {
+                foreach ($request->file('images') as $image) {
+                    $imagePath = $this->imageService->compressAndStore(
+                        $image,
+                        [
+                            'quality' => 60,
+                            'maxWidth' => 1024,
+                            'subfolder' => 'photo-gallery/'
+                        ]
+                    );
+                    $imagePaths[] = $imagePath;
+                }
             }
 
-            PhotoGallery::create([
-                'title_en' => $request->title_en,
+            
+            $gallery = PhotoGallery::create([
                 'title_ne' => $request->title_ne,
-                'description_en' => $request->description_en,
+                'title_en' => $request->title_en,
                 'description_ne' => $request->description_ne,
-                'images' => json_encode($convertedImages), // Store as JSON string
-                'is_active' => $request->is_active,
-                'is_featured' => $request->is_featured,
+                'description_en' => $request->description_en,
+                'images' => $imagePaths,
+                'is_featured' => (bool) $request->is_featured,
+                'is_active' => (bool) $request->is_active,
             ]);
 
             return redirect()->route('admin.photo-galleries.index')
-                ->with('success', 'Gallery created successfully.');
-        } catch (Exception $e) {
-            return redirect()->back()->with('error', 'Error! ' . $e->getMessage());
-        }
-    }
+                ->with('success', 'Photo Gallery created successfully!');
 
-    public function edit($id)
-    {
-        $gallery = PhotoGallery::find($id);
-        return view('backend.photogallery.update', [
-            'gallery' => $gallery,
-            'page_title' => 'Update Photo Gallery'
-        ]);
+        } catch (Exception $e) {
+            return redirect()->back()
+                ->withErrors(['error' => $e->getMessage()])
+                ->withInput();
+        }
     }
 
     public function update(Request $request, $id)
     {
-        $this->validate($request, [
-            'title_en' => 'required|string',
-            'title_ne' => 'required|string',
-            'description_en' => 'nullable|string',
+        $gallery = PhotoGallery::findOrFail($id);
+
+        $request->validate([
+            'title_ne' => 'required|string|max:255',
+            'title_en' => 'required|string|max:255',
             'description_ne' => 'nullable|string',
-            'images' => 'nullable|array',
-            'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,avif,webp|max:2048',
-            'is_active' => 'nullable|boolean',
+            'description_en' => 'nullable|string',
+            'new_images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:10240',
+            'existing_images' => 'nullable|array',
             'is_featured' => 'nullable|boolean',
+            'is_active' => 'nullable|boolean',
         ]);
 
         try {
-            $gallery = PhotoGallery::findOrFail($id);
-
-            $gallery->title_en = $request->title_en;
-            $gallery->title_ne = $request->title_ne;
-            $gallery->description_en = $request->description_en;
-            $gallery->description_ne = $request->description_ne;
-            $gallery->is_active = $request->is_active;
-            $gallery->is_featured = $request->is_featured;
-
-            if ($request->hasFile('images')) {
-                $convertedImages = [];
-                foreach ($request->file('images') as $image) {
-                    $imageName = time() . '_' . uniqid() . '.' . $image->getClientOriginalExtension();
-                    $image->move(public_path('uploads/photogallery/'), $imageName);
-                    $convertedImages[] = 'uploads/photogallery/' . $imageName;
+            $imagePaths = [];
+            
+            // Handle existing images
+            if ($request->has('existing_images')) {
+                $imagePaths = $request->existing_images;
+                
+                // Delete removed images
+                $removedImages = array_diff($gallery->images ?? [], $request->existing_images);
+                foreach ($removedImages as $image) {
+                    $this->imageService->deleteImage($image);
                 }
-                $gallery->images = json_encode($convertedImages); // Store as JSON string
             }
 
-            $gallery->save();
+            // Handle new images
+            if ($request->hasFile('new_images')) {
+                foreach ($request->file('new_images') as $image) {
+                    $imagePath = $this->imageService->compressAndStore(
+                        $image,
+                        [
+                            'quality' => 60,
+                            'maxWidth' => 1024,
+                            'subfolder' => 'photo-gallery/'
+                        ]
+                    );
+                    $imagePaths[] = $imagePath;
+                }
+            }
+
+            $gallery->update([
+                'title_ne' => $request->title_ne,
+                'title_en' => $request->title_en,
+                'description_ne' => $request->description_ne,
+                'description_en' => $request->description_en,
+                'images' => $imagePaths,
+                'is_featured' => (bool) $request->is_featured,
+                'is_active' => (bool) $request->is_active,
+            ]);
+
             return redirect()->route('admin.photo-galleries.index')
-                ->with('success', 'Gallery updated successfully.');
+                ->with('success', 'Photo Gallery updated successfully!');
+
         } catch (Exception $e) {
             return redirect()->back()
-                ->with('error', 'Error updating gallery. ' . $e->getMessage());
+                ->withErrors(['error' => $e->getMessage()])
+                ->withInput();
         }
     }
 
     public function destroy($id)
     {
-        $gallery = PhotoGallery::find($id);
-        if ($gallery) {
-            foreach (json_decode($gallery->images, true) as $image) {
-                File::delete(public_path($image));
+        try {
+            $gallery = PhotoGallery::findOrFail($id);
+            
+            // Delete all associated images
+            if (!empty($gallery->images)) {
+                foreach ($gallery->images as $image) {
+                    $this->imageService->deleteImage($image);
+                }
             }
+            
             $gallery->delete();
+            
             return redirect()->route('admin.photo-galleries.index')
-                ->with('success', 'Gallery deleted successfully.');
-        } else {
-            return redirect()->route('admin.photo-galleries.index')
-                ->with('error', 'Gallery not found.');
+                ->with('success', 'Photo Gallery deleted successfully!');
+        } catch (Exception $e) {
+            return redirect()->back()->withErrors(['error' => $e->getMessage()]);
         }
     }
+
+    public function updateStatus($id)
+    {
+        $gallery = PhotoGallery::findOrFail($id);
+        $gallery->is_active = !$gallery->is_active;
+        $gallery->save();
+
+        return redirect()->route('admin.photo-galleries.index')
+            ->with('success', 'Status updated successfully.');
+    }
+
+    public function updateFeatured($id)
+{
+    try {
+        $gallery = PhotoGallery::findOrFail($id);
+        $gallery->is_featured = !$gallery->is_featured;
+        $gallery->save();
+
+        return redirect()->route('admin.photo-gallery.index')
+            ->with('success', 'Featured status updated successfully.');
+    } catch (Exception $e) {
+        return redirect()->back()->withErrors(['error' => $e->getMessage()]);
+    }
+}
+
+public function storeMetadata(Request $request, $id)
+{
+    $gallery = PhotoGallery::findOrFail($id);
+    $request->validate([
+        'metaTitle' => 'required|string|max:255',
+        'metaDescription' => 'nullable|string',
+        'metaKeywords' => 'nullable|string',
+    ]);
+
+    $metadata = $gallery->metaData;
+
+    if (!$metadata) {
+        $metadata = Metadata::create([
+            'metaTitle' => $request->metaTitle,
+            'metaDescription' => $request->metaDescription,
+            'metaKeywords' => $request->metaKeywords,
+            'slug' => Str::slug($request->metaTitle),
+        ]);
+        $gallery->meta_data_id = $metadata->id;
+        $gallery->save();
+    } else {
+        $metadata->update([
+            'metaTitle' => $request->metaTitle,
+            'metaDescription' => $request->metaDescription,
+            'metaKeywords' => $request->metaKeywords,
+        ]);
+    }
+    return redirect()->route('admin.photo-galleries.index')->with('success', 'Metadata saved successfully!');
+}
+
 }

@@ -108,7 +108,7 @@ class CategoryController extends Controller
                 [
                     'quality' => 60,
                     'maxWidth' => 1024,
-                    'subfolder' => 'categories/' . date('Y/m')
+                    'subfolder' => 'categories/'
                 ]
             );
         }

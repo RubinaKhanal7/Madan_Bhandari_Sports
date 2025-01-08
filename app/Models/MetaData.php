@@ -25,5 +25,10 @@ class MetaData extends Model
     {
         return $this->hasOne(Post::class);
     }
+
+    public function photoGallery()
+    {
+        return $this->hasOne(PhotoGallery::class);
+    }
 }
 
