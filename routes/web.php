@@ -33,6 +33,7 @@ use App\Http\Controllers\ProvinceController;
 use App\Http\Controllers\DistrictController;
 use App\Http\Controllers\LocalGovernmentController;
 use App\Http\Controllers\MouController;
+use App\Http\Controllers\LanguageController;
 
 /*
 |--------------------------------------------------------------------------
@@ -132,11 +133,14 @@ Route::prefix('/')->group(function () {
 Auth::routes();
 Route::post('/change-password', [ResetPasswordController::class, 'updatePassword'])->name('changePassword')->middleware('auth');
 
+//Language Switcher Route
+
+Route::get('lang/{lang}', [LanguageController::class, 'switchLang'])->name('lang.switch');
+
 // Backend routes with prefix and middleware
 Route::prefix('/admin')->name('admin.')->middleware(['web', 'auth'])->group(function () {
     Route::get('/', [AdminController::class, 'index'])->name('index');
 
-    
     Route::get('site-settings', [SiteSettingController::class, 'index'])->name('site-settings.index');
     Route::get('site-settings/edit/{id}', [SiteSettingController::class, 'edit'])->name('site-settings.edit');
     Route::put('site-settings/update/{id}', [SiteSettingController::class, 'update'])->name('site-settings.update');
