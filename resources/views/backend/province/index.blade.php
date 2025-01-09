@@ -4,7 +4,7 @@
 <div class="container mt-3">
     <div class="card">
         <div class="card-header d-flex justify-content-between align-items-center">
-            <h1>Provinces</h1>
+            <h5>Provinces</h5>
             <button type="button" 
                 class="btn btn-outline-primary btn-sm" 
                 data-bs-toggle="modal" 
