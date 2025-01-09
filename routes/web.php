@@ -185,6 +185,7 @@ Route::prefix('/admin')->name('admin.')->middleware(['web', 'auth'])->group(func
     ->name('video-galleries.toggle-featured');
     Route::patch('/video-galleries/{videoGallery}/toggle-status', [VideoGalleryController::class, 'toggleStatus'])
     ->name('video-galleries.toggle-status');
+    Route::post('video-galleries/{id}/metadata', [VideoGalleryController::class, 'storeMetadata'])->name('video-galleries.metadata.store');
 
     //Users
     Route::resource('users', UserManagementController::class);

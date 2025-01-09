@@ -85,6 +85,15 @@
                                     </button>
                                 </td>
                                 <td>
+
+                                      <!-- Metadata Button -->
+                                      <button class="btn btn-outline-primary btn-sm" 
+                                        data-bs-toggle="modal" 
+                                        data-bs-target="#metadataModal{{ $video->id }}" 
+                                        style="width: 32px; text-align: center; font-size: 15px;">
+                                    <span>M</span>
+                                    </button>
+
                                     <!-- Edit Button -->
                                     <button class="btn btn-outline-primary btn-sm" 
                                             data-bs-toggle="modal" 
@@ -93,13 +102,6 @@
                                         <i class="fas fa-edit"></i>
                                     </button>
                                     
-                                    {{-- <!-- Metadata Button -->
-                                    <button class="btn btn-outline-info btn-sm" 
-                                            data-bs-toggle="modal" 
-                                            data-bs-target="#metadataModal{{ $video->id }}"
-                                            style="width: 33px; text-align: center; font-size: 15px;">
-                                        <i class="fas fa-info"></i>
-                                    </button> --}}
                                     
                                     <!-- Delete Button -->
                                     <button class="btn btn-outline-danger btn-sm" 
@@ -137,6 +139,42 @@
                             </div>
                         </div>
 
+                        <!-- Metadata Modal -->
+
+                    <div class="modal fade" id="metadataModal{{ $video->id }}" tabindex="-1" aria-labelledby="metadataModalLabel{{ $video->id }}" aria-hidden="true">
+                     <div class="modal-dialog modal-lg">
+                        <div class="modal-content">
+                    <div class="modal-header">
+                <h5 class="modal-title" id="metadataModalLabel{{ $video->id }}">Edit Metadata</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="{{ route('admin.video-galleries.metadata.store', $video->id) }}" method="POST">
+                @csrf
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="metaTitle{{ $video->id }}" class="form-label">Meta Title</label>
+                        <input type="text" name="metaTitle" class="form-control" id="metaTitle{{ $video->id }}" 
+                            value="{{ optional($video->metaData)->metaTitle ?? $video->title_en }}">
+                    </div>
+                    <div class="mb-3">
+                        <label for="metaDescription{{ $video->id }}" class="form-label">Meta Description</label>
+                        <textarea name="metaDescription" class="form-control" id="metaDescription{{ $video->id }}">{{ optional($video->metaData)->metaDescription ?? $video->description_en }}</textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="metaKeywords{{ $video->id }}" class="form-label">Meta Keywords</label>
+                        <textarea name="metaKeywords" class="form-control" id="metaKeywords{{ $video->id }}">{{ optional($video->metaData)->metaKeywords }}</textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </div>
+            </form>
+            
+        </div>
+    </div>
+</div>
+
                         <!-- Active Status Modal -->
                         <div class="modal fade" id="statusModal{{ $video->id }}" tabindex="-1">
                             <div class="modal-dialog">
@@ -163,62 +201,84 @@
                             </div>
                         </div>
 
-                            <!-- Edit Video Modal -->
-                            <div class="modal fade" id="editVideoModal{{ $video->id }}" tabindex="-1">
-                                <div class="modal-dialog modal-lg">
-                                    <div class="modal-content">
-                                        <form action="{{ route('admin.video-galleries.update', $video->id) }}" method="POST">
-                                            @csrf
-                                            @method('PUT')
-                                            <div class="modal-header">
-                                                <h5 class="modal-title">Edit Video</h5>
-                                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                                            </div>
-                                            <div class="modal-body">
-                                                <div class="form-group mb-3">
-                                                    <label for="title_en">Title (English)</label>
-                                                    <input type="text" name="title_en" class="form-control" value="{{ $video->title_en }}" required>
-                                                </div>
-                                                <div class="form-group mb-3">
-                                                    <label for="title_ne">Title (Nepali)</label>
-                                                    <input type="text" name="title_ne" class="form-control" value="{{ $video->title_ne }}" required>
-                                                </div>
-                                                <div class="form-group mb-3">
-                                                    <label for="url">Video URL</label>
-                                                    <input type="url" name="url" class="form-control" value="{{ $video->url }}" required>
-                                                    <small class="form-text text-muted">
-                                                        Supports YouTube, Vimeo, and direct video URLs. For YouTube, you can use either the watch URL or embed URL.
-                                                    </small>
-                                                </div>
-                                                <div class="form-group mb-3">
-                                                    <label for="videos">Video File Path (Optional)</label>
-                                                    <input type="text" name="videos" class="form-control" value="{{ $video->videos }}">
-                                                </div>
-                                                <div class="form-group mb-3">
-                                                    <label for="description_en">Description (English)</label>
-                                                    <textarea name="description_en" class="form-control">{{ $video->description_en }}</textarea>
-                                                </div>
-                                                <div class="form-group mb-3">
-                                                    <label for="description_ne">Description (Nepali)</label>
-                                                    <textarea name="description_ne" class="form-control">{{ $video->description_ne }}</textarea>
-                                                </div>
-                                                <div class="form-check mb-3">
-                                                    <input type="checkbox" name="is_featured" class="form-check-input" id="is_featured{{ $video->id }}" {{ $video->is_featured ? 'checked' : '' }}>
-                                                    <label for="is_featured{{ $video->id }}" class="form-check-label">Featured</label>
-                                                </div>
-                                                <div class="form-check mb-3">
-                                                    <input type="checkbox" name="is_active" class="form-check-input" id="is_active{{ $video->id }}" {{ $video->is_active ? 'checked' : '' }}>
-                                                    <label for="is_active{{ $video->id }}" class="form-check-label">Active</label>
-                                                </div>
-                                            </div>
-                                            <div class="modal-footer">
-                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                                <button type="submit" class="btn btn-primary">Update</button>
-                                            </div>
-                                        </form>
-                                    </div>
-                                </div>
-                            </div>
+                           <!-- Edit Video Modal -->
+                           <div class="modal fade" id="editVideoModal{{ $video->id }}" tabindex="-1">
+                           <div class="modal-dialog modal-lg">
+                           <div class="modal-content">
+                           <form action="{{ route('admin.video-galleries.update', $video->id) }}" method="POST">
+                        @csrf
+                        @method('PUT')
+                        <div class="modal-header">
+                        <h5 class="modal-title">Edit Video</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <!-- Title English -->
+                        <div class="col-md-6 mb-3">
+                            <label for="title_en">Title (English)</label>
+                            <input type="text" name="title_en" class="form-control" value="{{ $video->title_en }}" required>
+                        </div>
+
+                        <!-- Title Nepali -->
+                        <div class="col-md-6 mb-3">
+                            <label for="title_ne">Title (Nepali)</label>
+                            <input type="text" name="title_ne" class="form-control" value="{{ $video->title_ne }}" required>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <!-- Description English -->
+                        <div class="col-md-6 mb-3">
+                            <label for="description_en">Description (English)</label>
+                            <textarea name="description_en" class="form-control" rows="3">{{ $video->description_en }}</textarea>
+                        </div>
+
+                        <!-- Description Nepali -->
+                        <div class="col-md-6 mb-3">
+                            <label for="description_ne">Description (Nepali)</label>
+                            <textarea name="description_ne" class="form-control" rows="3">{{ $video->description_ne }}</textarea>
+                        </div>
+                    </div>
+
+                    <!-- Video URL -->
+                    <div class="form-group mb-3">
+                        <label for="url">Video URL</label>
+                        <input type="url" name="url" class="form-control" value="{{ $video->url }}" required>
+                        <small class="form-text text-muted">
+                            Supports YouTube, Vimeo, and direct video URLs. For YouTube, you can use either the watch URL or embed URL.
+                        </small>
+                    </div>
+
+                    <!-- Video File Path -->
+                    <div class="form-group mb-3">
+                        <label for="videos">Video File Path (Optional)</label>
+                        <input type="text" name="videos" class="form-control" value="{{ $video->videos }}">
+                        <small class="form-text text-muted">
+                            If you have a direct video file path, you can enter it here.
+                        </small>
+                    </div>
+
+                    <!-- Featured Checkbox -->
+                    <div class="form-check mb-3">
+                        <input type="checkbox" name="is_featured" class="form-check-input" id="is_featured{{ $video->id }}" {{ $video->is_featured ? 'checked' : '' }}>
+                        <label for="is_featured{{ $video->id }}" class="form-check-label">Featured</label>
+                    </div>
+
+                    <!-- Active Checkbox -->
+                    <div class="form-check mb-3">
+                        <input type="checkbox" name="is_active" class="form-check-input" id="is_active{{ $video->id }}" {{ $video->is_active ? 'checked' : '' }}>
+                        <label for="is_active{{ $video->id }}" class="form-check-label">Active</label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-success">Update</button>
+                </div>
+            </form>
+                      </div>
+                   </div>
+                  </div>
 
                             <!-- Delete Video Modal -->
                             <div class="modal fade" id="deleteVideoModal{{ $video->id }}" tabindex="-1">
@@ -261,14 +321,28 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    <div class="form-group mb-3">
-                        <label for="title_en">Title (English)</label>
-                        <input type="text" name="title_en" class="form-control" value="{{ old('title_en') }}" required>
+                    <div class="form-group mb-3 row">
+                        <div class="col-md-6">
+                            <label for="title_en">Title (English)</label>
+                            <input type="text" name="title_en" class="form-control" value="{{ old('title_en') }}" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="title_ne">Title (Nepali)</label>
+                            <input type="text" name="title_ne" class="form-control" value="{{ old('title_ne') }}" required>
+                        </div>
                     </div>
-                    <div class="form-group mb-3">
-                        <label for="title_ne">Title (Nepali)</label>
-                        <input type="text" name="title_ne" class="form-control" value="{{ old('title_ne') }}" required>
+
+                    <div class="form-group mb-3 row">
+                        <div class="col-md-6">
+                            <label for="description_en">Description (English)</label>
+                            <textarea name="description_en" class="form-control" rows="3">{{ old('description_en') }}</textarea>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="description_ne">Description (Nepali)</label>
+                            <textarea name="description_ne" class="form-control" rows="3">{{ old('description_ne') }}</textarea>
+                        </div>
                     </div>
+
                     <div class="form-group mb-3">
                         <label for="url">Video URL</label>
                         <input type="url" name="url" class="form-control" value="{{ old('url') }}" required>
@@ -282,14 +356,6 @@
                         <small class="form-text text-muted">
                             If you have a direct video file path, you can enter it here.
                         </small>
-                    </div>
-                    <div class="form-group mb-3">
-                        <label for="description_en">Description (English)</label>
-                        <textarea name="description_en" class="form-control" rows="3">{{ old('description_en') }}</textarea>
-                    </div>
-                    <div class="form-group mb-3">
-                        <label for="description_ne">Description (Nepali)</label>
-                        <textarea name="description_ne" class="form-control" rows="3">{{ old('description_ne') }}</textarea>
                     </div>
                     <div class="form-check mb-3">
                         <input type="checkbox" name="is_featured" class="form-check-input" id="create_is_featured" {{ old('is_featured') ? 'checked' : '' }}>
