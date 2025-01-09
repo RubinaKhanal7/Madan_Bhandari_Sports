@@ -35,7 +35,7 @@
                                         d="M527.79 288H290.5l158.03 158.03c6.04 6.04 15.98 6.53 22.19.68 38.7-36.46 65.32-85.61 73.13-140.86 1.34-9.46-6.51-17.85-16.06-17.85zm-15.83-64.8C503.72 103.74 408.26 8.28 288.8.04 279.68-.59 272 7.1 272 16.24V240h223.77c9.14 0 16.82-7.68 16.19-16.8zM224 288V50.71c0-9.55-8.39-17.4-17.84-16.06C86.99 51.49-4.1 155.6.14 280.37 4.5 408.51 114.83 513.59 243.03 511.98c50.4-.63 96.97-16.87 135.26-44.03 7.9-5.6 8.42-17.23 1.57-24.08L224 288z">
                                     </path>
                                 </svg>
-                                <a href="#"><span class="nav-link-text ps-1">Dashboard</span></a>
+                                <a href="#"><span class="nav-link-text ps-1"> {{ trans('messages.dashboard') }}</span></a>
                             </span>
                         </div>
                     </a>
@@ -45,7 +45,7 @@
                 @hasanyrole('superadmin')
                 <li class="nav-item">
                     <div class="row navbar-vertical-label-wrapper mt-3 mb-2">
-                        <div class="col-auto navbar-vertical-label">User Management</div>
+                        <div class="col-auto navbar-vertical-label">{{ trans('messages.user_management') }}</div>
                         <div class="col ps-0">
                             <hr class="mb-0 navbar-vertical-divider">
                         </div>
@@ -55,7 +55,7 @@
                     <a class="nav-link" href="{{ route('admin.users.index') }}">
                         <div class="d-flex align-items-center">
                             <span class="nav-link-icon"><i class="fas fa-user"></i></span>
-                            <span class="nav-link-text ps-1">Users</span>
+                            <span class="nav-link-text ps-1">{{ trans('messages.users') }}</span>
                         </div>
                     </a>
                 </li>
@@ -65,7 +65,7 @@
                 @hasanyrole('superadmin')
                     <li class="nav-item">
                         <div class="row navbar-vertical-label-wrapper mt-3 mb-2">
-                            <div class="col-auto navbar-vertical-label">Site Settings</div>
+                            <div class="col-auto navbar-vertical-label">{{ trans('messages.site_settings') }}</div>
                             <div class="col ps-0">
                                 <hr class="mb-0 navbar-vertical-divider">
                             </div>
@@ -77,7 +77,7 @@
                             aria-controls="dashboard6">
                             <div class="d-flex align-items-center">
                                 <span class="nav-link-icon"><i class="fas fa-users"></i></span>
-                                <span class="nav-link-text ps-1">Site Settings</span>
+                                <span class="nav-link-text ps-1">{{ trans('messages.site_setting') }}</span>
                             </div>
                         </a>
                         <ul class="nav collapse {{ Request::segment(2) == 'site-settings' ? 'show' : '' }}" id="dashboard6">
@@ -86,7 +86,7 @@
                                     <a class="nav-link {{ Request::segment(2) == 'site-settings' ? 'active' : '' }}"
                                         href="{{ route('admin.site-settings.index') }}">
                                         <div class="d-flex align-items-center">
-                                            <i class="fa fa-angle-double-right"></i> Site Setting
+                                            <i class="fa fa-angle-double-right"></i> {{ trans('messages.site_setting') }}
                                         </div>
                                     </a>
                                 </li>
@@ -97,7 +97,7 @@
                                     <a class="nav-link {{ Request::segment(2) == 'favicons' ? 'active' : '' }}"
                                         href="{{ route('admin.favicons.index') }}">
                                         <div class="d-flex align-items-center">
-                                            <i class="fa fa-angle-double-right"></i> Favicon
+                                            <i class="fa fa-angle-double-right"></i> {{ trans('messages.favicon') }}
                                         </div>
                                     </a>
                                 </li>
@@ -115,7 +115,7 @@
                     <li class="nav-item">
                         <!-- Navbar vertical label -->
                         <div class="row navbar-vertical-label-wrapper mt-3 mb-2">
-                            <div class="col-auto navbar-vertical-label">Introduction</div>
+                            <div class="col-auto navbar-vertical-label">{{ trans('messages.introduction') }}</div>
                             <div class="col ps-0">
                                 <hr class="mb-0 navbar-vertical-divider">
                             </div>
@@ -128,7 +128,7 @@
                             aria-controls="dashboardIntro">
                             <div class="d-flex align-items-center">
                                 <span class="nav-link-icon"><i class="fas fa-users"></i></span>
-                                <span class="nav-link-text ps-1">Introduction</span>
+                                <span class="nav-link-text ps-1">{{ trans('messages.introduction') }}</span>
                             </div>
                         </a>
                         <!-- Collapse content -->
@@ -140,7 +140,7 @@
                                     href="{{ route('admin.about-us.index') }}">
                                     <div class="d-flex align-items-center">
                                         <i class="fa fa-angle-double-right"></i>
-                                        <span class="nav-link-text ps-1">About Us</span>
+                                        <span class="nav-link-text ps-1">{{ trans('messages.about_us') }}</span>
                                     </div>
                                 </a>
                             </li>
@@ -150,7 +150,7 @@
                                     href="{{ route('admin.cover-images.index') }}">
                                     <div class="d-flex align-items-center">
                                         <i class="fa fa-angle-double-right"></i>
-                                        <span class="nav-link-text ps-1">Cover Image</span>
+                                        <span class="nav-link-text ps-1">{{ trans('messages.cover_image') }}</span>
                                     </div>
                                 </a>
                             </li>
@@ -160,7 +160,7 @@
                                     href="{{ route('admin.faqs.index') }}">
                                     <div class="d-flex align-items-center">
                                         <i class="fa fa-angle-double-right"></i>
-                                        <span class="nav-link-text ps-1">FAQ</span>
+                                        <span class="nav-link-text ps-1">{{ trans('messages.faq') }}</span>
                                     </div>
                                 </a>
                             </li>
@@ -170,22 +170,13 @@
                 @endhasanyrole
                 {{-- End of Introduction --}}
 
-
-
-
-
-
-
-
-
-
                 {{-- Beginning of Gallery --}}
 
 
                 @hasanyrole('superadmin|admin')
                     <li class="nav-item">
                         <div class="row navbar-vertical-label-wrapper mt-3 mb-2">
-                            <div class="col-auto navbar-vertical-label">Gallery</div>
+                            <div class="col-auto navbar-vertical-label">{{ trans('messages.gallery') }}</div>
                             <div class="col ps-0">
                                 <hr class="mb-0 navbar-vertical-divider">
                             </div>
@@ -194,7 +185,7 @@
                         <a class="nav-link dropdown-indicator" href="#dashboard11" role="button"
                             data-bs-toggle="collapse" aria-expanded="true" aria-controls="dashboard">
                             <div class="d-flex align-items-center"><span class="nav-link-icon"><i
-                                        class="fas fa-users"></i></span><span class="nav-link-text ps-1">Gallery
+                                        class="fas fa-users"></i></span><span class="nav-link-text ps-1">{{ trans('messages.gallery') }}
                                 </span></div>
                         </a>
                         <ul class="nav collapse  {{ Request::segment(2) == 'photo-galleries' || Request::segment(2) == 'video-galleries' ? 'show' : '' }}"
@@ -204,7 +195,7 @@
                                         class="nav-link {{ Request::segment(2) == 'photo-galleries' ? 'active' : '' }}"
                                         href="{{ route('admin.photo-galleries.index') }}">
                                         <div class="d-flex align-items-center"><i class="fa fa-angle-double-right"></i>
-                                            Photo Gallery
+                                            {{ trans('messages.photo_gallery') }}
 
 
                                         </div>
@@ -218,7 +209,7 @@
                                     <a class="nav-link {{ Request::segment(2) == 'video-galleries' ? 'active' : '' }}"
                                         href="{{ route('admin.video-galleries.index') }}">
                                         <div class="d-flex align-items-center">
-                                            <i class="fa fa-angle-double-right"></i> Video Gallery
+                                            <i class="fa fa-angle-double-right"></i> {{ trans('messages.video_gallery') }}
                                         </div>
                                     </a>
                                 </li>
@@ -237,7 +228,7 @@
                 @hasanyrole('superadmin|admin')
                     <li class="nav-item">
                         <div class="row navbar-vertical-label-wrapper mt-3 mb-2">
-                            <div class="col-auto navbar-vertical-label">Members</div>
+                            <div class="col-auto navbar-vertical-label">{{ trans('messages.members') }}</div>
                             <div class="col ps-0">
                                 <hr class="mb-0 navbar-vertical-divider">
                             </div>
@@ -247,7 +238,7 @@
                             data-bs-toggle="collapse" aria-expanded="true" aria-controls="dashboard20">
                             <div class="d-flex align-items-center">
                                 <span class="nav-link-icon"><i class="fas fa-users"></i></span>
-                                <span class="nav-link-text ps-1">Members</span>
+                                <span class="nav-link-text ps-1">{{ trans('messages.members') }}</span>
                             </div>
                         </a>
                         <ul class="nav collapse {{ Request::segment(2) == 'faqs' ? 'show' : '' }}" id="dashboard20">
@@ -256,7 +247,7 @@
                                     href="{{ route('admin.member_types.index') }}">
                                     <div class="d-flex align-items-center">
                                         <i class="fa fa-angle-double-right"></i>
-                                        <span class="nav-link-text ps-1">Member Types</span>
+                                        <span class="nav-link-text ps-1">{{ trans('messages.member_types') }}</span>
                                     </div>
                                 </a>
                             </li>
@@ -269,7 +260,7 @@
                 @hasanyrole('superadmin|admin')
                     <li class="nav-item">
                         <div class="row navbar-vertical-label-wrapper mt-3 mb-2">
-                            <div class="col-auto navbar-vertical-label">Contact Details</div>
+                            <div class="col-auto navbar-vertical-label">{{ trans('messages.contact_details') }}</div>
                             <div class="col ps-0">
                                 <hr class="mb-0 navbar-vertical-divider">
                             </div>
@@ -281,7 +272,7 @@
                             aria-controls="dashboard18">
                             <div class="d-flex align-items-center">
                                 <span class="nav-link-icon"><i class="fas fa-users"></i></span>
-                                <span class="nav-link-text ps-1">Contact Details</span>
+                                <span class="nav-link-text ps-1">{{ trans('messages.contact_details') }}</span>
                             </div>
                         </a>
                         <ul class="nav collapse {{ Request::segment(2) == 'contact-details' ? 'show' : '' }}"
@@ -292,7 +283,7 @@
                                     <a class="nav-link {{ Request::segment(2) == 'contact-details' && Request::segment(3) == 'contacts' ? 'active' : '' }}"
                                         href="{{ route('admin.contacts.index') }}">
                                         <div class="d-flex align-items-center"><i class="fa fa-angle-double-right"></i>
-                                            Contacts
+                                            {{ trans('messages.contacts') }}
                                         </div>
                                     </a>
                                 </li>
@@ -308,7 +299,7 @@
                     <li class="nav-item">
                         <!-- Navbar vertical label -->
                         <div class="row navbar-vertical-label-wrapper mt-3 mb-2">
-                            <div class="col-auto navbar-vertical-label">Posts</div>
+                            <div class="col-auto navbar-vertical-label">{{ trans('messages.posts') }}</div>
                             <div class="col ps-0">
                                 <hr class="mb-0 navbar-vertical-divider">
                             </div>
@@ -321,7 +312,7 @@
                             aria-controls="dashboard23">
                             <div class="d-flex align-items-center">
                                 <span class="nav-link-icon"><i class="fas fa-users"></i></span>
-                                <span class="nav-link-text ps-1">Posts</span>
+                                <span class="nav-link-text ps-1">{{ trans('messages.posts') }}</span>
                             </div>
                         </a>
                         <!-- Collapse content -->
@@ -332,7 +323,7 @@
                                     href="{{ route('admin.categories.index') }}">
                                     <div class="d-flex align-items-center">
                                         <i class="fa fa-angle-double-right"></i>
-                                        <span class="nav-link-text ps-1">Categories</span>
+                                        <span class="nav-link-text ps-1">{{ trans('messages.categories') }}</span>
                                     </div>
                                 </a>
                             </li>
@@ -342,7 +333,7 @@
                                     href="{{ route('admin.posts.index') }}">
                                     <div class="d-flex align-items-center">
                                         <i class="fa fa-angle-double-right"></i>
-                                        <span class="nav-link-text ps-1">Post</span>
+                                        <span class="nav-link-text ps-1">{{ trans('messages.post') }}</span>
                                     </div>
                                 </a>
                             </li>
@@ -360,7 +351,7 @@
                 <li class="nav-item">
                     <!-- Navbar vertical label -->
                     <div class="row navbar-vertical-label-wrapper mt-3 mb-2">
-                        <div class="col-auto navbar-vertical-label">Teams</div>
+                        <div class="col-auto navbar-vertical-label">{{ trans('messages.teams') }}</div>
                         <div class="col ps-0">
                             <hr class="mb-0 navbar-vertical-divider">
                         </div>
@@ -373,7 +364,7 @@
                         aria-controls="dashboard24">
                         <div class="d-flex align-items-center">
                             <span class="nav-link-icon"><i class="fas fa-users"></i></span>
-                            <span class="nav-link-text ps-1">Teams</span>
+                            <span class="nav-link-text ps-1">{{ trans('messages.teams') }}</span>
                         </div>
                     </a>
                     <!-- Collapse content -->
@@ -383,7 +374,7 @@
                                 href="{{ route('admin.team-types.index') }}">
                                 <div class="d-flex align-items-center">
                                     <i class="fa fa-angle-double-right"></i>
-                                    <span class="nav-link-text ps-1">Team Type</span>
+                                    <span class="nav-link-text ps-1">{{ trans('messages.team_type') }}</span>
                                 </div>
                             </a>
                         </li>
@@ -392,7 +383,7 @@
                                 href="{{ route('admin.teams.index') }}">
                                 <div class="d-flex align-items-center">
                                     <i class="fa fa-angle-double-right"></i>
-                                    <span class="nav-link-text ps-1">Teams</span>
+                                    <span class="nav-link-text ps-1">{{ trans('messages.teams') }}</span>
                                 </div>
                             </a>
                         </li>
@@ -405,7 +396,7 @@
             <li class="nav-item">
                 <!-- Navbar vertical label -->
                 <div class="row navbar-vertical-label-wrapper mt-3 mb-2">
-                    <div class="col-auto navbar-vertical-label">Region Management</div>
+                    <div class="col-auto navbar-vertical-label">{{ trans('messages.region_management') }}</div>
                     <div class="col ps-0">
                         <hr class="mb-0 navbar-vertical-divider">
                     </div>
@@ -418,7 +409,7 @@
                     aria-controls="dashboard24">
                     <div class="d-flex align-items-center">
                         <span class="nav-link-icon"><i class="fas fa-users"></i></span>
-                        <span class="nav-link-text ps-1">Provinces & Districts</span>
+                        <span class="nav-link-text ps-1">{{ trans('messages.provinces_districts') }}</span>
                     </div>
                 </a>
                 <!-- Collapse content -->
@@ -428,7 +419,7 @@
                             href="{{ route('admin.provinces.index') }}">
                             <div class="d-flex align-items-center">
                                 <i class="fa fa-angle-double-right"></i>
-                                <span class="nav-link-text ps-1">Provinces</span>
+                                <span class="nav-link-text ps-1">{{ trans('messages.provinces') }}</span>
                             </div>
                         </a>
                     </li>
@@ -437,7 +428,7 @@
                             href="{{ route('admin.districts.index') }}">
                             <div class="d-flex align-items-center">
                                 <i class="fa fa-angle-double-right"></i>
-                                <span class="nav-link-text ps-1">Districts</span>
+                                <span class="nav-link-text ps-1">{{ trans('messages.districts') }}</span>
                             </div>
                         </a>
                     </li>
@@ -446,7 +437,7 @@
                             href="{{ route('admin.local-governments.index') }}">
                             <div class="d-flex align-items-center">
                                 <i class="fa fa-angle-double-right"></i>
-                                <span class="nav-link-text ps-1">Local Government</span>
+                                <span class="nav-link-text ps-1">{{ trans('messages.local_government') }}</span>
                             </div>
                         </a>
                     </li>
@@ -461,7 +452,7 @@
             <li class="nav-item">
                 <!-- Navbar vertical label -->
                 <div class="row navbar-vertical-label-wrapper mt-3 mb-2">
-                    <div class="col-auto navbar-vertical-label">Role and Permission</div>
+                    <div class="col-auto navbar-vertical-label">{{ trans('messages.role_and_permission') }}</div>
                     <div class="col ps-0">
                         <hr class="mb-0 navbar-vertical-divider">
                     </div>
@@ -474,7 +465,7 @@
                     aria-controls="dashboard24">
                     <div class="d-flex align-items-center">
                         <span class="nav-link-icon"><i class="fas fa-users"></i></span>
-                        <span class="nav-link-text ps-1">Role and Permission</span>
+                        <span class="nav-link-text ps-1">{{ trans('messages.role_and_permission') }}</span>
                     </div>
                 </a>
                 <!-- Collapse content -->
@@ -484,7 +475,7 @@
                             href="{{ route('admin.roles.index') }}">
                             <div class="d-flex align-items-center">
                                 <i class="fa fa-angle-double-right"></i>
-                                <span class="nav-link-text ps-1">Role</span>
+                                <span class="nav-link-text ps-1">{{ trans('messages.role') }}</span>
                             </div>
                         </a>
                     </li>
@@ -493,7 +484,7 @@
                             href="{{ route('admin.permissions.index') }}">
                             <div class="d-flex align-items-center">
                                 <i class="fa fa-angle-double-right"></i>
-                                <span class="nav-link-text ps-1">Permissions</span>
+                                <span class="nav-link-text ps-1">{{ trans('messages.permissions') }}</span>
                             </div>
                         </a>
                     </li>

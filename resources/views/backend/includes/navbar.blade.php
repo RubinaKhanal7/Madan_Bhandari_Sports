@@ -7,7 +7,20 @@
                 alt="" width="40"><span class="font-sans-serif">falcon</span></div>
     </a>
     <ul class="navbar-nav navbar-nav-icons ms-auto flex-row align-items-center">
-        <li class="nav-item">
+        <li class="nav-item d-flex align-items-center">
+           
+            <!-- Language Switcher -->
+            <div class="px-2 d-flex align-items-center">
+            <a href="{{ route('lang.switch', 'en') }}" 
+            class="btn btn-sm btn-falcon-default me-1 en {{ app()->getLocale() == 'en' ? 'active' : '' }}">
+            EN
+           </a>
+           <a href="{{ route('lang.switch', 'ne') }}" 
+           class="btn btn-sm btn-falcon-default me-2 ne {{ app()->getLocale() == 'ne' ? 'active' : '' }}">
+           NE
+           </a>
+         </div>
+
             <div class="theme-control-toggle fa-icon-wait px-2"><input
                     class="form-check-input ms-0 theme-control-toggle-input" id="themeControlToggle" type="checkbox"
                     data-theme-control="theme" value="dark"><label
@@ -78,3 +91,42 @@
         </li>
     </ul>
 </nav>
+<style>
+    /* Base button styling */
+    .btn-falcon-default {
+        border: none; /* Remove border */
+        background-color: transparent; /* Make the background transparent */
+        color: #4d5969; /* Default text color */
+        transition: all 0.2s ease;
+        width: 40px; /* Ensure a circular button */
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%; /* Make the button circular */
+        font-weight: bold; /* Bold text */
+    }
+    
+    /* Hover and active state */
+    .btn-falcon-default:hover,
+    .btn-falcon-default.active {
+        color: #fff; /* White text for active/hover state */
+        transform: scale(1.1); /* Slight scaling effect */
+    }
+    
+    /* EN button active styling */
+    .btn-falcon-default.en.active {
+        background-color: blue; /* Blue background for EN */
+    }
+    
+    /* NE button active styling */
+    .btn-falcon-default.ne.active {
+        background-color: red; /* Red background for NE */
+    }
+    
+    /* Focus state */
+    .btn-falcon-default:focus {
+        box-shadow: none;
+    }
+    </style>
+    
