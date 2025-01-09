@@ -32,6 +32,7 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\ProvinceController;
 use App\Http\Controllers\DistrictController;
 use App\Http\Controllers\LocalGovernmentController;
+use App\Http\Controllers\MouController;
 use App\Http\Controllers\LanguageController;
 
 /*
@@ -215,6 +216,14 @@ Route::prefix('/admin')->name('admin.')->middleware(['web', 'auth'])->group(func
     //LocalGovernment
     Route::resource('local-governments', LocalGovernmentController::class);
     Route::put('local-governments/{localGovernment}/update-status', [LocalGovernmentController::class, 'updateStatus'])->name('local-governments.updateStatus');
+
+    //MOU
+    Route::resource('mous', MouController::class);
+    Route::patch('/mous/{mou}/toggle-featured', [MouController::class, 'toggleFeatured'])->name('mous.toggle-featured');
+    Route::patch('/mous/{mou}/toggle-status', [MouController::class, 'toggleStatus'])->name('mous.toggle-status');
+    Route::post('/mous/{mou}/add-images', [MouController::class, 'addImages'])->name('mous.add-images');
+    Route::get('/mous/get-districts', [MouController::class, 'getDistricts'])->name('mous.get-districts');
+    Route::get('/mous/get-locals', [MouController::class, 'getLocals'])->name('mous.get-locals');
         
     // Teams
     Route::get('/teams', [TeamController::class, 'index'])->middleware('auth');
