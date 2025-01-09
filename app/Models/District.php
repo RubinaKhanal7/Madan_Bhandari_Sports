@@ -16,8 +16,8 @@ class District extends Model
         return $this->belongsTo(Province::class);
     }
 
-    public function locals()
-    {
-        return $this->hasMany(Local::class);
-    }
+    // public function locals()
+    // {
+    //     return $this->hasMany(Local::class);
+    // }
 }

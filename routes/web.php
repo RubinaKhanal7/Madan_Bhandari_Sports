@@ -30,6 +30,8 @@ use App\Http\Controllers\FaqController;
 use App\Http\Controllers\Auth\VerificationController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\ProvinceController;
+use App\Http\Controllers\DistrictController;
+use App\Http\Controllers\LocalGovernmentController;
 
 /*
 |--------------------------------------------------------------------------
@@ -200,6 +202,14 @@ Route::prefix('/admin')->name('admin.')->middleware(['web', 'auth'])->group(func
 
     //Province
     Route::resource('provinces', ProvinceController::class);
+
+    //District
+    Route::resource('districts', DistrictController::class);
+    Route::put('districts/{district}/update-status', [DistrictController::class, 'updateStatus'])->name('districts.updateStatus');
+
+    //LocalGovernment
+    Route::resource('local-governments', LocalGovernmentController::class);
+    Route::put('local-governments/{localGovernment}/update-status', [LocalGovernmentController::class, 'updateStatus'])->name('local-governments.updateStatus');
         
     // Teams
     Route::get('/teams', [TeamController::class, 'index'])->middleware('auth');

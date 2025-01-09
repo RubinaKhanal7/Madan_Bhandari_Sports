@@ -434,7 +434,7 @@
                     </li>
                     <li class="nav-item">
                         <a class="nav-link {{ Request::segment(2) == 'roleandpermission' ? 'active' : '' }}"
-                            href="{{ route('admin.permissions.index') }}">
+                            href="{{ route('admin.districts.index') }}">
                             <div class="d-flex align-items-center">
                                 <i class="fa fa-angle-double-right"></i>
                                 <span class="nav-link-text ps-1">Districts</span>
@@ -443,7 +443,7 @@
                     </li>
                     <li class="nav-item">
                         <a class="nav-link {{ Request::segment(2) == 'roleandpermission' ? 'active' : '' }}"
-                            href="{{ route('admin.permissions.index') }}">
+                            href="{{ route('admin.local-governments.index') }}">
                             <div class="d-flex align-items-center">
                                 <i class="fa fa-angle-double-right"></i>
                                 <span class="nav-link-text ps-1">Local Government</span>
