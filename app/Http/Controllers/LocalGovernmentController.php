@@ -11,7 +11,7 @@ class LocalGovernmentController extends Controller
 {
     public function index()
     {
-        $localGovernments = LocalGovernment::with('district')->paginate(20);
+        $localGovernments = LocalGovernment::with('district')->paginate(70);
         $districts = District::where('is_active', true)->get();
         return view('backend.localgovernment.index', compact('localGovernments', 'districts'));
     }

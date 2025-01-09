@@ -164,6 +164,15 @@
                                     </div>
                                 </a>
                             </li>
+                            <li class="nav-item">
+                                <a class="nav-link {{ Request::segment(2) == 'services' ? 'active' : '' }}"
+                                    href="{{ route('admin.mous.index') }}">
+                                    <div class="d-flex align-items-center">
+                                        <i class="fa fa-angle-double-right"></i>
+                                        <span class="nav-link-text ps-1">MOU</span>
+                                    </div>
+                                </a>
+                            </li>
                         </ul>
                     </li> <!-- Corrected closing tag -->
                     </li>
