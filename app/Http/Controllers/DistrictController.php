@@ -11,7 +11,7 @@ class DistrictController extends Controller
 {
     public function index()
     {
-        $districts = District::with('province')->paginate(10);
+        $districts = District::with('province')->paginate(20);
         $provinces = Province::where('is_active', true)->get();
         return view('backend.district.index', compact('districts', 'provinces'));
     }
