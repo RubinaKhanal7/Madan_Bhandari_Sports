@@ -2,7 +2,7 @@
 
 
 @section('content')
-<div class="card">
+<div class="card mt-3">
     <div class="card-header d-flex justify-content-between align-items-center">
             <h5>Categories</h5>
             <button type="button" 

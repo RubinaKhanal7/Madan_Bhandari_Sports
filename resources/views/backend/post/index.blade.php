@@ -1,7 +1,7 @@
 @extends('backend.layouts.master')
 
 @section('content')
-<ddiv class="card">
+<ddiv class="card mt-3">
     <div class="card-header d-flex justify-content-between align-items-center">
             <h5>Posts</h5>
             <button type="button" 

@@ -1,7 +1,7 @@
 @extends('backend.layouts.master')
 
 @section('content')
-    <div class="card">
+    <div class="card mt-3">
         <div class="card-body">
             @if(session('success'))
             <div class="alert alert-success border-2 d-flex align-items-center" role="alert">

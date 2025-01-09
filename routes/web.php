@@ -29,6 +29,7 @@ use App\Http\Controllers\MetadataController;
 use App\Http\Controllers\FaqController;
 use App\Http\Controllers\Auth\VerificationController;
 use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\ProvinceController;
 
 /*
 |--------------------------------------------------------------------------
@@ -196,6 +197,9 @@ Route::prefix('/admin')->name('admin.')->middleware(['web', 'auth'])->group(func
 
     //FAQ
     Route::resource('faqs', FaqController::class);
+
+    //Province
+    Route::resource('provinces', ProvinceController::class);
         
     // Teams
     Route::get('/teams', [TeamController::class, 'index'])->middleware('auth');

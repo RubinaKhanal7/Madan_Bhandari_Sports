@@ -1,6 +1,6 @@
 @extends('backend.layouts.master')
 @section('content')
-<div class="card">
+<div class="card mt-3">
     <div class="card-header d-flex justify-content-between align-items-center">
         <h5 class="card-title mb-0">FAQ Management</h5>
         <button class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#createCoverImageModal">

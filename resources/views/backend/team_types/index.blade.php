@@ -11,7 +11,7 @@
         </ul>
     </div>
 @endif
-<div class="container">
+<div class="container mt-3">
     <div class="card">
         <div class="card-header d-flex justify-content-between align-items-center">
             <h5 class="mb-0">Team Types</h5>
