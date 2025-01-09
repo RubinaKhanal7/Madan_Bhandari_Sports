@@ -60,7 +60,14 @@
                 <tr>
                     <td>{{ $loop->iteration }}</td>
                     <td>{{ $province->title }}</td>
-                    <td>{{ $province->is_active ? 'Active' : 'Inactive' }}</td>
+                    <td>
+                        <button class="btn {{ $province->is_active ? 'btn-success' : 'btn-danger' }} btn-sm"
+                                data-bs-toggle="modal"
+                                data-bs-target="#statusModal{{ $province->id }}">
+                            {{ $province->is_active ? 'Active' : 'Inactive' }}
+                        </button>
+                    </td>
+                   
                     <td>
                         <!-- Edit Button -->
                         <button class="btn btn-outline-primary btn-sm edit-btn" data-bs-toggle="modal" 
@@ -76,6 +83,33 @@
                     </td>
                     
                 </tr>
+
+                 <!-- Status Modal -->
+                 <div class="modal fade" id="statusModal{{ $province->id }}" tabindex="-1">
+                    <div class="modal-dialog">
+                        <form method="POST" action="{{ route('admin.provinces.updateStatus', $province->id) }}">
+                            @csrf
+                            @method('PUT')
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title">Change Status</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <p>Do you want to <strong>{{ $province->is_active ? 'deactivate' : 'activate' }}</strong> this province?</p>
+                                    <p><strong>Current Status:</strong> {{ $province->is_active ? 'Active' : 'Inactive' }}</p>
+                                    <input type="hidden" name="is_active" value="{{ $province->is_active ? 0 : 1 }}">
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                    <button type="submit" class="btn {{ $province->is_active ? 'btn-danger' : 'btn-success' }}">
+                                        {{ $province->is_active ? 'Deactivate' : 'Activate' }}
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
 
                 <!-- Edit Modal -->
                 <div class="modal fade" id="editProvinceModal{{ $province->id }}" tabindex="-1" aria-hidden="true">

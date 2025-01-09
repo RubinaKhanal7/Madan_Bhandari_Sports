@@ -202,6 +202,7 @@ Route::prefix('/admin')->name('admin.')->middleware(['web', 'auth'])->group(func
 
     //Province
     Route::resource('provinces', ProvinceController::class);
+    Route::put('provinces/{province}/update-status', [ProvinceController::class, 'updateStatus'])->name('provinces.updateStatus');
 
     //District
     Route::resource('districts', DistrictController::class);

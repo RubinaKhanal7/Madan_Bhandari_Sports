@@ -48,4 +48,14 @@ public function update(Request $request, Province $province)
         $province->delete();
         return redirect()->route('admin.provinces.index')->with('success', 'Province deleted successfully.');
     }
+
+    public function updateStatus(Request $request, Province $province)
+    {
+        $province->update([
+            'is_active' => $request->is_active
+        ]);
+
+        return redirect()->route('admin.provinces.index')
+            ->with('success', 'Province status updated successfully.');
+    }
 }
