@@ -401,6 +401,61 @@
                 </li>
             @endhasanyrole
 
+            @hasanyrole('superadmin')
+            <li class="nav-item">
+                <!-- Navbar vertical label -->
+                <div class="row navbar-vertical-label-wrapper mt-3 mb-2">
+                    <div class="col-auto navbar-vertical-label">Region Management</div>
+                    <div class="col ps-0">
+                        <hr class="mb-0 navbar-vertical-divider">
+                    </div>
+                </div>
+                <!-- Dropdown item -->
+            <li class="nav-item">
+                <a class="nav-link dropdown-indicator {{ Request::segment(2) == 'roleandpermission' ? '' : 'collapsed' }}"
+                    href="#dashboard26" role="button" data-bs-toggle="collapse"
+                    aria-expanded="{{ Request::segment(2) == 'roleandpermission' ? 'true' : 'false' }}"
+                    aria-controls="dashboard24">
+                    <div class="d-flex align-items-center">
+                        <span class="nav-link-icon"><i class="fas fa-users"></i></span>
+                        <span class="nav-link-text ps-1">Provinces & Districts</span>
+                    </div>
+                </a>
+                <!-- Collapse content -->
+                <ul class="nav collapse {{ Request::segment(2) == 'roleandpermission' ? 'show' : '' }}" id="dashboard26">
+                    <li class="nav-item">
+                        <a class="nav-link {{ Request::segment(2) == 'roleandpermission' ? 'active' : '' }}"
+                            href="{{ route('admin.provinces.index') }}">
+                            <div class="d-flex align-items-center">
+                                <i class="fa fa-angle-double-right"></i>
+                                <span class="nav-link-text ps-1">Provinces</span>
+                            </div>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ Request::segment(2) == 'roleandpermission' ? 'active' : '' }}"
+                            href="{{ route('admin.permissions.index') }}">
+                            <div class="d-flex align-items-center">
+                                <i class="fa fa-angle-double-right"></i>
+                                <span class="nav-link-text ps-1">Districts</span>
+                            </div>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ Request::segment(2) == 'roleandpermission' ? 'active' : '' }}"
+                            href="{{ route('admin.permissions.index') }}">
+                            <div class="d-flex align-items-center">
+                                <i class="fa fa-angle-double-right"></i>
+                                <span class="nav-link-text ps-1">Local Government</span>
+                            </div>
+                        </a>
+                    </li>
+                </ul>
+
+                
+            </li> <!-- Corrected closing tag -->
+            </li>
+        @endhasanyrole
 
             @hasanyrole('superadmin')
             <li class="nav-item">

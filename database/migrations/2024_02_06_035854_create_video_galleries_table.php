@@ -16,7 +16,7 @@ return new class extends Migration {
             $table->id();
             $table->string('title_ne'); 
             $table->string('title_en'); 
-            $table->string('videos');
+            $table->string('videos')->nullable();
             $table->string('url'); 
             $table->text('description_ne')->nullable(); 
             $table->text('description_en')->nullable(); 
