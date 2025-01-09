@@ -98,8 +98,8 @@
         background-color: transparent; /* Make the background transparent */
         color: #4d5969; /* Default text color */
         transition: all 0.2s ease;
-        width: 40px; /* Ensure a circular button */
-        height: 40px;
+        width: 28px; /* Ensure a circular button */
+        height: 28px;
         display: flex;
         align-items: center;
         justify-content: center;
