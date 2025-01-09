@@ -16,6 +16,9 @@ class Verifier extends Model
         'signature',
         'is_active',
     ];
-
-
+    
+    public function membershipVerifiers()
+{
+    return $this->hasMany(MembershipVerifier::class);
+}
 }

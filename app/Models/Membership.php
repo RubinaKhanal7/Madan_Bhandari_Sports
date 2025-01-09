@@ -46,11 +46,14 @@ class Membership extends Model
         'membership_date' => 'date',
     ];
 
-    /**
-     * Get the member type associated with the membership.
-     */
     public function memberType()
     {
         return $this->belongsTo(MemberType::class);
     }
+
+    public function membershipVerifiers()
+{
+    return $this->hasMany(MembershipVerifier::class);
+}
+
 }
