@@ -119,14 +119,19 @@ class SiteSettingController extends Controller
         }
     }
 
-    public function toggleStatus(SiteSetting $siteSetting)
+    public function toggleStatus($id)
 {
-    $siteSetting->is_active = !$siteSetting->is_active;
-    $siteSetting->save();
-    
-    return redirect()->back()->with('success', 'Status updated successfully');
+    try {
+        $siteSetting = SiteSetting::findOrFail($id);
+        $siteSetting->is_active = !$siteSetting->is_active;
+        $siteSetting->save();
+        
+        return redirect()->back()->with('success', 'Status updated successfully');
+    } catch (\Exception $e) {
+        Log::error('Error in SiteSettings toggleStatus: ' . $e->getMessage());
+        return redirect()->back()->with('error', 'Unable to update status. Please try again.');
+    }
 }
-
     private function processLogo($request, $currentLogo, $logoInput, $logoType)
     {
         if ($request->has($logoInput) && $request->$logoInput != '') {
