@@ -42,7 +42,6 @@ class AppServiceProvider extends ServiceProvider
         $sitesetting = SiteSetting::first();
         View::share('sitesetting', $sitesetting);
 
-        // Other view composers can be added here in the same way
         View::composer('frontend.includes.navbar', function ($view) {
            
            

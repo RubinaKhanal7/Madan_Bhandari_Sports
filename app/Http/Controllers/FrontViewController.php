@@ -19,34 +19,9 @@ class FrontViewController extends Controller
 {
     public function index()
     {
-        $sitesetting = SiteSetting::first();
-        $about = About::first();
-        $services = Service::where('status', 1)->latest()->take(5)->get();
-        $contacts = Contact::latest()->get();
-      
-        $coverImages = CoverImage::latest()->get();
-     
-        $images = PhotoGallery::latest()->take(6)->get(); // Fetch the photos
-        $videos = VideoGallery::latest()->take(6)->get(); // Fetch the videos
-       
-            // Fetch all news
-        $types = [ 'Honour', 'Award', 'Judge', 'Album Launch', 'Social Work & Activities', 'Other Events', 'Research & Articles'];
-    
-        $firstCategory = Category::first();
-        $posts = $firstCategory ? $firstCategory->posts()->latest()->take(6)->get() : collect();
-    
-        return view('frontend.index', compact(
-            'services', 
-            'contacts', 
-            'sitesetting', 
-            'coverImages', 
-            'about', 
-            'posts', 
-            'firstCategory', 
-            'images', 
-            'videos',  
-            'types', 
-        ));
+        $coverimages = CoverImage::latest()->get(5);
+
+        return view('frontend.index', compact('coverimages'));
     }
     
     

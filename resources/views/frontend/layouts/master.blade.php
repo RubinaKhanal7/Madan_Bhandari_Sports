@@ -1,86 +1,77 @@
-<!doctype html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<!DOCTYPE html>
+<html style="font-size: 16px;" lang="en">
+    <?php
+    use App\Models\Favicon;
+        $favicon = Favicon::first();
+    ?>
+@include('portal.includes.topnav')
+@include('portal.includes.head')
 
-@php
+<body onload=updateClock();  class="u-body u-xl-mode" data-lang="en">
 
-@endphp
-
-
-
-@include('frontend.includes.head')
-
-<body>
-
-    <main class="main">
-     {{-- @include('frontend.includes.topnav')  --}}
-
-
-
-    {{-- @include('frontend.includes.navbar') --}}
+    {{-- <div id="preloader">
+        <div id="loader"></div>
+    </div> --}}
+    
 
 
-    @include('frontend.body_includes.nav')
+    @include('portal.includes.navbar')
 
+
+    @include('portal.includes.breakingnews')
 
     @yield('content')
 
-    </main>
 
-    @include('frontend.includes.footer')
+    @include('portal.includes.footer')
 
-
-
-    
-    {{-- <style>
-        .whatsapp-chat-container {
-            position: fixed;
-            bottom: 1%;
-            right: 1%;
-            z-index: 999;
-            transition: transform 0.3s ease-in-out;
-            transform: scale(1);
-        }
-
-        .whatsapp-chat {
-            display: block;
-        }
-
-        .whatsapp-chat img {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            transition: transform 0.3s ease-in-out;
-        }
-
-        .whatsapp-chat img:hover {
-            transform: scale(1.1);
-        }
-    </style>
-
-    
-
-    <div class="whatsapp-chat-container" id="whatsappChatContainer">
-        <div class="whatsapp-chat">
-            <a href="https://api.whatsapp.com/send?phone=9779763693960" target="_blank">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/WhatsApp.svg/1200px-WhatsApp.svg.png"
-                    alt="WhatsApp Chat" width="50" height="50">
-            </a>
-        </div>
-    </div>
+    <?php
 
 
-    <script>
-        window.addEventListener('scroll', function() {
-            var scrollPosition = window.scrollY;
+    // if($_SERVER['REQUEST_METHOD']=="POST"){
 
-            if (scrollPosition > 100) {
-                document.getElementById('whatsappChatContainer').style.display = 'block';
-            } else {
-                document.getElementById('whatsappChatContainer').style.display = 'none';
-            }
-        });
-    </script> --}}
+    //     if(isset($_POST['g-recaptcha-response'])){
+    //         $token = $_POST['g-recaptcha-response'];
+    //         $url = 'https://www.google.com/recaptcha/api/siteverify';
+    //         $data = array(
+    //             'secret_key' => '6LcPq34lAAAAAM7d-M8AxKtWjvHlmqYnNDRH5-D-',
+    //             'response' => $token
+    //         );
+
+    //         $options = array(
+    //             'http' => array (
+    //                 'header' => "Content-Type: application/x-www-form-urlencoded\r\n",
+    //                 'method' => 'POST',
+    //                 'content' => http_build_query($data)
+    //             )
+    //         );
+
+    //         $context  = stream_context_create($options);
+    //         $result = file_get_contents($url, false, $context);
+    //         $response = json_decode($result);
+
+
+    //         if ($response->success && $response->score >= 0.5) {
+    //             echo json_encode(array('success' => true, "msg"=>"You are not a robot!", "response"=>$response));
+    //         } else {
+
+    //             echo json_encode(array('success' => false, "msg"=>"You are a robot!", "response"=>$response));
+    //         }
+    //     }
+    // }
+
+    ?>
+
+    <script src="{{ asset('css/bootstrapjs/bootstrap.min.js') }}"></script>
+
+
 
 </body>
 
 </html>
+
+
+
+
+
+{{-- @endsection --}}

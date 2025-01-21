@@ -1,54 +1,43 @@
-@extends('frontend.layouts.master')
+@extends('portal.layouts.master')
 
 @section('content')
 
-<section class="herosectionforallpage my-4">
-    <div class="container-fluid">
-        <img src="{{ asset('image/team.jpeg') }}" alt="">
-        <div class="d-flex flex-column innercontent">
-            <span class="maintitle">Our Teams</span>
-            <span class="navigatetitle py-2 px-3 mb-1">
-                <a href="" style="color: white !important; text-decoration: none;">Home</a> > <span>Teams</span>
-            </span>
-        </div>
-    </div>
-</section>
-
-
-
-
-<section class="multi_post">
+<section class="single_page">
     <div class="container">
-        @if($teams->isEmpty())
-            <p class="alert alert-warning">No team members found for {{ $page_title }}</p>
-        @else
-            @foreach($sortedTeams as $role => $teamMembers)
-            <h1 class="page_title">{{ $role }}</h1>
-                <div class="multi_poster row justify-content-center row-gap-5 gap-5">
-                    @foreach($teamMembers as $team)
-                        <div class="teamcard col-lg-3">
-                            <div class="multi_post_image">
-                                @if($team->image)
-                                    <img src="{{ asset('uploads/team/' . $team->image) }}" class="card-img-top" alt="{{ $team->name }}">
-                                @else
-                                    <img src="https://via.placeholder.com/500" class="card-img-top" alt="Team Member Image">
-                                @endif
-                            </div>
-                            <div class="card-body">
-                                <h5 class="card-title">{{ $team->name }}</h5>
-                                <p class="card-text">
-                                    <b>{{ $team->position }}</b><br>
-                                    {{ $team->phone_no }}<br>
-                                    {{ $team->email }}<br>
-                                    {!! $team->description !!}
-
-                                </p>
-                            </div>
-                        </div>
-                    @endforeach
+        <h3 class="cat_title">{{ __("Employee Details") }}</h3>
+        <div class="row mt-3">
+            
+           
+        @foreach ($teams as $team)
+            <div class="col-md-3">
+                <div class="card team_card mt-2 mb-2">
+                    @if (isset($team->image))
+                    <img src="{{ asset('uploads/team/' . $team->image) }}" class="card-img-top image">
+                    @else
+                        <img src="{{ url('img/logo.png') }}" class="card-img-top image">
+                    @endif
+                    <div class="card-body">
+                  
+                        <span class="team_name">{{ __($team->name) }}</span><br>
+                        <span class="team_position">{{ __($team->position) }}</span><br>
+                        <span class="team_email">{{ $team->email }}</span><br>
+                        <span class="team_contact">{{ $team->contact_number }}</span>
+                    
+                    </div>
                 </div>
-            @endforeach
-        @endif
+            </div>
+        @endforeach
+
+        </div>
+
+
+
+
     </div>
+
 </section>
+
+
+
+
 @endsection
