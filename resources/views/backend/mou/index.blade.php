@@ -165,7 +165,6 @@
                             </form>
                         </div>
                     </div>
-
                     <!-- Other Images Modal -->
                     <div class="modal fade" id="addImagesModal{{ $mou->id }}" tabindex="-1">
                         <div class="modal-dialog modal-lg">
@@ -207,10 +206,12 @@
                                                 name="images[]" 
                                                 class="form-control" 
                                                 multiple 
-                                                accept="image/*"
-                                                required>
+                                                accept="image/*">
                                             <small class="text-muted">You can select multiple images. Maximum size: 2MB per image</small>
                                         </div>
+
+                                        <!-- Preview container will be inserted here by JavaScript -->
+                                        <div id="previewContainer{{ $mou->id }}" class="mb-3"></div>
                                     </div>
                                     <div class="modal-footer">
                                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -344,7 +345,7 @@
                                             <button type="button" class="btn btn-primary" onclick="saveCroppedImageEdit({{ $mou->id }})">
                                                 Save Cropped Image
                                             </button>
-                                            <button type="submit" class="btn btn-success">Update</button>
+                                            <button type="submit" class="btn btn-success" id="editSubmitBtn{{ $mou->id }}" style="display: none;">Update</button>
                                         </div>
                                     </div>
                                 </form>
@@ -448,7 +449,7 @@
                                             <button type="button" class="btn btn-primary" onclick="saveCroppedImage()">
                                                 Save Cropped Image
                                             </button>
-                                            <button type="submit" class="btn btn-primary">Save</button>
+                                            <button type="submit" class="btn btn-success" id="createSubmitBtn" style="display: none;">Save</button>
                                         </div>
                                     </div>
                                 </form>
@@ -531,42 +532,44 @@
     }
     
     function saveCroppedImage() {
-        if (croppers['create']) {
-            const canvas = croppers['create'].getCroppedCanvas({
-                width: 1024,    
-                height: 576,    
-                imageSmoothingEnabled: true,
-                imageSmoothingQuality: 'high',
-            });
-            
-            if (canvas) {
-                const croppedImage = canvas.toDataURL('image/jpeg', 0.9);
-                document.getElementById('croppedImage').value = croppedImage;
-                const imagePreview = document.getElementById('imagePreview');
-                imagePreview.src = croppedImage;
-                alert('Cropped image has been saved. You can now submit the form.');
-            }
+    if (croppers['create']) {
+        const canvas = croppers['create'].getCroppedCanvas({
+            width: 1024,    
+            height: 576,    
+            imageSmoothingEnabled: true,
+            imageSmoothingQuality: 'high',
+        });
+        
+        if (canvas) {
+            const croppedImage = canvas.toDataURL('image/jpeg', 0.9);
+            document.getElementById('croppedImage').value = croppedImage;
+            const imagePreview = document.getElementById('imagePreview');
+            imagePreview.src = croppedImage;
+            document.getElementById('createSubmitBtn').style.display = 'block';
+            alert('Cropped image has been saved. You can now submit the form.');
         }
     }
-    
-    function saveCroppedImageEdit(id) {
-        if (croppers[id]) {
-            const canvas = croppers[id].getCroppedCanvas({
-                width: 1024,  
-                height: 576,  
-                imageSmoothingEnabled: true,
-                imageSmoothingQuality: 'high',
-            });
-            
-            if (canvas) {
-                const croppedImage = canvas.toDataURL('image/jpeg', 0.9);
-                document.getElementById('croppedImage' + id).value = croppedImage;
-                const imagePreview = document.getElementById('imagePreview' + id);
-                imagePreview.src = croppedImage;
-                alert('Cropped image has been saved. You can now update the form.');
-            }
+}
+
+function saveCroppedImageEdit(id) {
+    if (croppers[id]) {
+        const canvas = croppers[id].getCroppedCanvas({
+            width: 1024,  
+            height: 576,  
+            imageSmoothingEnabled: true,
+            imageSmoothingQuality: 'high',
+        });
+        
+        if (canvas) {
+            const croppedImage = canvas.toDataURL('image/jpeg', 0.9);
+            document.getElementById('croppedImage' + id).value = croppedImage;
+            const imagePreview = document.getElementById('imagePreview' + id);
+            imagePreview.src = croppedImage;
+            document.getElementById('editSubmitBtn' + id).style.display = 'block';
+            alert('Cropped image has been saved. You can now update the form.');
         }
     }
+}
 
     function deleteImage(mouId, index) {
         if (confirm('Are you sure you want to delete this image?')) {
@@ -698,5 +701,87 @@
         });
     });
 });
+// Add this function to handle multiple image preview
+function handleMultipleImages(event, mouId) {
+    const input = event.target;
+    const previewContainer = document.querySelector(`#previewContainer${mouId}`);
+    const files = input.files;
+
+    // Clear existing previews for new selections
+    previewContainer.innerHTML = '';
+
+    if (files) {
+        Array.from(files).forEach((file, index) => {
+            const reader = new FileReader();
+            
+            reader.onload = function(e) {
+                const previewWrapper = document.createElement('div');
+                previewWrapper.className = 'position-relative d-inline-block me-2 mb-2';
+                previewWrapper.id = `preview-wrapper-${mouId}-${index}`;
+                
+                const img = document.createElement('img');
+                img.src = e.target.result;
+                img.className = 'img-thumbnail';
+                img.style.height = '100px';
+                img.style.width = 'auto';
+                
+                const removeButton = document.createElement('button');
+                removeButton.type = 'button';
+                removeButton.className = 'btn btn-danger btn-sm position-absolute top-0 end-0 m-1';
+                removeButton.innerHTML = '<i class="fas fa-times"></i>';
+                removeButton.onclick = function() {
+                    removeSelectedImage(mouId, index, input);
+                };
+                
+                previewWrapper.appendChild(img);
+                previewWrapper.appendChild(removeButton);
+                previewContainer.appendChild(previewWrapper);
+            };
+            
+            reader.readAsDataURL(file);
+        });
+    }
+}
+
+// Function to remove selected image
+function removeSelectedImage(mouId, index, input) {
+    const previewWrapper = document.getElementById(`preview-wrapper-${mouId}-${index}`);
+    previewWrapper.remove();
+    
+    // Create a new FileList without the removed image
+    const dt = new DataTransfer();
+    const { files } = input;
+    
+    for (let i = 0; i < files.length; i++) {
+        if (i !== index) {
+            dt.items.add(files[i]);
+        }
+    }
+    
+    input.files = dt.files;
+}
+
+// Function to initialize preview containers for all MOUs
+function initializeImagePreviews() {
+    document.querySelectorAll('[id^="addImagesModal"]').forEach(modal => {
+        const mouId = modal.id.replace('addImagesModal', '');
+        const imageInput = modal.querySelector('input[type="file"]');
+        const modalBody = modal.querySelector('.modal-body');
+        
+        // Create preview container if it doesn't exist
+        if (!modalBody.querySelector(`#previewContainer${mouId}`)) {
+            const previewContainer = document.createElement('div');
+            previewContainer.id = `previewContainer${mouId}`;
+            previewContainer.className = 'mb-3';
+            modalBody.insertBefore(previewContainer, imageInput.parentElement.nextSibling);
+        }
+        
+        // Add event listener for file input
+        imageInput.addEventListener('change', (event) => handleMultipleImages(event, mouId));
+    });
+}
+
+// Initialize when DOM is loaded
+document.addEventListener('DOMContentLoaded', initializeImagePreviews);
 </script>
 @endsection

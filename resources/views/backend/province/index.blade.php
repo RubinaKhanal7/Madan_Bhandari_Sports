@@ -135,7 +135,7 @@
                                 </div>
                                 <div class="modal-footer">
                                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                                    <button type="submit" class="btn btn-primary">Save Changes</button> 
+                                    <button type="submit" class="btn btn-primary">Update</button> 
                                 </div>
                             </form>
                         </div>
@@ -215,7 +215,7 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                        <button type="submit" class="btn btn-primary">Create</button>
+                        <button type="submit" class="btn btn-sucess">Save</button>
                     </div>
                 </form>
             </div>

@@ -180,12 +180,10 @@
                                     </div>
                                     <div class="modal-footer">
                                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                        <button type="button" 
-                                                class="btn btn-primary" 
-                                                onclick="saveCroppedImageEdit({{ $coverImage->id }})">
+                                        <button type="button" class="btn btn-primary" onclick="saveCroppedImageEdit({{ $coverImage->id }})">
                                             Save Cropped Image
                                         </button>
-                                        <button type="submit" class="btn btn-success">Update</button>
+                                        <button type="submit" class="btn btn-success" id="editSubmitBtn{{ $coverImage->id }}" style="display: none;">Update</button>
                                     </div>
                                 </form>
                             </div>
@@ -260,8 +258,13 @@
                         <input type="checkbox" name="is_active" checked value="1">
                     </div>
 
-                    <button type="button" class="btn btn-primary" onclick="saveCroppedImage()">Save Cropped Image</button>
-                    <button type="submit" class="btn btn-success">Submit</button>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary" onclick="saveCroppedImage()">
+                            Save Cropped Image
+                        </button>
+                        <button type="submit" class="btn btn-success" id="createSubmitBtn" style="display: none;">Save</button>
+                    </div>
                 </div>
             </form>
         </div>
@@ -309,6 +312,9 @@ function previewImage(event) {
                 viewMode: 1,
                 autoCropArea: 0.8,
             });
+
+            // Hide the submit button when new image is selected
+            document.getElementById('createSubmitBtn').style.display = 'none';
         };
         reader.readAsDataURL(file);
     }
@@ -336,6 +342,9 @@ function previewImageEdit(event, id) {
                 viewMode: 1,
                 autoCropArea: 0.8,
             });
+
+            // Hide the submit button when new image is selected
+            document.getElementById('editSubmitBtn' + id).style.display = 'none';
         };
         reader.readAsDataURL(file);
     }
@@ -347,6 +356,9 @@ function saveCroppedImage() {
         if (canvas) {
             var croppedImage = canvas.toDataURL('image/jpeg');
             document.getElementById('croppedImage').value = croppedImage;
+            document.getElementById('imagePreview').src = croppedImage;
+            // Show the submit button after cropping
+            document.getElementById('createSubmitBtn').style.display = 'block';
             alert('Cropped image has been saved. You can now submit the form.');
         }
     }
@@ -358,9 +370,41 @@ function saveCroppedImageEdit(id) {
         if (canvas) {
             var croppedImage = canvas.toDataURL('image/jpeg');
             document.getElementById('croppedImage' + id).value = croppedImage;
+            document.getElementById('imagePreview' + id).src = croppedImage;
+            // Show the submit button after cropping
+            document.getElementById('editSubmitBtn' + id).style.display = 'block';
             alert('Cropped image has been saved. You can now update the form.');
         }
     }
 }
+
+// Add this to handle modal reset
+document.addEventListener('DOMContentLoaded', function() {
+    // Reset create modal when closed
+    const createModal = document.getElementById('createCoverImageModal');
+    createModal.addEventListener('hidden.bs.modal', function() {
+        if (croppers['create']) {
+            croppers['create'].destroy();
+            delete croppers['create'];
+        }
+        document.getElementById('createSubmitBtn').style.display = 'none';
+    });
+
+    // Reset edit modals when closed
+    const editModals = document.querySelectorAll('[id^="editCoverImageModal"]');
+    editModals.forEach(modal => {
+        const id = modal.id.replace('editCoverImageModal', '');
+        modal.addEventListener('hidden.bs.modal', function() {
+            if (croppers[id]) {
+                croppers[id].destroy();
+                delete croppers[id];
+            }
+            const submitBtn = document.getElementById('editSubmitBtn' + id);
+            if (submitBtn) {
+                submitBtn.style.display = 'none';
+            }
+        });
+    });
+});
 </script>
 @endsection
