@@ -20,7 +20,7 @@ class UserManagementController extends Controller
         return view('backend.usermanagement.index', compact('users'));
     }
 
-    public function store(Request $request) 
+    public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
@@ -38,45 +38,51 @@ class UserManagementController extends Controller
                 'size:4',
                 'regex:/^[0-9]+$/',
                 'confirmed'
-            ],], [
-                'pin.confirmed' => 'PIN confirmation does not match',
-                'password.confirmed' => 'Password confirmation does not match',
-                'pin.digits' => 'PIN must be exactly 6 digits',
-                'password.min' => 'Password must be at least 8 characters'
+            ],
+        ], [
+            'pin.confirmed' => 'PIN confirmation does not match',
+            'password.confirmed' => 'Password confirmation does not match',
+            'pin.digits' => 'PIN must be exactly 6 digits',
+            'password.min' => 'Password must be at least 8 characters'
         ]);
-
+    
         // Custom validation to ensure either password or PIN is provided
         $validator->after(function ($validator) use ($request) {
             if (empty($request->password) && empty($request->pin)) {
                 $validator->errors()->add('auth', 'Either Password or PIN must be provided');
             }
         });
-
+    
         if ($validator->fails()) {
             return back()
                 ->withErrors($validator)
                 ->withInput();
         }
-
+    
         try {
+            // Default user data
             $userData = [
                 'name' => $request->name,
                 'email' => $request->email,
                 'phonenumber' => $request->phonenumber,
-                'created_by_admin' => true, 
-                'is_approved' => true, 
+                'created_by_admin' => true,
+                'is_approved' => true,
+                'is_admin' => $request->input('is_admin', 0), // Set the 'is_admin' value
             ];
-
+    
+            // Handle password if provided
             if ($request->filled('password')) {
                 $userData['password'] = Hash::make($request->password);
             }
-
+    
+            // Handle PIN if provided
             if ($request->filled('pin')) {
                 $userData['pin'] = Hash::make($request->pin);
             }
-
+    
+            // Create the user
             User::create($userData);
-
+    
             return redirect()->route('admin.users.index')
                 ->with('success', 'User created successfully');
         } catch (\Exception $e) {
@@ -85,7 +91,7 @@ class UserManagementController extends Controller
                 ->withInput();
         }
     }
-
+    
     public function destroy(User $user)
     {
         try {

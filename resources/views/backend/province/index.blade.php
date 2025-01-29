@@ -34,6 +34,7 @@
                     <div class="bg-danger me-3 icon-item">
                         <span class="fas fa-exclamation-circle text-white fs-3"></span>
                     </div>
+                     
                     <div class="flex-1">
                         <ul class="mb-0">
                             @foreach($errors->all() as $error)

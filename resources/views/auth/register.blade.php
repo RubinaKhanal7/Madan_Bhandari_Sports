@@ -69,7 +69,7 @@
                                 <div class="col-md-7 d-flex flex-center">
                                     <div class="p-4 p-md-5 flex-grow-1">
                                         <h3>Register a New Account</h3>
-                                        <form method="POST" action="{{ route('register') }}" id="registerForm">
+                                        <form method="POST" action="{{ route('register') }}" id="registerForm" enctype="multipart/form-data">
                                             @csrf
                                             <div class="mb-3">
                                                 <label class="form-label" for="name">Full Name</label>
@@ -85,6 +85,58 @@
                                                     <span class="invalid-feedback" role="alert">
                                                         <strong>{{ $message }}</strong>
                                                     </span>
+                                                @enderror
+                                            </div>
+
+                                            <div class="mb-3">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="radio" name="is_admin" id="isAdmin" value="1" onchange="toggleCitizenshipFields()">
+                                                    <label class="form-check-label" for="isAdmin">
+                                                        Are you an admin?
+                                                    </label>
+                                                </div>
+                                            </div>
+                                            
+                                            <div id="citizenshipFields" style="display: none;" class="mb-3">
+                                                <div class="row">
+                                                    <div class="col-md-6">
+                                                        <label class="form-label" for="citizenship_front">Citizenship Front <span class="text-danger">*</span></label>
+                                                        <input type="file" 
+                                                               class="form-control @error('citizenship_front') is-invalid @enderror" 
+                                                               id="citizenship_front" 
+                                                               name="citizenship_front" 
+                                                               accept="image/jpeg,image/png,image/jpg">
+                                                        <small class="text-muted">Accepted formats: JPG, JPEG, PNG (max 2MB)</small>
+                                                        @error('citizenship_front')
+                                                            <span class="invalid-feedback" role="alert">
+                                                                <strong>{{ $message }}</strong>
+                                                            </span>
+                                                        @enderror
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <label class="form-label" for="citizenship_back">Citizenship Back <span class="text-danger">*</span></label>
+                                                        <input type="file" 
+                                                               class="form-control @error('citizenship_back') is-invalid @enderror" 
+                                                               id="citizenship_back" 
+                                                               name="citizenship_back" 
+                                                               accept="image/jpeg,image/png,image/jpg">
+                                                        <small class="text-muted">Accepted formats: JPG, JPEG, PNG (max 2MB)</small>
+                                                        @error('citizenship_back')
+                                                            <span class="invalid-feedback" role="alert">
+                                                                <strong>{{ $message }}</strong>
+                                                            </span>
+                                                        @enderror
+                                                    </div>
+                                                </div>
+                                                @error('citizenship')
+                                                    <div class="alert alert-danger mt-2">
+                                                        {{ $message }}
+                                                    </div>
+                                                @enderror
+                                                @error('image_upload')
+                                                    <div class="alert alert-danger mt-2">
+                                                        {{ $message }}
+                                                    </div>
                                                 @enderror
                                             </div>
                     
@@ -236,7 +288,55 @@
                 icon.classList.add('fa-eye');
             }
         }
+
+        function toggleCitizenshipFields() {
+    const isAdmin = document.getElementById('isAdmin').checked;
+    const citizenshipFields = document.getElementById('citizenshipFields');
+    citizenshipFields.style.display = isAdmin ? 'block' : 'none';
+}
     </script>
+    <script>
+        function validateFile(input) {
+            const file = input.files[0];
+            const maxSize = 2 * 1024 * 1024; // 2MB in bytes
+            const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg'];
+            
+            if (file) {
+                if (!allowedTypes.includes(file.type)) {
+                    alert('Please select a valid image file (JPG, JPEG, or PNG)');
+                    input.value = '';
+                    return false;
+                }
+                
+                if (file.size > maxSize) {
+                    alert('File size must be less than 2MB');
+                    input.value = '';
+                    return false;
+                }
+            }
+            return true;
+        }
+        
+        document.getElementById('citizenship_front').addEventListener('change', function() {
+            validateFile(this);
+        });
+        
+        document.getElementById('citizenship_back').addEventListener('change', function() {
+            validateFile(this);
+        });
+        
+        function toggleCitizenshipFields() {
+            const isAdmin = document.getElementById('isAdmin').checked;
+            const citizenshipFields = document.getElementById('citizenshipFields');
+            citizenshipFields.style.display = isAdmin ? 'block' : 'none';
+            
+            // Clear file inputs when hiding the fields
+            if (!isAdmin) {
+                document.getElementById('citizenship_front').value = '';
+                document.getElementById('citizenship_back').value = '';
+            }
+        }
+        </script>
 </body>
 
 </html>
