@@ -123,8 +123,8 @@ public function register(Request $request)
 
         if ($request->has('is_admin') && $request->is_admin == 1) {
             try {
-                $frontPath = $request->file('citizenship_front')->store('upload/citizenships', 'public');
-                $backPath = $request->file('citizenship_back')->store('upload/citizenships', 'public');
+                $frontPath = $request->file('citizenship_front')->store('citizenships', 'public');
+                $backPath = $request->file('citizenship_back')->store('citizenships', 'public');
                 
                 $user->citizenship_front = $frontPath;
                 $user->citizenship_back = $backPath;

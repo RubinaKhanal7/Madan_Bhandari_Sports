@@ -125,7 +125,7 @@
                                                 </div>
                                                 <div class="card-body p-2">
                                                     @if($user->citizenship_front)
-                                                        <img src="{{ asset('' . $user->citizenship_front) }}" 
+                                                        <img src="{{ asset('storage/upload/citizenships/' . basename($user->citizenship_front)) }}" 
                                                              class="img-fluid rounded" 
                                                              alt="Citizenship Front">
                                                     @else
@@ -141,7 +141,7 @@
                                                 </div>
                                                 <div class="card-body p-2">
                                                     @if($user->citizenship_back)
-                                                        <img src="{{ asset('' . $user->citizenship_back) }}" 
+                                                        <img src="{{ asset('storage/upload/citizenships/' . basename($user->citizenship_back)) }}" 
                                                              class="img-fluid rounded" 
                                                              alt="Citizenship Back">
                                                     @else
