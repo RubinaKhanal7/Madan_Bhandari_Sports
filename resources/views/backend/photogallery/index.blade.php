@@ -149,7 +149,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="submit" class="btn btn-primary">Create</button>
+                    <button type="submit" class="btn btn-success">Save</button>
                 </div>
             </form>
         </div>
@@ -357,54 +357,107 @@
 
 @push('scripts')
 <script>
-// Preview images before upload for create modal
-document.querySelector('input[name="images[]"]').addEventListener('change', function(e) {
-    const preview = document.createElement('div');
-    preview.className = 'row mt-2';
-    
-    Array.from(e.target.files).forEach(file => {
+// Function to create image preview with remove button
+function createImagePreview(file, previewContainer) {
+    return new Promise((resolve) => {
         const reader = new FileReader();
-        reader.onload = function(e) {
-            preview.innerHTML += `
-                <div class="col-md-3 mb-2">
-                    <img src="${e.target.result}" class="img-thumbnail" style="height: 100px;">
+        reader.onload = (e) => {
+            const col = document.createElement('div');
+            col.className = 'col-md-3 mb-2 preview-item';
+            col.innerHTML = `
+                <div class="card">
+                    <div class="position-relative">
+                        <img src="${e.target.result}" class="card-img-top" alt="Preview" 
+                             style="height: 150px; object-fit: cover;">
+                        <button type="button" class="btn btn-danger btn-sm position-absolute top-0 end-0 m-1 remove-preview"
+                                style="width: 24px; height: 24px; padding: 0; border-radius: 50%;">
+                            <i class="fas fa-times" style="font-size: 12px;"></i>
+                        </button>
+                    </div>
+                    <div class="card-body p-2">
+                        <small class="text-muted text-truncate d-block">${file.name}</small>
+                    </div>
                 </div>
             `;
-        }
+            
+            // Add click handler for remove button
+            const removeBtn = col.querySelector('.remove-preview');
+            removeBtn.addEventListener('click', function() {
+                col.remove();
+                updateFileInput(previewContainer);
+            });
+            
+            previewContainer.appendChild(col);
+            resolve();
+        };
         reader.readAsDataURL(file);
     });
-    
-    const existingPreview = this.nextElementSibling;
-    if(existingPreview && existingPreview.className === 'row mt-2') {
-        existingPreview.remove();
-    }
-    this.after(preview);
-});
+}
 
-// Preview images before upload for edit modal
-document.querySelectorAll('input[name="new_images[]"]').forEach(input => {
-    input.addEventListener('change', function(e) {
-        const preview = document.createElement('div');
-        preview.className = 'row mt-2';
-        
-        Array.from(e.target.files).forEach(file => {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                preview.innerHTML += `
-                    <div class="col-md-3 mb-2">
-                        <img src="${e.target.result}" class="img-thumbnail" style="height: 100px;">
-                    </div>
-                `;
-            }
-            reader.readAsDataURL(file);
-        });
-        
-        const existingPreview = this.nextElementSibling;
-        if(existingPreview && existingPreview.className === 'row mt-2') {
-            existingPreview.remove();
+// Function to update the file input when images are removed
+function updateFileInput(previewContainer) {
+    const form = previewContainer.closest('form');
+    const fileInput = form.querySelector('input[type="file"]');
+    
+    const dataTransfer = new DataTransfer();
+    const remainingPreviews = previewContainer.querySelectorAll('.preview-item');
+    const originalFiles = Array.from(fileInput.files);
+    
+    remainingPreviews.forEach((preview, index) => {
+        if (originalFiles[index]) {
+            dataTransfer.items.add(originalFiles[index]);
         }
-        this.after(preview);
     });
+    
+    fileInput.files = dataTransfer.files;
+}
+
+// Initialize preview functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const imageInput = document.querySelector('input[name="images[]"]');
+    
+    if (imageInput) {
+        // Create preview container
+        const previewContainer = document.createElement('div');
+        previewContainer.className = 'row mt-3 image-preview-container';
+        imageInput.parentNode.insertBefore(previewContainer, imageInput.nextSibling);
+        
+        imageInput.addEventListener('change', async function(e) {
+            // Clear existing preview
+            previewContainer.innerHTML = '';
+            
+            // Show loading indicator
+            const loadingDiv = document.createElement('div');
+            loadingDiv.className = 'col-12 text-center mb-2';
+            loadingDiv.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Loading previews...';
+            previewContainer.appendChild(loadingDiv);
+            
+            // Process each file
+            const files = Array.from(e.target.files);
+            try {
+                await Promise.all(files.map(file => createImagePreview(file, previewContainer)));
+                loadingDiv.remove();
+            } catch (error) {
+                loadingDiv.innerHTML = 'Error loading preview';
+                console.error('Error creating preview:', error);
+            }
+        });
+    }
+    
+    // Clear preview when modal is closed
+    const createModal = document.getElementById('createModal');
+    if (createModal) {
+        createModal.addEventListener('hidden.bs.modal', function() {
+            const previewContainer = this.querySelector('.image-preview-container');
+            if (previewContainer) {
+                previewContainer.innerHTML = '';
+            }
+            const fileInput = this.querySelector('input[type="file"]');
+            if (fileInput) {
+                fileInput.value = '';
+            }
+        });
+    }
 });
 </script>
 @endpush
