@@ -36,6 +36,7 @@
                         <th>Full Name</th>
                         <th>Email</th>
                         <th>Registration Date</th>
+                        <th>Type</th>
                         <th>Status</th>
                         <th>Actions</th>
                     </tr>
@@ -48,7 +49,22 @@
                         <td>{{ $user->email }}</td>
                         <td>{{ $user->created_at->format('Y-m-d') }}</td>
                         <td>
-                            <!-- Add status column -->
+                            @if($user->is_admin == 1 && !$user->is_approved)
+                                <span class="badge bg-info position-relative">
+                                    <i class="fas fa-user-shield me-1"></i> Request
+                                    <span class="position-absolute top-0 start-100 translate-middle p-1 bg-danger border border-light rounded-circle">
+                                        <span class="visually-hidden">New Request</span>
+                                    </span>
+                                </span>
+                            @elseif($user->is_admin == 1 && $user->is_approved)
+                                <span class="badge bg-primary">
+                                    <i class=""></i> Admin
+                                </span>
+                            @else
+                                <span class="badge bg-secondary">User</span>
+                            @endif
+                        </td>
+                        <td>
                             <span class="badge {{ $user->is_approved ? 'bg-success' : 'bg-warning' }}">
                                 {{ $user->is_approved ? 'Approved' : 'Pending' }}
                             </span>
@@ -73,24 +89,149 @@
                                     title="Delete">
                                 <i class="fas fa-trash"></i>
                             </button>
+
+                            <!-- If user is admin and not approved, show the "View Documents" button -->
+                            @if($user->is_admin == 1 && !$user->is_approved)
+                                <button type="button" 
+                                        class="btn btn-outline-info btn-sm"
+                                        style="width: 32px;"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#viewDocumentsModal{{ $user->id }}"
+                                        title="View Documents">
+                                    <i class="fas fa-file-alt"></i>
+                                </button>
+                            @endif
                         </td>
                     </tr>
-                    <!-- Approve Modal -->
-                    <div class="modal fade" id="approveModal{{ $user->id }}" tabindex="-1" aria-hidden="true">
-                        <div class="modal-dialog">
+
+                    <!-- View Documents Modal -->
+                    @if($user->is_admin == 1 && !$user->is_approved)
+                    <div class="modal fade" id="viewDocumentsModal{{ $user->id }}" tabindex="-1" aria-hidden="true">
+                        <div class="modal-dialog modal-lg">
                             <div class="modal-content">
-                                <div class="modal-header">
-                                    <h5 class="modal-title">Approve User</h5>
+                                <div class="modal-header bg-light">
+                                    <h5 class="modal-title">
+                                        <i class="fas fa-user-shield text-info me-2"></i>
+                                        Review Admin Documents - {{ $user->name }}
+                                    </h5>
                                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                 </div>
                                 <div class="modal-body">
-                                    Are you sure you want to approve {{ $user->name }}?
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="card">
+                                                <div class="card-header">
+                                                    <h6 class="mb-0">Citizenship Front</h6>
+                                                </div>
+                                                <div class="card-body p-2">
+                                                    @if($user->citizenship_front)
+                                                        <img src="{{ asset('storage/upload/citizenships/' . basename($user->citizenship_front)) }}" 
+                                                             class="img-fluid rounded" 
+                                                             alt="Citizenship Front">
+                                                    @else
+                                                        <p class="text-muted">No front image uploaded</p>
+                                                    @endif
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="card">
+                                                <div class="card-header">
+                                                    <h6 class="mb-0">Citizenship Back</h6>
+                                                </div>
+                                                <div class="card-body p-2">
+                                                    @if($user->citizenship_back)
+                                                        <img src="{{ asset('storage/upload/citizenships/' . basename($user->citizenship_back)) }}" 
+                                                             class="img-fluid rounded" 
+                                                             alt="Citizenship Back">
+                                                    @else
+                                                        <p class="text-muted">No back image uploaded</p>
+                                                    @endif
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                    <form action="{{ route('admin.users.approve', $user->id) }}" method="POST">
+                                        @csrf
+                                        <button type="submit" class="btn btn-primary">
+                                            <i class="fas fa-check-circle me-1"></i>
+                                            Approve as Admin
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    @endif
+
+                    <!-- Approve Modal -->
+                    <div class="modal fade" id="approveModal{{ $user->id }}" tabindex="-1" aria-hidden="true">
+                        <div class="modal-dialog {{ $user->is_admin == 1 ? 'modal-lg' : '' }}">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title">
+                                        @if($user->is_admin == 1)
+                                            <i class="fas fa-user-shield text-info me-2"></i>Review Admin Request
+                                        @else
+                                            Approve User
+                                        @endif
+                                    </h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    @if($user->is_admin == 1)
+                                        <div class="row mb-3">
+                                            <div class="col-md-6">
+                                                <div class="card">
+                                                    <div class="card-header">
+                                                        <h6 class="mb-0">Citizenship Front</h6>
+                                                    </div>
+                                                    <div class="card-body p-2">
+                                                        @if($user->citizenship_front)
+                                                            <img src="{{ asset($user->citizenship_front) }}" 
+                                                                 class="img-fluid rounded" 
+                                                                 alt="Citizenship Front">
+                                                        @else
+                                                            <p class="text-muted">No front image uploaded</p>
+                                                        @endif
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="card">
+                                                    <div class="card-header">
+                                                        <h6 class="mb-0">Citizenship Back</h6>
+                                                    </div>
+                                                    <div class="card-body p-2">
+                                                        @if($user->citizenship_back)
+                                                            <img src="{{ asset($user->citizenship_back) }}" 
+                                                                 class="img-fluid rounded" 
+                                                                 alt="Citizenship Back">
+                                                        @else
+                                                            <p class="text-muted">No back image uploaded</p>
+                                                        @endif
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    @endif
+                                    <p>Are you sure you want to approve {{ $user->name }}?</p>
                                 </div>
                                 <div class="modal-footer">
                                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                                     <form action="{{ route('admin.users.approve', $user->id) }}" method="POST">
                                         @csrf
-                                        <button type="submit" class="btn btn-primary">Approve</button>
+                                        <button type="submit" class="btn btn-primary">
+                                            <i class="fas fa-check-circle me-1"></i>
+                                            @if($user->is_admin == 1)
+                                                Approve as Admin
+                                            @else
+                                                Approve
+                                            @endif
+                                        </button>
                                     </form>
                                 </div>
                             </div>
@@ -121,7 +262,7 @@
                     </div>
                     @empty
                     <tr>
-                        <td colspan="5" class="text-center">No users found</td>
+                        <td colspan="7" class="text-center">No users found</td>
                     </tr>
                     @endforelse
                 </tbody>
@@ -194,6 +335,18 @@
                         <div class="col-md-6">
                             <label class="form-label" for="pin_confirmation">Confirm PIN</label>
                             <input type="password" name="pin_confirmation" class="form-control" maxlength="6">
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label d-block">User Type</label>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="is_admin" id="regularUser" value="0" checked>
+                            <label class="form-check-label" for="regularUser">Regular User</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="is_admin" id="adminUser" value="1">
+                            <label class="form-check-label" for="adminUser">Admin User</label>
                         </div>
                     </div>
                 </div>

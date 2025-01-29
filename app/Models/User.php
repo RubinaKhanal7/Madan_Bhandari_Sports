@@ -22,7 +22,10 @@ class User extends Authenticatable
         'is_approved',
         'role',
         'is_active',
-        'created_by_admin'
+        'created_by_admin',
+        'is_admin',
+        'citizenship_front',
+        'citizenship_back'
     ];
 
     protected $hidden = [
