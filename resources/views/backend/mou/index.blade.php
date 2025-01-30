@@ -165,12 +165,9 @@
                             </form>
                         </div>
                     </div>
-                    <!-- Other Images Modal -->
                     <div class="modal fade" id="addImagesModal{{ $mou->id }}" tabindex="-1">
                         <div class="modal-dialog modal-lg">
-                            <form method="POST" 
-                                action="{{ route('admin.mous.add-images', $mou->id) }}" 
-                                enctype="multipart/form-data">
+                            <form method="POST" action="{{ route('admin.mous.add-images', $mou->id) }}" enctype="multipart/form-data">
                                 @csrf
                                 <div class="modal-content">
                                     <div class="modal-header">
@@ -178,18 +175,21 @@
                                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                                     </div>
                                     <div class="modal-body">
-                                        @if($mou->other_images && count($mou->other_images) > 0)
+                    
+                                        <!-- Show Already Added Images -->
+                                        @php
+                                            $existingImages = json_decode($mou->other_images, true) ?? [];
+                                        @endphp
+                    
+                                        @if(!empty($existingImages))
                                             <div class="mb-4">
                                                 <h6>Current Additional Images</h6>
                                                 <div class="row">
-                                                    @foreach($mou->other_images as $index => $image)
+                                                    @foreach($existingImages as $index => $image)
                                                         <div class="col-md-4 mb-3" id="image-container-{{ $index }}">
                                                             <div class="position-relative">
-                                                                <img src="{{ asset($image) }}" 
-                                                                    class="img-thumbnail" 
-                                                                    alt="Additional Image {{ $index + 1 }}">
-                                                                <button type="button" 
-                                                                        class="btn btn-danger btn-sm position-absolute top-0 end-0 m-2"
+                                                                <img src="{{ asset($image) }}" class="img-thumbnail" alt="Additional Image {{ $index + 1 }}">
+                                                                <button type="button" class="btn btn-danger btn-sm position-absolute top-0 end-0 m-2"
                                                                         onclick="deleteImage('{{ $mou->id }}', {{ $index }})">
                                                                     <i class="fas fa-trash"></i>
                                                                 </button>
@@ -199,19 +199,17 @@
                                                 </div>
                                             </div>
                                         @endif
-
+                    
+                                        <!-- Upload New Images -->
                                         <div class="mb-3">
                                             <label class="form-label">Upload New Images</label>
-                                            <input type="file" 
-                                                name="images[]" 
-                                                class="form-control" 
-                                                multiple 
-                                                accept="image/*">
+                                            <input type="file" name="images[]" class="form-control" multiple accept="image/*" id="imageInput{{ $mou->id }}">
                                             <small class="text-muted">You can select multiple images. Maximum size: 2MB per image</small>
                                         </div>
-
-                                        <!-- Preview container will be inserted here by JavaScript -->
+                    
+                                        <!-- Preview Container for Newly Selected Images -->
                                         <div id="previewContainer{{ $mou->id }}" class="mb-3"></div>
+                    
                                     </div>
                                     <div class="modal-footer">
                                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -742,6 +740,30 @@ function handleMultipleImages(event, mouId) {
         });
     }
 }
+
+document.addEventListener("DOMContentLoaded", function() {
+    document.querySelectorAll("[id^=imageInput]").forEach(input => {
+        input.addEventListener("change", function(event) {
+            let previewContainer = document.getElementById("previewContainer" + this.id.replace("imageInput", ""));
+            previewContainer.innerHTML = "";
+
+            Array.from(event.target.files).forEach(file => {
+                if (file.type.startsWith("image/")) {
+                    let reader = new FileReader();
+                    reader.onload = function(e) {
+                        let img = document.createElement("img");
+                        img.src = e.target.result;
+                        img.classList.add("img-thumbnail", "me-2", "mb-2");
+                        img.style.maxWidth = "100px";
+                        previewContainer.appendChild(img);
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+        });
+    });
+});
+
 
 // Function to remove selected image
 function removeSelectedImage(mouId, index, input) {
