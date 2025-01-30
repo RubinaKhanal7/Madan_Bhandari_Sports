@@ -26,12 +26,21 @@
 <script src="{{ asset('adminassets/scripts/language.js') }}"></script>
 <script src="{{ asset('adminassets/scripts/common.js') }}"></script>
 <script src="{{ asset('adminassets/assets/js/flatpickr.js') }}"></script>
-<!-- Include Cropper.js CSS -->
-<link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css" rel="stylesheet">
 
-<!-- Include Cropper.js JS -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
+<meta name="csrf-token" content="{{ csrf_token() }}">
+
+<!-- Add this JavaScript after including jQuery -->
+<script>
+    $.ajaxSetup({
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        }
+    });
+</script>
 <script src="https://www.google.com/recaptcha/api.js?onload=onRecaptchaLoad&render=explicit" async defer></script>
+<script src="{{ asset('vendor/laravel-filemanager/js/stand-alone-button.js') }}"></script>
 
 
 <script type="text/javascript">

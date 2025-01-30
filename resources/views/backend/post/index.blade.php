@@ -650,20 +650,25 @@
                         </select>
                     </div>              
                     <div class="mb-3">
-                        <label for="image" class="form-label">Image</label>
-                        <div id="imagePreviewContainer">
-                            <img id="imagePreview" src="#" alt="Selected Image" style="max-width: 200px; display: none;">
+                        <label for="image" class="form-label">Select or Upload Image</label>
+                        <div class="input-group">
+                            <input type="text" id="lfm" class="form-control" name="image" value="" placeholder="Select Image">
+                            <button type="button" class="btn btn-primary" id="lfm-btn">Browse</button>
                         </div>
-                        <input type="file" id="image" name="image" class="form-control" onchange="previewImage(event)">
                     </div>
                     
                     <div class="mb-3">
-                        <img id="imageToCrop" src="#" style="max-width: 100%; display: none;">
+                        <img id="imagePreview" src="#" alt="Selected Image" 
+                             style="max-width: 200px; max-height: 200px; display: none; object-fit: contain;">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <img id="imageToCrop" src="#" 
+                             style="max-width: 100%; max-height: 500px; display: none; object-fit: contain;">
                     </div>
                     
                     <input type="hidden" name="cropped_image" id="croppedImage" value="">
                     
-                   
                     <div class="mb-3">
                         <label for="pdf" class="form-label">PDF (Optional)</label>
                         <input type="file" id="pdf" name="pdf[]" class="form-control" multiple>
@@ -681,9 +686,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary" onclick="saveCroppedImage()">
-                        Save Cropped Image
-                    </button>
+                    <button class="btn btn-success" onclick="saveCroppedImage()">Save Cropped Image</button>
                     <button type="submit" class="btn btn-success" id="createSaveButton" style="display: none;">Save</button>
                 </div>
             </div>
@@ -693,145 +696,108 @@
 </div>
 
 <script>
-    let croppers = {};
-    
-    function previewImage(event) {
-    const file = event.target.files[0];
-    if (file) {
-        document.getElementById('createSaveButton').style.display = 'none';
-        
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            const imagePreview = document.getElementById('imagePreview');
-            const imageToCrop = document.getElementById('imageToCrop');
-            imagePreview.src = e.target.result;
-            imagePreview.style.display = 'block';
-            
-            imageToCrop.src = e.target.result;
-            imageToCrop.style.display = 'block';
+let cropper = null; // Declare cropper globally
 
-            if (croppers['create']) {
-                croppers['create'].destroy();
+$(document).ready(function () {
+    $('#lfm-btn').on('click', function (event) {
+        event.preventDefault();
+        window.open('/laravel-filemanager?type=image', 'FileManager', 'width=900,height=600');
+    });
+
+    // Update the SetUrl function
+    window.SetUrl = function (items) {
+        // Ensure items is an array
+        if (!Array.isArray(items)) {
+            items = [items];
+        }
+
+        if (items.length > 0) {
+            let imageUrl;
+            // Check if the item has a url property (new format) or is a string (old format)
+            if (typeof items[0] === 'object') {
+                imageUrl = items[0].url;
+            } else {
+                imageUrl = items[0];
             }
 
-            croppers['create'] = new Cropper(imageToCrop, {
-                aspectRatio: 16 / 9,
-                viewMode: 1,
-                autoCropArea: 0.8,
-                responsive: true,
-                restore: false,
-                guides: true,
-                center: true,
-                highlight: false,
-                cropBoxMovable: true,
-                cropBoxResizable: true,
-                toggleDragModeOnDblclick: false,
-            });
-        };
-        reader.readAsDataURL(file);
-    }
-}
-
-function previewImageEdit(event, id) {
-    const file = event.target.files[0];
-    if (file) {
-        document.getElementById(`editSaveButton${id}`).style.display = 'none';
-        
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            const imagePreview = document.getElementById('imagePreview' + id);
-            const imageToCrop = document.getElementById('imageToCrop' + id);
-            const cropContainer = document.querySelector('.crop-container-' + id);
-
-            imagePreview.src = e.target.result;
-            imageToCrop.src = e.target.result;
-            cropContainer.style.display = 'block';
-
-            if (croppers[id]) {
-                croppers[id].destroy();
-            }
+            // Set the URL in the input field
+            $('#lfm').val(imageUrl);
             
-            croppers[id] = new Cropper(imageToCrop, {
-                aspectRatio: 16 / 9,
-                viewMode: 1,
-                autoCropArea: 0.8,
-                responsive: true,
-                restore: false,
-                guides: true,
-                center: true,
-                highlight: false,
-                cropBoxMovable: true,
-                cropBoxResizable: true,
-                toggleDragModeOnDblclick: false,
-            });
-        };
-        reader.readAsDataURL(file);
+            // Show both preview and crop images
+            $('#imagePreview').attr('src', imageUrl).show();
+            $('#imageToCrop').attr('src', imageUrl).show();
+
+            // Initialize cropper after a small delay to ensure image is loaded
+            setTimeout(() => {
+                initCropper(imageUrl);
+            }, 200);
+
+            // Show the save button
+            $('#createSaveButton').show();
+        }
+    };
+});
+
+function initCropper(imageUrl) {
+    // Destroy existing cropper instance if it exists
+    if (cropper) {
+        cropper.destroy();
     }
+
+    // Get the image element
+    const image = document.getElementById('imageToCrop');
+
+    // Initialize Cropper
+    cropper = new Cropper(image, {
+        aspectRatio: 16 / 9,
+        viewMode: 1,
+        autoCropArea: 0.8,
+        responsive: true,
+        preview: '#imagePreview',
+        ready: function() {
+            // The cropper is fully initialized
+            console.log('Cropper is ready');
+        }
+    });
 }
 
 function saveCroppedImage() {
-    if (croppers['create']) {
-        const canvas = croppers['create'].getCroppedCanvas({
-            width: 1024,    
-            height: 576,    
-            imageSmoothingEnabled: true,
-            imageSmoothingQuality: 'high',
-        });
-        
-        if (canvas) {
-            const croppedImage = canvas.toDataURL('image/jpeg', 0.9);
-            document.getElementById('croppedImage').value = croppedImage;
-            const imagePreview = document.getElementById('imagePreview');
-            imagePreview.src = croppedImage;
-            document.getElementById('createSaveButton').style.display = 'block';
-            alert('Cropped image has been saved. You can now submit the form.');
-        }
+    if (!cropper) {
+        alert('Please select an image first');
+        return;
     }
-}
 
-function saveCroppedImageEdit(id) {
-    if (croppers[id]) {
-        const canvas = croppers[id].getCroppedCanvas({
-            width: 1024,  
-            height: 576,  
-            imageSmoothingEnabled: true,
-            imageSmoothingQuality: 'high',
-        });
-        
-        if (canvas) {
-            const croppedImage = canvas.toDataURL('image/jpeg', 0.9);
-            document.getElementById('croppedImage' + id).value = croppedImage;
-            const imagePreview = document.getElementById('imagePreview' + id);
-            imagePreview.src = croppedImage;
-            document.getElementById(`editSaveButton${id}`).style.display = 'block';
-            alert('Cropped image has been saved. You can now update the form.');
-        }
-    }
-}
-
-document.addEventListener('DOMContentLoaded', function() {
-    const createModal = document.getElementById('createModal');
-    createModal.addEventListener('hidden.bs.modal', function() {
-        if (croppers['create']) {
-            croppers['create'].destroy();
-            delete croppers['create'];
-        }
-        document.getElementById('createSaveButton').style.display = 'none';
+    const canvas = cropper.getCroppedCanvas({
+        width: 1024,
+        height: 576
     });
 
-    const editModals = document.querySelectorAll('[id^="editModal"]');
-    editModals.forEach(modal => {
-        modal.addEventListener('hidden.bs.modal', function() {
-            const id = modal.id.replace('editModal', '');
-            if (croppers[id]) {
-                croppers[id].destroy();
-                delete croppers[id];
-            }
-            document.getElementById(`editSaveButton${id}`).style.display = 'none';
-        });
-    });
-});
-    </script>
+    if (canvas) {
+        canvas.toBlob((blob) => {
+            const formData = new FormData();
+            formData.append('_token', $('meta[name="csrf-token"]').attr('content'));
+            formData.append('image', blob, 'cropped.jpg');
+
+            $.ajax({
+                url: '/admin/posts/upload-cropped',
+                method: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function(response) {
+                    $('#croppedImage').val(response.path);
+                    $('#imagePreview').attr('src', response.url).show();
+                    alert('Image cropped and saved successfully!');
+                },
+                error: function(xhr) {
+                    console.error('Error:', xhr);
+                    alert('Error saving cropped image');
+                }
+            });
+        }, 'image/jpeg', 0.9);
+    }
+}
+</script>
 
 <script>
     function populateMetadata(postId) {
