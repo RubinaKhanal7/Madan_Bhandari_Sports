@@ -339,5 +339,22 @@ public function deleteImage(Post $post, $index)
         return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
     }
 }
+public function uploadCroppedImage(Request $request)
+{
+    if ($request->hasFile('image')) {
+        $file = $request->file('image');
+        $filename = uniqid() . '_' . time() . '.jpg';
+        $path = 'uploads/posts/' . $filename;
+        
+        $file->move(public_path('uploads/posts'), $filename);
+        
+        return response()->json([
+            'path' => $path,
+            'url' => asset($path)
+        ]);
+    }
+    
+    return response()->json(['error' => 'No image provided'], 400);
+}
 
 }

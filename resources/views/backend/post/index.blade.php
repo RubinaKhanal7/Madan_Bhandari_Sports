@@ -213,21 +213,32 @@
                                                 </div>
                                             @endif
 
-                                            <!-- Upload New Images -->
+                                           <!-- Upload New Images -->
                                             <div class="mb-3">
-                                                <label class="form-label">Upload New Images</label>
+                                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                                    <label class="form-label mb-0">Upload New Images</label>
+                                                    <button type="button" 
+                                                            class="btn btn-outline-secondary btn-sm" 
+                                                            onclick="clearSelectedImages({{ $post->id }})">
+                                                        Clear All
+                                                    </button>
+                                                </div>
                                                 <input type="file" 
                                                     name="images[]" 
                                                     class="form-control" 
                                                     multiple 
                                                     accept="image/*"
+                                                    onchange="previewOtherImages(this, {{ $post->id }})"
                                                     required>
                                                 <small class="text-muted">You can select multiple images. Maximum size: 2MB per image</small>
                                             </div>
+
+                                            <!-- Preview Container -->
+                                            <div id="otherImagesPreview{{ $post->id }}" class="row mt-3"></div>
                                         </div>
                                         <div class="modal-footer">
                                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                            <button type="submit" class="btn btn-primary">Upload </button>
+                                            <button type="submit" class="btn btn-primary">Upload</button>
                                         </div>
                                     </div>
                                 </form>
@@ -482,7 +493,7 @@
                                             <button type="button" class="btn btn-primary" onclick="saveCroppedImageEdit({{ $post->id }})">
                                                 Save Cropped Image
                                             </button>
-                                            <button type="submit" class="btn btn-success">Update</button>
+                                            <button type="submit" class="btn btn-success" id="editSaveButton{{ $post->id }}" style="display: none;">Update</button>
                                         </div>
                                     </div>
                                 </form>
@@ -639,20 +650,25 @@
                         </select>
                     </div>              
                     <div class="mb-3">
-                        <label for="image" class="form-label">Image</label>
-                        <div id="imagePreviewContainer">
-                            <img id="imagePreview" src="#" alt="Selected Image" style="max-width: 200px; display: none;">
+                        <label for="image" class="form-label">Select or Upload Image</label>
+                        <div class="input-group">
+                            <input type="text" id="lfm" class="form-control" name="image" value="" placeholder="Select Image">
+                            <button type="button" class="btn btn-primary" id="lfm-btn">Browse</button>
                         </div>
-                        <input type="file" id="image" name="image" class="form-control" onchange="previewImage(event)">
                     </div>
                     
                     <div class="mb-3">
-                        <img id="imageToCrop" src="#" style="max-width: 100%; display: none;">
+                        <img id="imagePreview" src="#" alt="Selected Image" 
+                             style="max-width: 200px; max-height: 200px; display: none; object-fit: contain;">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <img id="imageToCrop" src="#" 
+                             style="max-width: 100%; max-height: 500px; display: none; object-fit: contain;">
                     </div>
                     
                     <input type="hidden" name="cropped_image" id="croppedImage" value="">
                     
-                   
                     <div class="mb-3">
                         <label for="pdf" class="form-label">PDF (Optional)</label>
                         <input type="file" id="pdf" name="pdf[]" class="form-control" multiple>
@@ -670,10 +686,8 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                     <button type="button" class="btn btn-primary" onclick="saveCroppedImage()">
-                        Save Cropped Image
-                    </button>
-                    <button type="submit" class="btn btn-primary">Save</button>
+                    <button class="btn btn-success" onclick="saveCroppedImage()">Save Cropped Image</button>
+                    <button type="submit" class="btn btn-success" id="createSaveButton" style="display: none;">Save</button>
                 </div>
             </div>
         </form>
@@ -682,137 +696,108 @@
 </div>
 
 <script>
-    let croppers = {};
-    
-    function previewImage(event) {
-        const file = event.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const imagePreview = document.getElementById('imagePreview');
-                const imageToCrop = document.getElementById('imageToCrop');
-                imagePreview.src = e.target.result;
-                imagePreview.style.display = 'block';
-                
-                imageToCrop.src = e.target.result;
-                imageToCrop.style.display = 'block';
-    
-                if (croppers['create']) {
-                    croppers['create'].destroy();
-                }
-    
-                croppers['create'] = new Cropper(imageToCrop, {
-                    aspectRatio: 16 / 9,
-                    viewMode: 1,
-                    autoCropArea: 0.8,
-                    responsive: true,
-                    restore: false,
-                    guides: true,
-                    center: true,
-                    highlight: false,
-                    cropBoxMovable: true,
-                    cropBoxResizable: true,
-                    toggleDragModeOnDblclick: false,
-                });
-            };
-            reader.readAsDataURL(file);
-        }
-    }
-    
-    function previewImageEdit(event, id) {
-        const file = event.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const imagePreview = document.getElementById('imagePreview' + id);
-                const imageToCrop = document.getElementById('imageToCrop' + id);
-                const cropContainer = document.querySelector('.crop-container-' + id);
-    
-                imagePreview.src = e.target.result;
-                imageToCrop.src = e.target.result;
-                cropContainer.style.display = 'block';
-    
-                if (croppers[id]) {
-                    croppers[id].destroy();
-                }
-                
-                croppers[id] = new Cropper(imageToCrop, {
-                    aspectRatio: 16 / 9,
-                    viewMode: 1,
-                    autoCropArea: 0.8,
-                    responsive: true,
-                    restore: false,
-                    guides: true,
-                    center: true,
-                    highlight: false,
-                    cropBoxMovable: true,
-                    cropBoxResizable: true,
-                    toggleDragModeOnDblclick: false,
-                });
-            };
-            reader.readAsDataURL(file);
-        }
-    }
-    
-    function saveCroppedImage() {
-        if (croppers['create']) {
-            const canvas = croppers['create'].getCroppedCanvas({
-                width: 1024,    
-                height: 576,    
-                imageSmoothingEnabled: true,
-                imageSmoothingQuality: 'high',
-            });
-            
-            if (canvas) {
-                const croppedImage = canvas.toDataURL('image/jpeg', 0.9);
-                document.getElementById('croppedImage').value = croppedImage;
-                const imagePreview = document.getElementById('imagePreview');
-                imagePreview.src = croppedImage;
-                alert('Cropped image has been saved. You can now submit the form.');
-            }
-        }
-    }
-    
-    function saveCroppedImageEdit(id) {
-        if (croppers[id]) {
-            const canvas = croppers[id].getCroppedCanvas({
-                width: 1024,  
-                height: 576,  
-                imageSmoothingEnabled: true,
-                imageSmoothingQuality: 'high',
-            });
-            
-            if (canvas) {
-                const croppedImage = canvas.toDataURL('image/jpeg', 0.9);
-                document.getElementById('croppedImage' + id).value = croppedImage;
-                const imagePreview = document.getElementById('imagePreview' + id);
-                imagePreview.src = croppedImage;
-                alert('Cropped image has been saved. You can now update the form.');
-            }
-        }
-    }
-    
-    document.addEventListener('DOMContentLoaded', function() {
-        const createModal = document.getElementById('createModal');
-        createModal.addEventListener('hidden.bs.modal', function() {
-            if (croppers['create']) {
-                croppers['create'].destroy();
-                delete croppers['create'];
-            }
-        });
-    
-        const editModals = document.querySelectorAll('[id^="editModal"]');
-        editModals.forEach(modal => {
-            modal.addEventListener('hidden.bs.modal', function() {
-                const id = modal.id.replace('editModal', '');
-                if (croppers[id]) {
-                    croppers[id].destroy();
-                    delete croppers[id];
-                }
-            });
-        });
+let cropper = null; // Declare cropper globally
+
+$(document).ready(function () {
+    $('#lfm-btn').on('click', function (event) {
+        event.preventDefault();
+        window.open('/laravel-filemanager?type=image', 'FileManager', 'width=900,height=600');
     });
-    </script>
+
+    // Update the SetUrl function
+    window.SetUrl = function (items) {
+        // Ensure items is an array
+        if (!Array.isArray(items)) {
+            items = [items];
+        }
+
+        if (items.length > 0) {
+            let imageUrl;
+            // Check if the item has a url property (new format) or is a string (old format)
+            if (typeof items[0] === 'object') {
+                imageUrl = items[0].url;
+            } else {
+                imageUrl = items[0];
+            }
+
+            // Set the URL in the input field
+            $('#lfm').val(imageUrl);
+            
+            // Show both preview and crop images
+            $('#imagePreview').attr('src', imageUrl).show();
+            $('#imageToCrop').attr('src', imageUrl).show();
+
+            // Initialize cropper after a small delay to ensure image is loaded
+            setTimeout(() => {
+                initCropper(imageUrl);
+            }, 200);
+
+            // Show the save button
+            $('#createSaveButton').show();
+        }
+    };
+});
+
+function initCropper(imageUrl) {
+    // Destroy existing cropper instance if it exists
+    if (cropper) {
+        cropper.destroy();
+    }
+
+    // Get the image element
+    const image = document.getElementById('imageToCrop');
+
+    // Initialize Cropper
+    cropper = new Cropper(image, {
+        aspectRatio: 16 / 9,
+        viewMode: 1,
+        autoCropArea: 0.8,
+        responsive: true,
+        preview: '#imagePreview',
+        ready: function() {
+            // The cropper is fully initialized
+            console.log('Cropper is ready');
+        }
+    });
+}
+
+function saveCroppedImage() {
+    if (!cropper) {
+        alert('Please select an image first');
+        return;
+    }
+
+    const canvas = cropper.getCroppedCanvas({
+        width: 1024,
+        height: 576
+    });
+
+    if (canvas) {
+        canvas.toBlob((blob) => {
+            const formData = new FormData();
+            formData.append('_token', $('meta[name="csrf-token"]').attr('content'));
+            formData.append('image', blob, 'cropped.jpg');
+
+            $.ajax({
+                url: '/admin/posts/upload-cropped',
+                method: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function(response) {
+                    $('#croppedImage').val(response.path);
+                    $('#imagePreview').attr('src', response.url).show();
+                    alert('Image cropped and saved successfully!');
+                },
+                error: function(xhr) {
+                    console.error('Error:', xhr);
+                    alert('Error saving cropped image');
+                }
+            });
+        }, 'image/jpeg', 0.9);
+    }
+}
+</script>
 
 <script>
     function populateMetadata(postId) {
@@ -862,6 +847,73 @@ function deleteImage(postId, index) {
             console.error('Error:', error);
             alert('Failed to delete image');
         });
+    }
+}
+
+function previewOtherImages(input, postId) {
+    const previewContainer = document.getElementById(`otherImagesPreview${postId}`);
+    previewContainer.innerHTML = ''; 
+    
+    if (input.files && input.files.length > 0) {
+        let filesArray = Array.from(input.files);
+
+        const dataTransfer = new DataTransfer();
+        
+        filesArray.forEach((file, index) => {
+            const reader = new FileReader();
+            
+            reader.onload = function(e) {
+                const previewWrapper = document.createElement('div');
+                previewWrapper.className = 'col-md-4 mb-3';
+                previewWrapper.id = `preview-wrapper-${postId}-${index}`;
+                
+                const imageContainer = document.createElement('div');
+                imageContainer.className = 'position-relative';
+                
+                const previewImage = document.createElement('img');
+                previewImage.src = e.target.result;
+                previewImage.className = 'img-thumbnail';
+                previewImage.style.height = '150px';
+                previewImage.style.width = '100%';
+                previewImage.style.objectFit = 'cover';
+
+                const removeButton = document.createElement('button');
+                removeButton.className = 'btn btn-danger btn-sm position-absolute top-0 end-0 m-2';
+                removeButton.innerHTML = '<i class="fas fa-times"></i>';
+                removeButton.onclick = function() {
+                    previewWrapper.remove();
+                    
+                    filesArray = filesArray.filter((_, i) => i !== index);
+                    
+                    const newDataTransfer = new DataTransfer();
+                    filesArray.forEach(file => newDataTransfer.items.add(file));
+                    input.files = newDataTransfer.files;
+
+                    if (filesArray.length === 0) {
+                        input.value = '';
+                    }
+                };
+                
+                imageContainer.appendChild(previewImage);
+                imageContainer.appendChild(removeButton);
+                previewWrapper.appendChild(imageContainer);
+                previewContainer.appendChild(previewWrapper);
+            };
+            
+            reader.readAsDataURL(file);
+        });
+    }
+}
+
+function clearSelectedImages(postId) {
+    const input = document.querySelector(`#addImagesModal${postId} input[type="file"]`);
+    const previewContainer = document.getElementById(`otherImagesPreview${postId}`);
+    
+    if (input) {
+        input.value = '';
+    }
+    if (previewContainer) {
+        previewContainer.innerHTML = '';
     }
 }
     </script>

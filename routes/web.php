@@ -272,3 +272,10 @@ Route::get('/courses/{slug}', 'FrontViewController@viewCourse');
 
 Route::post('/contact-submit', [ContactController::class, 'submit'])->name('contact.submit');
 Route::get('/verify-email/{token}', [ContactController::class, 'verifyEmail'])->name('verify.email');
+
+Route::group(['prefix' => 'laravel-filemanager'], function () {
+    \UniSharp\LaravelFilemanager\Lfm::routes();
+});
+
+Route::post('/admin/posts/upload-cropped', [PostController::class, 'uploadCroppedImage'])
+    ->name('admin.posts.upload-cropped');
