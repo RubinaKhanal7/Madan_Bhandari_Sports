@@ -277,5 +277,5 @@ Route::group(['prefix' => 'laravel-filemanager'], function () {
     \UniSharp\LaravelFilemanager\Lfm::routes();
 });
 
-Route::post('/admin/posts/upload-cropped', [PostController::class, 'uploadCroppedImage'])
-    ->name('admin.posts.upload-cropped');
+Route::post('/admin/save-cropped-image', [PostController::class, 'saveCroppedImage'])
+    ->name('admin.save-cropped-image');
