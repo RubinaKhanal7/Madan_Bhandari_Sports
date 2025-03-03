@@ -30,32 +30,32 @@ return [
     |--------------------------------------------------------------------------
     */
 
-    'folder_categories' => [
-        'file' => [
-            'folder_name' => 'files',
-            'startup_view' => 'list',
-            'max_size' => 50000, // size in KB
-            'valid_mime' => [
-                'image/jpeg',
-                'image/pjpeg',
-                'image/png',
-                'image/gif',
-                'application/pdf',
-                'text/plain',
-            ],
-        ],
-        'image' => [
-            'folder_name' => 'photos',
-            'startup_view' => 'grid',
-            'max_size' => 50000, // size in KB
-            'valid_mime' => [
-                'image/jpeg',
-                'image/pjpeg',
-                'image/png',
-                'image/gif',
-            ],
+   'folder_categories' => [
+    'file' => [
+        'folder_name' => 'files',
+        'startup_view' => 'list',
+        'max_size' => 50000, // size in KB
+        'valid_mime' => [
+            'image/jpeg',
+            'image/pjpeg',
+            'image/png',
+            'image/gif',
+            'application/pdf',
         ],
     ],
+    'image' => [
+        'folder_name' => 'photos',
+        'startup_view' => 'grid',
+        'max_size' => 50000, // size in KB
+        'valid_mime' => [
+            'image/jpeg',
+            'image/pjpeg',
+            'image/png',
+            'image/gif',
+        ],
+    ],
+],
+'base_directory' => 'public/uploads',
 
     /*
     |--------------------------------------------------------------------------

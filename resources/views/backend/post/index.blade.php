@@ -916,5 +916,33 @@ function clearSelectedImages(postId) {
         previewContainer.innerHTML = '';
     }
 }
+
+var lfm = function(id, type, options) {
+    let button = document.getElementById(id);
+    
+    button.addEventListener('click', function () {
+        var route_prefix = (options && options.prefix) ? options.prefix : '/laravel-filemanager';
+        var target_input = document.getElementById(options && options.input_id ? options.input_id : 'lfm');
+        var target_preview = document.getElementById(options && options.preview_id ? options.preview_id : 'imagePreview');
+
+        window.open(route_prefix + '?type=' + type || 'file', 'FileManager', 'width=900,height=600');
+        window.SetUrl = function (items) {
+            var file_path = items.map(function (item) {
+                return item.url;
+            }).join(',');
+
+            // set the value of the desired input to image url
+            target_input.value = file_path;
+            target_input.dispatchEvent(new Event('change'));
+
+            // clear previous preview
+            target_preview.src = file_path;
+            target_preview.style.display = 'block';
+        };
+    });
+};
+
+// Initialize file manager button
+lfm('lfm-btn', 'image', {input_id: 'lfm', preview_id: 'imagePreview'});
     </script>
 @endsection

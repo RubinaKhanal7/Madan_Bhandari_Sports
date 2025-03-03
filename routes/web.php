@@ -194,6 +194,7 @@ Route::prefix('/admin')->name('admin.')->middleware(['web', 'auth'])->group(func
     Route::patch('/video-galleries/{videoGallery}/toggle-status', [VideoGalleryController::class, 'toggleStatus'])
     ->name('video-galleries.toggle-status');
     Route::post('video-galleries/{id}/metadata', [VideoGalleryController::class, 'storeMetadata'])->name('video-galleries.metadata.store');
+    
 
     //Users
     Route::resource('users', UserManagementController::class);
@@ -279,3 +280,7 @@ Route::group(['prefix' => 'laravel-filemanager'], function () {
 
 Route::post('/admin/posts/upload-cropped', [PostController::class, 'uploadCroppedImage'])
     ->name('admin.posts.upload-cropped');
+
+ Route::group(['prefix' => 'laravel-filemanager', 'middleware' => ['web', 'auth']], function () {
+        \UniSharp\LaravelFilemanager\Lfm::routes();
+    });
